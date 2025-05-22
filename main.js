@@ -3,13 +3,15 @@ import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com
 import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT_ID.appspot.com",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyDlakKgMzhADOywIOg4iTCJ5sUFXLMGwVg",
+  authDomain: "jesmont-marketplace.firebaseapp.com",
+  projectId: "jesmont-marketplace",
+  storageBucket: "jesmont-marketplace.firebasestorage.app",
+  messagingSenderId: "543717950238",
+  appId: "1:543717950238:web:df009d49e88a2ea010bf0f",
+  measurementId: "G-56TMB41PS8"
 };
 
 const app = initializeApp(firebaseConfig);
