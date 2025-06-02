@@ -3,21 +3,24 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/fireba
 import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 // ✅ Replace with your actual Firebase config:
-const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT_ID.appspot.com",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID"
-};
+
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 async function loadSellers() {
   const container = document.getElementById("sellerContainer");
-  const querySnapshot = await getDocs(collection(db, "sellers"));
+  con// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyDlakKgMzhADOywIOg4iTCJ5sUFXLMGwVg",
+  authDomain: "jesmont-marketplace.firebaseapp.com",
+  projectId: "jesmont-marketplace",
+  storageBucket: "jesmont-marketplace.firebasestorage.app",
+  messagingSenderId: "543717950238",
+  appId: "1:543717950238:web:df009d49e88a2ea010bf0f",
+  measurementId: "G-56TMB41PS8"
+};
+  st querySnapshot = await getDocs(collection(db, "sellers"));
 
   querySnapshot.forEach((doc) => {
     const data = doc.data();
