@@ -2,20 +2,70 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Explore Sellers - Jesmont</title>
-  <link rel="stylesheet" href="style.css" />
-  <script type="module" src="explore.js" defer></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Explore Sellers - Jesmont Marketplace</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #f8fafc;
+    }
+    .card-hover:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+        0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+  </style>
 </head>
-<body style="font-family: sans-serif; background: #f5f7fa; margin: 0; padding: 0;">
-  <header style="background: #1E88E5; color: white; padding: 20px; text-align: center;">
-    <h1>Explore Sellers on Jesmont</h1>
-  </header>
+<body class="container mx-auto p-6 max-w-6xl">
+  <h1 class="text-3xl font-bold mb-8 text-center">Explore Sellers</h1>
 
-  <main>
-    <div id="exploreSellerContainer" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; padding: 30px;">
-      <!-- Seller cards load here from explore.js -->
-    </div>
-  </main>
+  <div id="seller-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDlakKgMzhADOywIOg4iTCJ5sUFXLMGwVg",
+      authDomain: "jesmont-marketplace.firebaseapp.com",
+      projectId: "jesmont-marketplace",
+      storageBucket: "jesmont-marketplace.firebasestorage.app",
+      messagingSenderId: "543717950238",
+      appId: "1:543717950238:web:df009d49e88a2ea010bf0f",
+      measurementId: "G-56TMB41PS8"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    async function loadSellers() {
+      const sellersCol = collection(db, "sellers");
+      const sellersSnapshot = await getDocs(sellersCol);
+      const sellers = sellersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+      const sellerList = document.getElementById("seller-list");
+      if (sellers.length === 0) {
+        sellerList.innerHTML = "<p class='col-span-full text-center text-gray-500'>No sellers found yet.</p>";
+        return;
+      }
+
+      sellers.forEach(seller => {
+        const card = document.createElement("div");
+        card.className = "bg-white p-6 rounded-lg shadow-md card-hover transition-transform";
+
+        card.innerHTML = `
+          <h2 class="text-xl font-semibold mb-2">${seller.businessName || "Unnamed Seller"}</h2>
+          <p class="text-gray-600 mb-4">${seller.email || ""}</p>
+          <p class="text-gray-500 text-sm mb-4">${seller.businessDescription || "No description available."}</p>
+          <a href="seller-profile.html?uid=${seller.uid}" class="text-blue-600 hover:underline">View Profile</a>
+        `;
+
+        sellerList.appendChild(card);
+      });
+    }
+
+    loadSellers();
+  </script>
 </body>
 </html>
