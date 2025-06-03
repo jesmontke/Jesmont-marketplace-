@@ -1,16 +1,8 @@
-// Firebase setup using CDN
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-// ✅ Replace with your actual Firebase config:
 
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
-async function loadSellers() {
-  const container = document.getElementById("sellerContainer");
-  con// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: "AIzaSyDlakKgMzhADOywIOg4iTCJ5sUFXLMGwVg",
   authDomain: "jesmont-marketplace.firebaseapp.com",
@@ -20,22 +12,49 @@ const firebaseConfig = {
   appId: "1:543717950238:web:df009d49e88a2ea010bf0f",
   measurementId: "G-56TMB41PS8"
 };
-  st querySnapshot = await getDocs(collection(db, "sellers"));
 
-  querySnapshot.forEach((doc) => {
-    const data = doc.data();
-    const img = data.profileImage || "https://via.placeholder.com/80";
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-    const card = document.createElement("div");
-    card.className = "seller-card";
-    card.innerHTML = `
-      <img src="${img}" alt="Profile Image" />
-      <h3>${data.businessName}</h3>
-      <p><strong>Name:</strong> ${data.name}</p>
-      <p><strong>Email:</strong> ${data.email}</p>
-    `;
-    container.appendChild(card);
-  });
+// Log to confirm script runs
+console.log("Explore.js is loaded");
+
+// Fetch sellers from Firestore
+async function loadSellers() {
+  const sellerContainer = document.getElementById("sellerContainer");
+  sellerContainer.innerHTML = ""; // Clear before adding
+
+  try {
+    const querySnapshot = await getDocs(collection(db, "sellers"));
+
+    if (querySnapshot.empty) {
+      sellerContainer.innerHTML = "<p>No sellers found.</p>";
+      return;
+    }
+
+    querySnapshot.forEach((doc) => {
+      const seller = doc.data();
+      const card = document.createElement("div");
+      card.className = "seller-card";
+      card.innerHTML = `
+        <h3>${seller.businessName || "Unnamed Business"}</h3>
+        <p><strong>Owner:</strong> ${seller.fullName || "N/A"}</p>
+        <p><strong>Email:</strong> ${seller.email || "N/A"}</p>
+        <p><strong>Phone:</strong> ${seller.phone || "N/A"}</p>
+        <p><strong>Category:</strong> ${seller.category || "N/A"}</p>
+        <p><strong>Description:</strong> ${seller.description || "N/A"}</p>
+      `;
+      sellerContainer.appendChild(card);
+    });
+
+  } catch (error) {
+    console.error("Error fetching sellers:", error);
+    sellerContainer.innerHTML = "<p>Failed to load sellers.</p>";
+  }
 }
 
 loadSellers();
+
+
+   
