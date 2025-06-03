@@ -1,750 +1,152 @@
 <!DOCTYPE html>
 <html lang="en">
-<head><meta name="robots" content="index, follow">
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jesmont Marketplace</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
-        
-        body {
-            font-family: 'Poppins', sans-serif;
-            background-color: #f8fafc;
-        }
-        
-        .gradient-bg {
-            background: linear-gradient(135deg, #1e40af 0%, #10b981 50%, #f59e0b 100%);
-        }
-        
-        .card-hover:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-        }
-        
-        .business-profile {
-            scroll-snap-type: x mandatory;
-            scroll-behavior: smooth;
-        }
-        
-        .business-profile-item {
-            scroll-snap-align: start;
-        }
-        
-        .product-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 1.5rem;
-        }
-        
-        .floating-cards {
-            perspective: 1000px;
-        }
-        
-        .floating-card {
-            transition: all 0.5s ease;
-            transform-style: preserve-3d;
-        }
-        
-        .floating-card:hover {
-            transform: rotateY(10deg) rotateX(5deg) scale(1.05);
-        }
-    </style>
-</head>
-<body>
-    <!-- Header (present on all pages) -->
-    <header class="bg-black text-white shadow-lg sticky top-0 z-50">
-        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
-            <div class="flex items-center space-x-2">
-                <div class="w-10 h-10 bg-yellow-400 rounded-full flex items-center justify-center">
-                    <span class="text-black font-bold text-xl">JM</span>
-                </div>
-                <h1 class="text-2xl font-bold">Jesmont Marketplace</h1>
-            </div>
-            <nav class="hidden md:flex space-x-6">
-                <a href="#" class="hover:text-blue-400 transition" id="home-link">Home</a>
-                <a href="#" class="hover:text-blue-400 transition" id="categories-link">Categories</a>
-                <a href="#" class="hover:text-blue-400 transition" id="sellers-link">Sellers</a>
-                <a href="#" class="hover:text-blue-400 transition" id="about-link">About</a>
-            </nav>
-            <div class="flex items-center space-x-4">
-                <button class="md:hidden text-white focus:outline-none" id="mobile-menu-button">
-                    <i class="fas fa-bars text-xl"></i>
-                </button>
-                <div class="relative hidden md:block">
-                    <input type="text" placeholder="Search..." class="bg-gray-800 text-white px-4 py-2 rounded-full w-64 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <button class="absolute right-3 top-2 text-gray-400">
-                        <i class="fas fa-search"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Mobile menu -->
-        <div class="md:hidden bg-gray-900 hidden" id="mobile-menu">
-            <div class="px-4 py-2 space-y-3">
-                <div class="relative">
-                    <input type="text" placeholder="Search..." class="bg-gray-800 text-white px-4 py-2 rounded-full w-full focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <button class="absolute right-3 top-2 text-gray-400">
-                        <i class="fas fa-search"></i>
-                    </button>
-                </div>
-                <a href="#" class="block px-3 py-2 hover:bg-gray-800 rounded hover:text-blue-400" id="mobile-home-link">Home</a>
-                <a href="#" class="block px-3 py-2 hover:bg-gray-800 rounded hover:text-blue-400" id="mobile-categories-link">Categories</a>
-                <a href="#" class="block px-3 py-2 hover:bg-gray-800 rounded hover:text-blue-400" id="mobile-sellers-link">Sellers</a>
-                <a href="#" class="block px-3 py-2 hover:bg-gray-800 rounded hover:text-blue-400" id="mobile-about-link">About</a>
-            </div>
-        </div>
-    </header>
 
-    <!-- Main Content Area -->
-    <main class="min-h-screen">
-        <!-- Landing Page (shown by default) -->
-        <section id="landing-page" class="gradient-bg min-h-screen flex flex-col justify-center items-center px-4 py-16">
-            <div class="text-center mb-12">
-                <h2 class="text-4xl md:text-5xl font-bold text-white mb-4">Welcome to Jesmont Marketplace</h2>
-                <p class="text-xl text-white opacity-90">Your one-stop shop for all your needs</p>
-            </div>
-            
-            <div class="floating-cards flex flex-col md:flex-row justify-center items-center gap-8 w-full max-w-4xl px-4">
-                <!-- Buyer Card -->
-                <div class="floating-card bg-white rounded-xl shadow-2xl overflow-hidden w-full md:w-96 h-96 flex flex-col transition-all duration-300">
-                    <div class="bg-blue-600 h-2"></div>
-                    <div class="p-6 flex-1 flex flex-col items-center justify-center text-center">
-                        <div class="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mb-6">
-                            <i class="fas fa-shopping-cart text-blue-600 text-3xl"></i>
-                        </div>
-                        <h3 class="text-2xl font-bold text-gray-800 mb-3">Buyer</h3>
-                        <p class="text-gray-600 mb-8">Shop on Jesmont today</p>
-                        <a href="explore.html">
-  <button class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-8 rounded-full transition duration-300 transform hover:scale-105">
-    Explore
-  </button>
-</a>
-
-                    </div>
-                </div>
-                
-                <!-- Seller Card -->
-                <div class="floating-card bg-white rounded-xl shadow-2xl overflow-hidden w-full md:w-96 h-96 flex flex-col transition-all duration-300">
-                    <div class="bg-green-600 h-2"></div>
-                    <div class="p-6 flex-1 flex flex-col items-center justify-center text-center">
-                        <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mb-6">
-                            <i class="fas fa-store text-green-600 text-3xl"></i>
-                        </div>
-                        <h3 class="text-2xl font-bold text-gray-800 mb-3">Seller</h3>
-                        <p class="text-gray-600 mb-8">Sell on Jesmont today</p>
-                        <a href="register.html">
-  <button class="bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-8 rounded-full transition duration-300 transform hover:scale-105">
-    Register
-  </button>
-</a>
-
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Home Page (hidden by default) -->
-        <section id="home-page" class="hidden container mx-auto px-4 py-8">
-            <!-- Search and Categories -->
-            <div class="mb-8">
-                <div class="relative mb-6">
-                    <input type="text" placeholder="Search products, sellers..." class="w-full px-6 py-4 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm">
-                    <button class="absolute right-3 top-3 bg-blue-600 text-white p-2 rounded-full hover:bg-blue-700 transition">
-                        <i class="fas fa-search"></i>
-                    </button>
-                </div>
-                
-               <div class="flex overflow-x-auto pb-2 mb-6 scrollbar-hide" id="categoryFilters">
-  <button class="category-btn whitespace-nowrap px-4 py-2 mr-2 bg-blue-100 text-blue-800 rounded-full hover:bg-blue-200 transition" data-category="All">All</button>
-  <button class="category-btn whitespace-nowrap px-4 py-2 mr-2 bg-green-100 text-green-800 rounded-full hover:bg-green-200 transition" data-category="Electronics">Electronics</button>
-  <button class="category-btn whitespace-nowrap px-4 py-2 mr-2 bg-yellow-100 text-yellow-800 rounded-full hover:bg-yellow-200 transition" data-category="Fashion">Fashion</button>
-  <button class="category-btn whitespace-nowrap px-4 py-2 mr-2 bg-purple-100 text-purple-800 rounded-full hover:bg-purple-200 transition" data-category="Home & Garden">Home & Garden</button>
-  <button class="category-btn whitespace-nowrap px-4 py-2 mr-2 bg-red-100 text-red-800 rounded-full hover:bg-red-200 transition" data-category="Beauty">Beauty</button>
-  <button class="category-btn whitespace-nowrap px-4 py-2 mr-2 bg-indigo-100 text-indigo-800 rounded-full hover:bg-indigo-200 transition" data-category="Sports">Sports</button>
-  <button class="category-btn whitespace-nowrap px-4 py-2 mr-2 bg-pink-100 text-pink-800 rounded-full hover:bg-pink-200 transition" data-category="Toys">Toys</button>
-</div>
-
-            
-            <!-- Featured Sellers -->
-            <div class="mb-12">
-                <h2 class="text-2xl font-bold mb-6 text-gray-800">Featured Sellers</h2>
-                <div class="business-profile flex overflow-x-auto pb-6 scrollbar-hide space-x-4">
-                    <!-- Seller 1 -->
-                    <div class="business-profile-item flex-shrink-0 w-48 bg-white rounded-lg shadow-md overflow-hidden cursor-pointer transition hover:shadow-lg" onclick="viewSellerProducts('TechGadgets')">
-                        <div class="p-4 flex flex-col items-center">
-                            <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-3">
-                                <i class="fas fa-laptop-code text-blue-600 text-xl"></i>
-                            </div>
-                            <h3 class="font-semibold text-gray-800">TechGadgets</h3>
-                            <p class="text-sm text-gray-500">Electronics</p>
-                            <div class="mt-2 flex space-x-1">
-                                <i class="fas fa-star text-yellow-400"></i>
-                                <i class="fas fa-star text-yellow-400"></i>
-                                <i class="fas fa-star text-yellow-400"></i>
-                                <i class="fas fa-star text-yellow-400"></i>
-                                <i class="fas fa-star-half-alt text-yellow-400"></i>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Seller 2 -->
-                    <div class="business-profile-item flex-shrink-0 w-48 bg-white rounded-lg shadow-md overflow-hidden cursor-pointer transition hover:shadow-lg" onclick="viewSellerProducts('FashionHub')">
-                        <div class="p-4 flex flex-col items-center">
-                            <div class="w-16 h-16 bg-pink-100 rounded-full flex items-center justify-center mb-3">
-                                <i class="fas fa-tshirt text-pink-600 text-xl"></i>
-                            </div>
-                            <h3 class="font-semibold text-gray-800">FashionHub</h3>
-                            <p class="text-sm text-gray-500">Clothing</p>
-                            <div class="mt-2 flex space-x-1">
-                                <i class="fas fa-star text-yellow-400"></i>
-                                <i class="fas fa-star text-yellow-400"></i>
-                                <i class="fas fa-star text-yellow-400"></i>
-                                <i class="fas fa-star text-yellow-400"></i>
-                                <i class="fas fa-star text-yellow-400"></i>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Seller 3 -->
-                    <div class="business-profile-item flex-shrink-0 w-48 bg-white rounded-lg shadow-md overflow-hidden cursor-pointer transition hover:shadow-lg" onclick="viewSellerProducts('HomeEssentials')">
-                        <div class="p-4 flex flex-col items-center">
-                            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-3">
-                                <i class="fas fa-home text-green-600 text-xl"></i>
-                            </div>
-                            <h3 class="font-semibold text-gray-800">HomeEssentials</h3>
-                            <p class="text-sm text-gray-500">Home Goods</p>
-                            <div class="mt-2 flex space-x-1">
-                                <i class="fas fa-star text-yellow-400"></i>
-                                <i class="fas fa-star text-yellow-400"></i>
-                                <i class="fas fa-star text-yellow-400"></i>
-                                <i class="fas fa-star text-yellow-400"></i>
-                                <i class="fas fa-star text-yellow-400"></i>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Seller 4 -->
-                    <div class="business-profile-item flex-shrink-0 w-48 bg-white rounded-lg shadow-md overflow-hidden cursor-pointer transition hover:shadow-lg" onclick="viewSellerProducts('BeautySpot')">
-                        <div class="p-4 flex flex-col items-center">
-                            <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mb-3">
-                                <i class="fas fa-spa text-purple-600 text-xl"></i>
-                            </div>
-                            <h3 class="font-semibold text-gray-800">BeautySpot</h3>
-                            <p class="text-sm text-gray-500">Cosmetics</p>
-                            <div class="mt-2 flex space-x-1">
-                                <i class="fas fa-star text-yellow-400"></i>
-                                <i class="fas fa-star text-yellow-400"></i>
-                                <i class="fas fa-star text-yellow-400"></i>
-                                <i class="fas fa-star text-yellow-400"></i>
-                                <i class="fas fa-star-half-alt text-yellow-400"></i>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Seller 5 -->
-                    <div class="business-profile-item flex-shrink-0 w-48 bg-white rounded-lg shadow-md overflow-hidden cursor-pointer transition hover:shadow-lg" onclick="viewSellerProducts('SportsZone')">
-                        <div class="p-4 flex flex-col items-center">
-                            <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-3">
-                                <i class="fas fa-running text-red-600 text-xl"></i>
-                            </div>
-                            <h3 class="font-semibold text-gray-800">SportsZone</h3>
-                            <p class="text-sm text-gray-500">Sporting Goods</p>
-                            <div class="mt-2 flex space-x-1">
-                                <i class="fas fa-star text-yellow-400"></i>
-                                <i class="fas fa-star text-yellow-400"></i>
-                                <i class="fas fa-star text-yellow-400"></i>
-                                <i class="fas fa-star text-yellow-400"></i>
-                                <i class="far fa-star text-yellow-400"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Featured Products -->
-            <div>
-                <h2 class="text-2xl font-bold mb-6 text-gray-800">Featured Products</h2>
-                <div class="product-grid">
-                    <!-- Product 1 -->
-                    <div class="bg-white rounded-lg shadow-md overflow-hidden card-hover transition duration-300">
-                        <div class="h-48 bg-blue-100 flex items-center justify-center">
-                            <i class="fas fa-laptop text-blue-500 text-6xl"></i>
-                        </div>
-                        <div class="p-4">
-                            <h3 class="font-semibold text-lg mb-1">Ultra Slim Laptop</h3>
-                            <p class="text-gray-600 text-sm mb-2">TechGadgets</p>
-                            <div class="flex items-center mb-3">
-                                <div class="flex space-x-1 mr-2">
-                                    <i class="fas fa-star text-yellow-400"></i>
-                                    <i class="fas fa-star text-yellow-400"></i>
-                                    <i class="fas fa-star text-yellow-400"></i>
-                                    <i class="fas fa-star text-yellow-400"></i>
-                                    <i class="fas fa-star-half-alt text-yellow-400"></i>
-                                </div>
-                                <span class="text-sm text-gray-500">(42)</span>
-                            </div>
-                            <div class="flex justify-between items-center">
-                                <span class="font-bold text-lg">$899.99</span>
-                                <button class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-full text-sm transition">
-                                    Add to Cart
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Product 2 -->
-                    <div class="bg-white rounded-lg shadow-md overflow-hidden card-hover transition duration-300">
-                        <div class="h-48 bg-pink-100 flex items-center justify-center">
-                            <i class="fas fa-tshirt text-pink-500 text-6xl"></i>
-                        </div>
-                        <div class="p-4">
-                            <h3 class="font-semibold text-lg mb-1">Designer T-Shirt</h3>
-                            <p class="text-gray-600 text-sm mb-2">FashionHub</p>
-                            <div class="flex items-center mb-3">
-                                <div class="flex space-x-1 mr-2">
-                                    <i class="fas fa-star text-yellow-400"></i>
-                                    <i class="fas fa-star text-yellow-400"></i>
-                                    <i class="fas fa-star text-yellow-400"></i>
-                                    <i class="fas fa-star text-yellow-400"></i>
-                                    <i class="fas fa-star text-yellow-400"></i>
-                                </div>
-                                <span class="text-sm text-gray-500">(128)</span>
-                            </div>
-                            <div class="flex justify-between items-center">
-                                <span class="font-bold text-lg">$29.99</span>
-                                <button class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-full text-sm transition">
-                                    Add to Cart
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Product 3 -->
-                    <div class="bg-white rounded-lg shadow-md overflow-hidden card-hover transition duration-300">
-                        <div class="h-48 bg-green-100 flex items-center justify-center">
-                            <i class="fas fa-blender text-green-500 text-6xl"></i>
-                        </div>
-                        <div class="p-4">
-                            <h3 class="font-semibold text-lg mb-1">Premium Blender</h3>
-                            <p class="text-gray-600 text-sm mb-2">HomeEssentials</p>
-                            <div class="flex items-center mb-3">
-                                <div class="flex space-x-1 mr-2">
-                                    <i class="fas fa-star text-yellow-400"></i>
-                                    <i class="fas fa-star text-yellow-400"></i>
-                                    <i class="fas fa-star text-yellow-400"></i>
-                                    <i class="fas fa-star text-yellow-400"></i>
-                                    <i class="fas fa-star-half-alt text-yellow-400"></i>
-                                </div>
-                                <span class="text-sm text-gray-500">(76)</span>
-                            </div>
-                            <div class="flex justify-between items-center">
-                                <span class="font-bold text-lg">$129.99</span>
-                                <button class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-full text-sm transition">
-                                    Add to Cart
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Product 4 -->
-                    <div class="bg-white rounded-lg shadow-md overflow-hidden card-hover transition duration-300">
-                        <div class="h-48 bg-purple-100 flex items-center justify-center">
-                            <i class="fas fa-spa text-purple-500 text-6xl"></i>
-                        </div>
-                        <div class="p-4">
-                            <h3 class="font-semibold text-lg mb-1">Skincare Set</h3>
-                            <p class="text-gray-600 text-sm mb-2">BeautySpot</p>
-                            <div class="flex items-center mb-3">
-                                <div class="flex space-x-1 mr-2">
-                                    <i class="fas fa-star text-yellow-400"></i>
-                                    <i class="fas fa-star text-yellow-400"></i>
-                                    <i class="fas fa-star text-yellow-400"></i>
-                                    <i class="fas fa-star text-yellow-400"></i>
-                                    <i class="far fa-star text-yellow-400"></i>
-                                </div>
-                                <span class="text-sm text-gray-500">(53)</span>
-                            </div>
-                            <div class="flex justify-between items-center">
-                                <span class="font-bold text-lg">$49.99</span>
-                                <button class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-full text-sm transition">
-                                    Add to Cart
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-        
-        <section id="explore-page" class="container mx-auto px-4 py-12 max-w-6xl hidden">
-  <h2 class="text-3xl font-bold mb-6 text-center text-blue-700">Explore Sellers on Jesmont</h2>
-  <div id="seller-cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-    <!-- Seller cards will appear here -->
-  </div>
-</section>
-
-
-      
-
-        <!-- Seller Products Page (hidden by default) -->
-        <section id="seller-products-page" class="hidden container mx-auto px-4 py-8">
-            <div class="flex items-center mb-8">
-                <button onclick="backToHome()" class="mr-4 text-gray-600 hover:text-blue-600 transition">
-                    <i class="fas fa-arrow-left text-xl"></i>
-                </button>
-                <div class="flex items-center">
-                    <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mr-3">
-                        <i class="fas fa-store text-blue-600 text-xl" id="seller-icon"></i>
-                    </div>
-                    <div>
-                        <h2 class="text-2xl font-bold" id="seller-name">Seller Name</h2>
-                        <div class="flex items-center">
-                            <div class="flex space-x-1 mr-2">
-                                <i class="fas fa-star text-yellow-400"></i>
-                                <i class="fas fa-star text-yellow-400"></i>
-                                <i class="fas fa-star text-yellow-400"></i>
-                                <i class="fas fa-star text-yellow-400"></i>
-                                <i class="fas fa-star-half-alt text-yellow-400"></i>
-                            </div>
-                            <span class="text-sm text-gray-500">(42 reviews)</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="mb-6">
-                <p class="text-gray-700" id="seller-description">Seller description goes here. This is where the seller can describe their business, products, and anything else they want customers to know.</p>
-            </div>
-            
-            <div class="product-grid" id="seller-products-container">
-                <!-- Products will be dynamically inserted here -->
-            </div>
-        </section>
-    </main>
-
-    <!-- Footer -->
-    <footer class="bg-black text-white py-12">
-        <div class="container mx-auto px-4">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-                <div>
-                    <div class="flex items-center space-x-2 mb-4">
-                        <div class="w-10 h-10 bg-yellow-400 rounded-full flex items-center justify-center">
-                            <span class="text-black font-bold text-xl">JM</span>
-                        </div>
-                        <h3 class="text-xl font-bold">Jesmont Marketplace</h3>
-                    </div>
-                    <p class="text-gray-400 mb-4">Your one-stop shop for all your needs. Buy and sell with confidence.</p>
-                    <div class="flex space-x-4">
-                        <a href="#" class="text-gray-400 hover:text-blue-400 transition">
-                            <i class="fab fa-facebook-f text-xl"></i>
-                        </a>
-                        <a href="#" class="text-gray-400 hover:text-blue-400 transition">
-                            <i class="fab fa-twitter text-xl"></i>
-                        </a>
-                        <a href="#" class="text-gray-400 hover:text-pink-500 transition">
-                            <i class="fab fa-instagram text-xl"></i>
-                        </a>
-                        <a href="#" class="text-gray-400 hover:text-red-500 transition">
-                            <i class="fab fa-youtube text-xl"></i>
-                        </a>
-                    </div>
-                </div>
-                
-                <div>
-                    <h4 class="text-lg font-semibold mb-4">Quick Links</h4>
-                    <ul class="space-y-2">
-                        <li><a href="#" class="text-gray-400 hover:text-white transition">Home</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-white transition">Products</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-white transition">Sellers</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-white transition">Categories</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-white transition">About Us</a></li>
-                    </ul>
-                </div>
-                
-                <div>
-                    <h4 class="text-lg font-semibold mb-4">Customer Service</h4>
-                    <ul class="space-y-2">
-                        <li><a href="#" class="text-gray-400 hover:text-white transition">Contact Us</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-white transition">FAQs</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-white transition">Shipping Policy</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-white transition">Returns & Refunds</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-white transition">Privacy Policy</a></li>
-                    </ul>
-                </div>
-                
-                <div>
-                    <h4 class="text-lg font-semibold mb-4">Newsletter</h4>
-                    <p class="text-gray-400 mb-4">Subscribe to our newsletter for the latest updates and offers.</p>
-                    <div class="flex">
-                        <input type="email" placeholder="Your email" class="px-4 py-2 rounded-l-lg focus:outline-none text-gray-800 w-full">
-                        <button class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-r-lg transition">
-                            <i class="fas fa-paper-plane"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-                <p>&copy; 2023 Jesmont Marketplace. All rights reserved.</p>
-            </div>
-        </div>
-    </footer>
-
-    <script>
-        // Mobile menu toggle
-        document.getElementById('mobile-menu-button').addEventListener('click', function() {
-            const menu = document.getElementById('mobile-menu');
-            menu.classList.toggle('hidden');
-        });
-
-        // Navigation between pages
-        document.getElementById('explore-btn').addEventListener('click', function() {
-            document.getElementById('landing-page').classList.add('hidden');
-            document.getElementById('home-page').classList.remove('hidden');
-        });
-
-        document.getElementById('register-btn').addEventListener('click', function() {
-            document.getElementById('landing-page').classList.add('hidden');
-            document.getElementById('seller-registration-page').classList.remove('hidden');
-        });
-
-        // Navigation links
-        const navLinks = ['home', 'categories', 'sellers', 'about'];
-        navLinks.forEach(link => {
-            document.getElementById(`${link}-link`).addEventListener('click', function(e) {
-                e.preventDefault();
-                showPage('home-page');
-            });
-            
-            document.getElementById(`mobile-${link}-link`).addEventListener('click', function(e) {
-                e.preventDefault();
-                showPage('home-page');
-                document.getElementById('mobile-menu').classList.add('hidden');
-            });
-        });
-
-        function showPage(pageId) {
-            // Hide all pages
-            document.getElementById('landing-page').classList.add('hidden');
-            document.getElementById('home-page').classList.add('hidden');
-            document.getElementById('seller-registration-page').classList.add('hidden');
-            document.getElementById('seller-products-page').classList.add('hidden');
-            
-            // Show the requested page
-            document.getElementById(pageId).classList.remove('hidden');
-        }
-
-        // Sample data for seller products
-        const sellersData = {<h2 style="text-align:center; margin-top: 40px;">Latest Registered Sellers</h2>
-<div id="homeSellerContainer" class="seller-cards-container"></div>
-
-            'TechGadgets': {
-                icon: 'fa-laptop-code',
-                color: 'blue',
-                description: 'TechGadgets offers the latest in electronics and computing technology. We specialize in high-quality laptops, smartphones, and accessories at competitive prices.',
-                products: [
-                    { name: 'Ultra Slim Laptop', price: 899.99, rating: 4.5, reviews: 42, image: 'laptop' },
-                    { name: 'Wireless Earbuds', price: 79.99, rating: 4.2, reviews: 36, image: 'headphones' },
-                    { name: 'Smartphone Pro', price: 699.99, rating: 4.7, reviews: 58, image: 'mobile' },
-                    { name: 'Gaming Mouse', price: 49.99, rating: 4.3, reviews: 27, image: 'mouse' },
-                    { name: 'External SSD', price: 129.99, rating: 4.8, reviews: 31, image: 'hdd' },
-                    { name: 'Bluetooth Speaker', price: 59.99, rating: 4.1, reviews: 19, image: 'speaker' }
-                ]
-            },
-            'FashionHub': {
-                icon: 'fa-tshirt',
-                color: 'pink',
-                description: 'FashionHub brings you the latest trends in clothing and accessories. Our collections are carefully curated to offer style and comfort for every occasion.',
-                products: [
-                    { name: 'Designer T-Shirt', price: 29.99, rating: 5, reviews: 128, image: 'tshirt' },
-                    { name: 'Denim Jeans', price: 49.99, rating: 4.8, reviews: 94, image: 'jeans' },
-                    { name: 'Leather Jacket', price: 129.99, rating: 4.9, reviews: 67, image: 'jacket' },
-                    { name: 'Casual Sneakers', price: 59.99, rating: 4.7, reviews: 82, image: 'sneakers' },
-                    { name: 'Wool Sweater', price: 39.99, rating: 4.6, reviews: 45, image: 'sweater' },
-                    { name: 'Silk Scarf', price: 24.99, rating: 4.4, reviews: 37, image: 'scarf' }
-                ]
-            },
-            'HomeEssentials': {
-                icon: 'fa-home',
-                color: 'green',
-                description: 'HomeEssentials provides quality products to make your home more comfortable and functional. From kitchenware to decor, we have everything you need.',
-                products: [
-                    { name: 'Premium Blender', price: 129.99, rating: 4.5, reviews: 76, image: 'blender' },
-                    { name: 'Non-Stick Pan Set', price: 89.99, rating: 4.6, reviews: 63, image: 'pan' },
-                    { name: 'Memory Foam Pillow', price: 39.99, rating: 4.7, reviews: 58, image: 'pillow' },
-                    { name: 'Ceramic Dinner Set', price: 79.99, rating: 4.8, reviews: 42, image: 'dinner-set' },
-                    { name: 'Air Fryer', price: 99.99, rating: 4.4, reviews: 51, image: 'air-fryer' },
-                    { name: 'Desk Lamp', price: 34.99, rating: 4.3, reviews: 29, image: 'lamp' }
-                ]
-            },
-            'BeautySpot': {
-                icon: 'fa-spa',
-                color: 'purple',
-                description: 'BeautySpot offers premium skincare and cosmetics to help you look and feel your best. Our products are cruelty-free and made with natural ingredients.',
-                products: [
-                    { name: 'Skincare Set', price: 49.99, rating: 4.5, reviews: 53, image: 'skincare' },
-                    { name: 'Matte Lipstick', price: 14.99, rating: 4.3, reviews: 47, image: 'lipstick' },
-                    { name: 'Facial Cleanser', price: 19.99, rating: 4.6, reviews: 39, image: 'cleanser' },
-                    { name: 'Eyeshadow Palette', price: 29.99, rating: 4.7, reviews: 62, image: 'eyeshadow' },
-                    { name: 'Hair Serum', price: 24.99, rating: 4.4, reviews: 31, image: 'serum' },
-                    { name: 'Perfume', price: 59.99, rating: 4.8, reviews: 28, image: 'perfume' }
-                ]
-            },
-            'SportsZone': {
-                icon: 'fa-running',
-                color: 'red',
-                description: 'SportsZone is your destination for high-performance sports equipment and apparel. Whether you\'re a beginner or pro, we have what you need to excel.',
-                products: [
-                    { name: 'Running Shoes', price: 89.99, rating: 4.4, reviews: 72, image: 'running-shoes' },
-                    { name: 'Yoga Mat', price: 29.99, rating: 4.6, reviews: 48, image: 'yoga-mat' },
-                    { name: 'Dumbbell Set', price: 79.99, rating: 4.7, reviews: 36, image: 'dumbbell' },
-                    { name: 'Basketball', price: 24.99, rating: 4.5, reviews: 29, image: 'basketball' },
-                    { name: 'Cycling Shorts', price: 34.99, rating: 4.3, reviews: 41, image: 'shorts' },
-                    { name: 'Gym Bag', price: 39.99, rating: 4.2, reviews: 27, image: 'bag' }
-                ]
-            }
-        };
-
-        // View seller products
-        function viewSellerProducts(sellerName) {
-            const seller = sellersData[sellerName];
-            
-            // Update seller info
-            document.getElementById('seller-name').textContent = sellerName;
-            document.getElementById('seller-icon').className = `fas ${seller.icon} text-${seller.color}-600 text-xl`;
-            document.getElementById('seller-description').textContent = seller.description;
-            
-            // Clear previous products
-            const container = document.getElementById('seller-products-container');
-            container.innerHTML = '';
-            
-            // Add products
-            seller.products.forEach(product => {
-                const productCard = document.createElement('div');
-                productCard.className = 'bg-white rounded-lg shadow-md overflow-hidden card-hover transition duration-300';
-                productCard.innerHTML = `
-                    <div class="h-48 bg-${seller.color}-100 flex items-center justify-center">
-                        <i class="fas fa-${product.image} text-${seller.color}-500 text-6xl"></i>
-                    </div>
-                    <div class="p-4">
-                        <h3 class="font-semibold text-lg mb-1">${product.name}</h3>
-                        <div class="flex items-center mb-3">
-                            <div class="flex space-x-1 mr-2">
-                                ${renderStars(product.rating)}
-                            </div>
-                            <span class="text-sm text-gray-500">(${product.reviews})</span>
-                        </div>
-                        <div class="flex justify-between items-center">
-                            <span class="font-bold text-lg">$${product.price.toFixed(2)}</span>
-                            <div class="flex space-x-2">
-                                <button class="bg-gray-200 hover:bg-gray-300 text-gray-800 p-2 rounded-full transition">
-                                    <i class="fas fa-envelope"></i>
-                                </button>
-                                <button class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-full text-sm transition">
-                                    Add to Cart
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                container.appendChild(productCard);
-            });
-            
-            // Show the seller products page
-            showPage('seller-products-page');
-        }
-
-        // Helper function to render star ratings
-        function renderStars(rating) {
-            let stars = '';
-            const fullStars = Math.floor(rating);
-            const hasHalfStar = rating % 1 >= 0.5;
-            
-            for (let i = 0; i < fullStars; i++) {
-                stars += '<i class="fas fa-star text-yellow-400"></i>';
-            }
-            
-            if (hasHalfStar) {
-                stars += '<i class="fas fa-star-half-alt text-yellow-400"></i>';
-            }
-            
-            const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
-            for (let i = 0; i < emptyStars; i++) {
-                stars += '<i class="far fa-star text-yellow-400"></i>';
-            }
-            
-            return stars;
-        }
-
-        // Back to home from seller products
-        function backToHome() {
-            showPage('home-page');
-        }
-    </script>
-<p style="border-radius: 8px; text-align: center; font-size: 12px; color: #fff; margin-top: 16px;position: fixed; left: 8px; bottom: 8px; z-index: 10; background: rgba(0, 0, 0, 0.8); padding: 4px 8px;">Made with <img src="https://enzostvs-deepsite.hf.space/logo.svg" alt="DeepSite Logo" style="width: 16px; height: 16px; vertical-align: middle;display:inline-block;margin-right:3px;filter:brightness(0) invert(1);"><a href="https://enzostvs-deepsite.hf.space" style="color: #fff;text-decoration: underline;" target="_blank" >DeepSite</a> - 🧬 <a href="https://enzostvs-deepsite.hf.space?remix=Jesmont/new-project" style="color: #fff;text-decoration: underline;" target="_blank" >Remix</a></p><script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-  import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
-  const firebaseConfig = {
-    apiKey: "AIzaSyDlakKgMzhADOywIOg4iTCJ5sUFXLMGwVg",
-    authDomain: "jesmont-marketplace.firebaseapp.com",
-    projectId: "jesmont-marketplace",
-    storageBucket: "jesmont-marketplace.firebasestorage.app",
-    messagingSenderId: "543717950238",
-    appId: "1:543717950238:web:df009d49e88a2ea010bf0f",
-    measurementId: "G-56TMB41PS8"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
-
-  // Seller registration form handler
-  document.querySelector("form").addEventListener("submit", async (e) => {
-    e.preventDefault();
-
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
-    const confirmPassword = document.getElementById("confirm-password").value;
-
-    if (password !== confirmPassword) {
-      alert("Passwords do not match!");
-      return;
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Explore Sellers - Jesmont Marketplace</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #f8fafc;
     }
 
-    try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      const user = userCredential.user;
+    .card-hover:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+        0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
 
-      await addDoc(collection(db, "sellers"), {
-        uid: user.uid,
-        businessName: document.getElementById("business-name").value,
-        businessType: document.getElementById("business-type").value,
-        email: email,
-        phone: document.getElementById("phone").value,
-        address: document.getElementById("business-address").value,
-        description: document.getElementById("business-description").value
+    .scrollbar-hide::-webkit-scrollbar {
+      display: none;
+    }
+
+    .scrollbar-hide {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+</head>
+
+<body class="container mx-auto p-6 max-w-7xl">
+  <h1 class="text-3xl font-bold mb-6 text-center text-gray-800">Explore Sellers</h1>
+
+  <!-- Search Bar -->
+  <div class="relative mb-4 w-full sm:w-1/2 mx-auto">
+    <input type="text" id="searchBar" placeholder="Search sellers..."
+      class="bg-gray-800 text-white px-4 py-2 pr-10 rounded-full w-full focus:outline-none focus:ring-2 focus:ring-blue-500">
+    <button class="absolute right-3 top-2 text-gray-400">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+        stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round"
+          d="M21 21l-4.35-4.35M16.65 16.65A7.5 7.5 0 1116.65 2.5a7.5 7.5 0 010 14.15z" />
+      </svg>
+    </button>
+  </div>
+
+  <!-- Category Filters -->
+  <div class="flex overflow-x-auto pb-2 mb-6 scrollbar-hide">
+    <button data-category="All"
+      class="category-btn whitespace-nowrap px-4 py-2 mr-2 bg-blue-100 text-blue-800 rounded-full hover:bg-blue-200 transition">All</button>
+    <button data-category="Electronics"
+      class="category-btn whitespace-nowrap px-4 py-2 mr-2 bg-green-100 text-green-800 rounded-full hover:bg-green-200 transition">Electronics</button>
+    <button data-category="Fashion"
+      class="category-btn whitespace-nowrap px-4 py-2 mr-2 bg-yellow-100 text-yellow-800 rounded-full hover:bg-yellow-200 transition">Fashion</button>
+    <button data-category="Home & Garden"
+      class="category-btn whitespace-nowrap px-4 py-2 mr-2 bg-purple-100 text-purple-800 rounded-full hover:bg-purple-200 transition">Home & Garden</button>
+    <button data-category="Beauty"
+      class="category-btn whitespace-nowrap px-4 py-2 mr-2 bg-red-100 text-red-800 rounded-full hover:bg-red-200 transition">Beauty</button>
+    <button data-category="Sports"
+      class="category-btn whitespace-nowrap px-4 py-2 mr-2 bg-indigo-100 text-indigo-800 rounded-full hover:bg-indigo-200 transition">Sports</button>
+    <button data-category="Toys"
+      class="category-btn whitespace-nowrap px-4 py-2 mr-2 bg-pink-100 text-pink-800 rounded-full hover:bg-pink-200 transition">Toys</button>
+  </div>
+
+  <!-- Sellers Grid -->
+  <div id="sellerContainer" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDlakKgMzhADOywIOg4iTCJ5sUFXLMGwVg",
+      authDomain: "jesmont-marketplace.firebaseapp.com",
+      projectId: "jesmont-marketplace",
+      storageBucket: "jesmont-marketplace.firebasestorage.app",
+      messagingSenderId: "543717950238",
+      appId: "1:543717950238:web:df009d49e88a2ea010bf0f",
+      measurementId: "G-56TMB41PS8"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    let allSellers = [];
+
+    async function loadSellers() {
+      const sellerContainer = document.getElementById("sellerContainer");
+      sellerContainer.innerHTML = "";
+
+      const querySnapshot = await getDocs(collection(db, "sellers"));
+      allSellers = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      displaySellers(allSellers);
+    }
+
+    function displaySellers(sellers) {
+      const sellerContainer = document.getElementById("sellerContainer");
+      sellerContainer.innerHTML = "";
+
+      if (sellers.length === 0) {
+        sellerContainer.innerHTML = "<p class='text-center col-span-full text-gray-500'>No sellers found.</p>";
+        return;
+      }
+
+      sellers.forEach(seller => {
+        const card = document.createElement("div");
+        card.className = "bg-white rounded-xl p-4 shadow-md card-hover transition-transform border border-gray-100";
+        card.innerHTML = `
+          <h3 class="text-lg font-bold text-gray-800 mb-1">${seller.businessName || "Unnamed Business"}</h3>
+          <p class="text-sm text-gray-600 mb-1"><strong>Owner:</strong> ${seller.fullName || "N/A"}</p>
+          <p class="text-sm text-gray-600 mb-1"><strong>Email:</strong> ${seller.email || "N/A"}</p>
+          <p class="text-sm text-gray-600 mb-1"><strong>Phone:</strong> ${seller.phone || "N/A"}</p>
+          <p class="text-sm text-gray-600 mb-1"><strong>Category:</strong> ${seller.category || "N/A"}</p>
+          <p class="text-sm text-gray-600 mb-2"><strong>Description:</strong> ${seller.description || "N/A"}</p>
+          <a href="seller-profile.html?uid=${seller.uid}" class="text-blue-600 hover:underline text-sm">View Profile</a>
+        `;
+        sellerContainer.appendChild(card);
+      });
+    }
+
+    function filterSellers() {
+      const search = document.getElementById("searchBar").value.toLowerCase();
+      const selectedCategory = document.querySelector(".category-btn.active")?.dataset.category || "All";
+
+      const filtered = allSellers.filter(seller => {
+        const matchesSearch = seller.businessName?.toLowerCase().includes(search) || seller.description?.toLowerCase().includes(search);
+        const matchesCategory = selectedCategory === "All" || seller.category === selectedCategory;
+        return matchesSearch && matchesCategory;
       });
 
-      alert("Seller registered successfully!");
-    } catch (error) {
-      console.error("Error during registration:", error);
-      alert("Registration failed: " + error.message);
+      displaySellers(filtered);
     }
-  });
-</script><script type="module" src="home.js"></script>
-<script>
-  document.getElementById("explore-btn").addEventListener("click", function () {
-    window.location.href = "explore.html";
-  });
 
-  document.getElementById("register-btn").addEventListener("click", function () {
-    window.location.href = "register.html";
-  });
-</script>
+    // Search event
+    document.getElementById("searchBar").addEventListener("input", filterSellers);
+
+    // Category filters
+    document.querySelectorAll(".category-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".category-btn").forEach(b => b.classList.remove("active", "ring-2", "ring-offset-2", "ring-blue-500"));
+        btn.classList.add("active", "ring-2", "ring-offset-2", "ring-blue-500");
+        filterSellers();
+      });
+    });
+
+    loadSellers();
+  </script>
 </body>
+
 </html>
