@@ -36,3 +36,52 @@ async function uploadLogo(file, userId) {
   await uploadBytes(fileRef, file);
   return await getDownloadURL(fileRef);
 }
+document.querySelector("form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const businessName = document.getElementById("business-name").value;
+  const businessType = document.getElementById("business-type").value;
+  const email = document.getElementById("email").value;
+  const phone = document.getElementById("phone").value;
+  const password = document.getElementById("password").value;
+  const confirmPassword = document.getElementById("confirm-password").value;
+  const address = document.getElementById("business-address").value;
+  const description = document.getElementById("business-description").value;
+  const termsAccepted = document.getElementById("terms").checked;
+  const logoFile = document.getElementById("logo-upload").files[0];
+
+  const categories = Array.from(document.querySelectorAll('#categories input[type="checkbox"]:checked'))
+    .map(cb => cb.id);
+
+  if (!termsAccepted) return alert("You must agree to the terms.");
+  if (password !== confirmPassword) return alert("Passwords do not match.");
+
+  try {
+    const userCred = await createUserWithEmailAndPassword(auth, email, password);
+    const userId = userCred.user.uid;
+
+    let logoUrl = "";
+    if (logoFile) {
+      logoUrl = await uploadLogo(logoFile, userId);
+    }
+
+    await addDoc(collection(db, "sellers"), {
+      uid: userId,
+      businessName,
+      businessType,
+      email,
+      phone,
+      address,
+      description,
+      categories,
+      logoUrl,
+      createdAt: new Date()
+    });
+
+    alert("Seller registered successfully!");
+    // Optional: clear form or redirect
+  } catch (err) {
+    console.error(err);
+    alert("Error registering seller: " + err.message);
+  }
+});
