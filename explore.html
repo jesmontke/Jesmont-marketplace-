@@ -1,6 +1,50 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+<head> <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f8fafc;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #1e40af 0%, #10b981 50%, #f59e0b 100%);
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        .business-profile {
+            scroll-snap-type: x mandatory;
+            scroll-behavior: smooth;
+        }
+        
+        .business-profile-item {
+            scroll-snap-align: start;
+        }
+        
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .floating-cards {
+            perspective: 1000px;
+        }
+        
+        .floating-card {
+            transition: all 0.5s ease;
+            transform-style: preserve-3d;
+        }
+        
+        .floating-card:hover {
+            transform: rotateY(10deg) rotateX(5deg) scale(1.05);
+        }
+    </style>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Explore Sellers - Jesmont Marketplace</title>
