@@ -60,11 +60,12 @@ function displaySellers(sellers) {
 
   sellers.forEach(seller => {
     const card = document.createElement("div");
-    card.classList.add("listing-card");
+    card.classList.add("listing-card", "bg-white", "p-4", "rounded", "shadow", "mb-4");
 
     card.innerHTML = `
-      <h3>${seller.businessName}</h3>
-      <p>${seller.businessDescription || seller.description || ""}</p>
+      <h3 class="text-lg font-semibold">${seller.businessName}</h3>
+      <p class="text-sm text-gray-700">${seller.businessDescription || seller.description || ""}</p>
+      <p class="text-xs text-gray-500 mt-2">Category: ${seller.category || "Uncategorized"}</p>
     `;
 
     sellerContainer.appendChild(card);
@@ -99,15 +100,19 @@ function filterSellers() {
   const searchValue = document.getElementById("searchBar").value.toLowerCase();
 
   const filtered = allSellers.filter(seller => {
-    const matchesSearch =
-      (seller.businessName || "").toLowerCase().includes(searchValue) ||
-      (seller.businessDescription || "").toLowerCase().includes(searchValue);
-    const matchesCategory = selectedCategory === "all" || seller.businessCategory === selectedCategory;
+    const name = (seller.businessName || "").toLowerCase();
+    const description = (seller.businessDescription || "").toLowerCase();
+    const category = (seller.category || "uncategorized").toLowerCase();
+
+    const matchesSearch = name.includes(searchValue) || description.includes(searchValue);
+    const matchesCategory = selectedCategory === "all" || category === selectedCategory;
+
     return matchesSearch && matchesCategory;
   });
 
   displaySellers(filtered);
 }
+
 
 // Initialize everything
 document.addEventListener("DOMContentLoaded", () => {
