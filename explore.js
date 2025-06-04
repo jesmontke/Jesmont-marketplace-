@@ -26,7 +26,14 @@ async function loadSellers() {
 
   try {
     const snapshot = await getDocs(collection(db, "sellers"));
-    allSellers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    allSellers = snapshot.docs.map(doc => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        ...data,
+        category: (data.category || "uncategorized").toLowerCase()
+      };
+    });
 
     if (allSellers.length === 0) {
       sellerContainer.innerHTML = "<p class='text-gray-500 text-center'>No sellers found.</p>";
@@ -39,6 +46,7 @@ async function loadSellers() {
     sellerContainer.innerHTML = "<p class='text-red-500'>Failed to load sellers.</p>";
   }
 }
+
 
 // Display sellers as cards
 function displaySellers(sellers) {
