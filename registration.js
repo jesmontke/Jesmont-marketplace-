@@ -37,6 +37,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const description = document.getElementById("business-description").value;
     const categories = Array.from(document.querySelectorAll("input[type='checkbox']:checked")).map(c => c.id);
     const logoFile = document.getElementById("logo-upload").files[0];
+    const category = document.getElementById("category").value;
+
 
     if (password !== confirmPassword) {
       alert("Passwords do not match!");
@@ -62,7 +64,7 @@ document.addEventListener("DOMContentLoaded", () => {
         phone,
         address,
         description,
-        categories,
+        category,
         logoURL,
         createdAt: new Date()
       });
