@@ -17,7 +17,7 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 let allSellers = [];
-let selectedCategory = "All";
+let selectedCategory = "all";
 
 // Load all sellers from Firestore
 async function loadSellers() {
@@ -46,46 +46,45 @@ function displaySellers(sellers) {
   sellerContainer.innerHTML = "";
 
   if (sellers.length === 0) {
-    sellerContainer.innerHTML = "<p class='text-gray-500 text-center col-span-full'>No matching sellers found.</p>";
+    sellerContainer.innerHTML = "<p class='text-gray-500 text-center'>No matching sellers found.</p>";
     return;
   }
 
   sellers.forEach(seller => {
     const card = document.createElement("div");
-    card.className = "bg-white p-5 rounded-xl shadow-md card-hover transition-all border hover:shadow-lg";
+    card.classList.add("listing-card");
 
     card.innerHTML = `
-      <h3 class="text-lg font-semibold text-blue-800 mb-1">${seller.businessName || "Unnamed Business"}</h3>
-      <p class="text-sm text-gray-600 mb-1"><strong>Owner:</strong> ${seller.fullName || "N/A"}</p>
-      <p class="text-sm text-gray-600 mb-1"><strong>Email:</strong> ${seller.email || "N/A"}</p>
-      <p class="text-sm text-gray-600 mb-1"><strong>Phone:</strong> ${seller.phone || "N/A"}</p>
-      <p class="text-sm text-gray-600 mb-1"><strong>Category:</strong> ${seller.businessCategory || "N/A"}</p>
-      <p class="text-sm text-gray-600 mb-3"><strong>Description:</strong> ${seller.businessDescription || "N/A"}</p>
-      <a href="seller-profile.html?uid=${seller.uid}" class="text-sm text-white bg-blue-600 px-4 py-1.5 rounded hover:bg-blue-700">View Profile</a>
+      <h3>${seller.businessName}</h3>
+      <p>${seller.businessDescription || seller.description || ""}</p>
     `;
 
     sellerContainer.appendChild(card);
   });
 }
 
+
 // Setup search and category filters
 function setupFilters() {
-  const searchBar = document.getElementById("searchBar");
   const categoryButtons = document.querySelectorAll(".category-btn");
-
-  searchBar.addEventListener("input", filterSellers);
 
   categoryButtons.forEach(btn => {
     btn.addEventListener("click", () => {
-      selectedCategory = btn.dataset.category;
+      selectedCategory = btn.dataset.category.toLowerCase();
 
-      categoryButtons.forEach(b => b.classList.remove("ring", "ring-offset-2", "bg-opacity-100"));
-      btn.classList.add("ring", "ring-offset-2", "bg-opacity-100");
+      categoryButtons.forEach(b => b.classList.remove("ring", "ring-blue-500"));
+      btn.classList.add("ring", "ring-blue-500");
 
       filterSellers();
     });
   });
+
+  const searchBar = document.getElementById("searchBar");
+  searchBar.addEventListener("input", () => {
+    filterSellers();
+  });
 }
+
 
 // Filter sellers based on search and category
 function filterSellers() {
@@ -95,7 +94,7 @@ function filterSellers() {
     const matchesSearch =
       (seller.businessName || "").toLowerCase().includes(searchValue) ||
       (seller.businessDescription || "").toLowerCase().includes(searchValue);
-    const matchesCategory = selectedCategory === "All" || seller.businessCategory === selectedCategory;
+    const matchesCategory = selectedCategory === "all" || seller.businessCategory === selectedCategory;
     return matchesSearch && matchesCategory;
   });
 
@@ -103,5 +102,8 @@ function filterSellers() {
 }
 
 // Initialize everything
-loadSellers();
-setupFilters();
+document.addEventListener("DOMContentLoaded", () => {
+  loadSellers();     // Load from Firestore
+  setupFilters();    // Setup category and search
+});
+
