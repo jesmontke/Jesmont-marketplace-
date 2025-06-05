@@ -56,18 +56,20 @@ document.addEventListener("DOMContentLoaded", () => {
         logoURL = await getDownloadURL(logoRef);
       }
 
-      await addDoc(collection(db, "sellers"), {
-        uid: user.uid,
-        businessName,
-        businessType,
-        email,
-        phone,
-        address,
-        description,
-        category,
-        logoURL,
-        createdAt: new Date()
-      });
+     await addDoc(collection(db, "sellers"), {
+  uid: user.uid,
+  businessName,
+  businessType,
+  email,
+  phone,
+  address,
+  description,
+  category,
+  categories,
+  logoURL,
+  createdAt: new Date()
+});
+
 
       alert("Seller registered successfully!");
       form.reset();
