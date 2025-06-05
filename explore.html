@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Explore Sellers - Jesmont Marketplace</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet" />
@@ -15,7 +15,6 @@
 
     .category-btn {
       transition: all 0.3s ease;
-      cursor: pointer;
     }
 
     .listing-card:hover {
@@ -34,7 +33,7 @@
   </style>
 </head>
 
-<body class="px-4 py-8 max-w-6xl mx-auto">
+<body class="px-6 py-8 max-w-7xl mx-auto">
   <h1 class="text-3xl font-bold text-center text-gray-800 mb-6">Explore Sellers</h1>
 
   <!-- Search Bar -->
@@ -46,7 +45,7 @@
 
   <!-- Category Filters -->
   <div class="flex overflow-x-auto mb-6 gap-2 scrollbar-hide" id="categoryFilters">
-    <button class="category-btn bg-blue-100 text-blue-800 px-4 py-2 rounded-full ring ring-blue-500" data-category="all">All</button>
+    <button class="category-btn bg-blue-100 text-blue-800 px-4 py-2 rounded-full" data-category="all">All</button>
     <button class="category-btn bg-green-100 text-green-800 px-4 py-2 rounded-full" data-category="electronics">Electronics</button>
     <button class="category-btn bg-yellow-100 text-yellow-800 px-4 py-2 rounded-full" data-category="fashion">Fashion</button>
     <button class="category-btn bg-purple-100 text-purple-800 px-4 py-2 rounded-full" data-category="beauty">Beauty</button>
@@ -54,12 +53,16 @@
     <button class="category-btn bg-red-100 text-red-800 px-4 py-2 rounded-full" data-category="toys">Toys</button>
   </div>
 
-  <!-- Sellers -->
-  <div id="sellerContainer" class="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-    <!-- Seller cards will be injected here -->
+  <!-- Seller Profiles - Horizontal Scroll -->
+  <div id="sellerProfiles" class="flex overflow-x-auto gap-4 mb-8 scrollbar-hide px-2 py-1 border-b border-gray-300">
+    <!-- Seller profile cards inserted here -->
   </div>
 
-  <!-- Firebase Logic -->
+  <!-- Product Listings Below -->
+  <div id="sellerContainer" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+    <!-- Seller listing cards inserted here -->
+  </div>
+
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
@@ -81,7 +84,10 @@
     let selectedCategory = "all";
 
     async function loadSellers() {
+      const sellerProfiles = document.getElementById("sellerProfiles");
       const sellerContainer = document.getElementById("sellerContainer");
+
+      sellerProfiles.innerHTML = "<p>Loading seller profiles...</p>";
       sellerContainer.innerHTML = "<p>Loading sellers...</p>";
 
       try {
@@ -91,22 +97,54 @@
           return {
             id: doc.id,
             ...data,
-            category: (data.category || "uncategorized").trim().toLowerCase(),
+            category: (data.category || "uncategorized").toLowerCase(),
+            logoURL: data.logoURL || null,
             businessDescription: data.description || data.businessDescription || ""
           };
         });
 
         if (allSellers.length === 0) {
-          sellerContainer.innerHTML = "<p class='text-gray-500 text-center'>No sellers found.</p>";
-        } else {
-          displaySellers(allSellers);
+          sellerProfiles.innerHTML = "<p class='text-gray-500'>No sellers found.</p>";
+          sellerContainer.innerHTML = "";
+          return;
         }
 
-        console.log("Loaded sellers categories:", allSellers.map(s => s.category));
+        // Display seller profiles horizontally
+        displaySellerProfiles(allSellers);
+
+        // Display seller cards (listings) below
+        displaySellers(allSellers);
+
       } catch (err) {
         console.error("Error loading sellers:", err);
+        sellerProfiles.innerHTML = "<p class='text-red-500'>Failed to load seller profiles.</p>";
         sellerContainer.innerHTML = "<p class='text-red-500'>Failed to load sellers.</p>";
       }
+    }
+
+    function displaySellerProfiles(sellers) {
+      const sellerProfiles = document.getElementById("sellerProfiles");
+      sellerProfiles.innerHTML = "";
+
+      sellers.forEach(seller => {
+        const profileCard = document.createElement("div");
+        profileCard.className = "flex flex-col items-center min-w-[120px] cursor-pointer hover:scale-105 transition-transform";
+
+        profileCard.innerHTML = `
+          <img src="${seller.logoURL || 'https://via.placeholder.com/100?text=No+Image'}" 
+               alt="${seller.businessName} Logo"
+               class="w-20 h-20 rounded-full object-cover border-2 border-blue-500 mb-2" />
+          <p class="text-sm font-semibold text-center max-w-[120px] truncate">${seller.businessName}</p>
+        `;
+
+        // Optional: clicking profile could filter products by seller or navigate
+        profileCard.addEventListener('click', () => {
+          // For demo, filter listings to this seller only:
+          filterBySeller(seller.id);
+        });
+
+        sellerProfiles.appendChild(profileCard);
+      });
     }
 
     function displaySellers(sellers) {
@@ -119,16 +157,15 @@
       }
 
       sellers.forEach(seller => {
-        const displayCategory = seller.category.charAt(0).toUpperCase() + seller.category.slice(1);
-
         const card = document.createElement("div");
-        card.className = "listing-card bg-white rounded shadow p-4 transition-transform";
+        card.classList.add("listing-card", "bg-white", "p-4", "rounded", "shadow", "hover:shadow-lg", "transition", "duration-300");
+
         card.innerHTML = `
-          <h3 class="text-lg font-semibold mb-1">${seller.businessName || "Unnamed Business"}</h3>
-          <p class="text-sm text-gray-700">${seller.businessDescription || "No description available."}</p>
-          <p class="text-xs text-gray-500 mt-2">Category: ${displayCategory}</p>
-          <a href="seller-profile.html?uid=${seller.uid}" class="text-blue-600 text-sm mt-2 inline-block hover:underline">View Profile</a>
+          <h3 class="text-lg font-semibold mb-1">${seller.businessName}</h3>
+          <p class="text-sm text-gray-700 mb-2">${seller.businessDescription || ""}</p>
+          <p class="text-xs text-gray-500 mb-2">Category: ${seller.category}</p>
         `;
+
         sellerContainer.appendChild(card);
       });
     }
@@ -159,7 +196,7 @@
       const filtered = allSellers.filter(seller => {
         const name = (seller.businessName || "").toLowerCase();
         const description = (seller.businessDescription || "").toLowerCase();
-        const category = (seller.category || "uncategorized").trim().toLowerCase();
+        const category = (seller.category || "uncategorized").toLowerCase();
 
         const matchesSearch = name.includes(searchValue) || description.includes(searchValue);
         const matchesCategory = selectedCategory === "all" || category === selectedCategory;
@@ -167,7 +204,14 @@
         return matchesSearch && matchesCategory;
       });
 
-      console.log("Filtering by category:", selectedCategory, "Matches:", filtered.length);
+      displaySellerProfiles(filtered);
+      displaySellers(filtered);
+    }
+
+    // Filter listings by seller id on clicking profile
+    function filterBySeller(sellerId) {
+      const filtered = allSellers.filter(seller => seller.id === sellerId);
+      displaySellerProfiles(filtered);
       displaySellers(filtered);
     }
 
@@ -182,4 +226,3 @@
 </body>
 
 </html>
-
