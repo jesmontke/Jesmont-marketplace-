@@ -332,5 +332,87 @@
         const card = document.createElement("div");
         card.className = "product-card";
 
-        card
+        card.innerHTML = `
+          <img src="${product.productImageURL || 'https://via.placeholder.com/300x200?text=No+Image'}" alt="${product.productName}" class="product-image" />
+          <h3 class="text-lg font-semibold">${product.productName}</h3>
+          <p class="text-gray-700 text-sm mb-2">${product.productDescription}</p>
+          <p class="text-green-600 font-bold">${product.price ? "KES " + product.price : "Price not set"}</p>
+        `;
 
+        productListings.appendChild(card);
+      });
+    }
+
+    // Select a seller profile card
+    function selectSeller(uid) {
+      selectedSellerUid = uid;
+
+      // Highlight selected seller profile
+      const sellerCards = document.querySelectorAll(".seller-profile");
+      sellerCards.forEach(card => {
+        card.classList.toggle("selected", card.dataset.uid === uid);
+      });
+
+      // Load that seller's products
+      loadProductsForSeller(uid);
+    }
+
+    // Filter sellers based on category and search input
+    function filterSellers() {
+      const searchValue = document.getElementById("searchBar").value.toLowerCase();
+
+      // Filter sellers by category and search text
+      const filteredSellers = allSellers.filter(seller => {
+        const matchesCategory = selectedCategory === "all" || seller.category === selectedCategory;
+        const matchesSearch =
+          seller.businessName.toLowerCase().includes(searchValue) ||
+          seller.description.toLowerCase().includes(searchValue);
+        return matchesCategory && matchesSearch;
+      });
+
+      displaySellerProfiles(filteredSellers);
+
+      // If current selected seller is not in filtered, select first seller or clear products
+      if (!filteredSellers.some(s => s.uid === selectedSellerUid)) {
+        if (filteredSellers.length > 0) {
+          selectSeller(filteredSellers[0].uid);
+        } else {
+          document.getElementById("productListings").innerHTML = "<p class='text-gray-500'>No sellers match your filter.</p>";
+          selectedSellerUid = null;
+        }
+      }
+    }
+
+    // Capitalize first letter helper
+    function capitalize(str) {
+      return str.charAt(0).toUpperCase() + str.slice(1);
+    }
+
+    // Setup event listeners for search bar and category buttons
+    function setupFilters() {
+      const searchBar = document.getElementById("searchBar");
+      searchBar.addEventListener("input", () => {
+        filterSellers();
+      });
+
+      const categoryButtons = document.querySelectorAll(".category-btn");
+      categoryButtons.forEach(btn => {
+        btn.addEventListener("click", () => {
+          selectedCategory = btn.dataset.category.toLowerCase();
+
+          categoryButtons.forEach(b => b.classList.remove("selected"));
+          btn.classList.add("selected");
+
+          filterSellers();
+        });
+      });
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      loadSellers();
+      setupFilters();
+    });
+  </script>
+</body>
+
+</html>
