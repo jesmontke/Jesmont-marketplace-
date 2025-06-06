@@ -74,8 +74,9 @@ document.addEventListener("DOMContentLoaded", () => {
         createdAt: new Date()
       });
 
-      alert("Seller registered successfully!");
-      form.reset();
+     form.reset();
+window.location.href = "seller-dashboard.html";
+
 
     } catch (error) {
       console.error(error);
