@@ -1,47 +1,54 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Jesmont Seller Dashboard</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script type="module" src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
-  <script type="module" src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"></script>
-  <script type="module" src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js"></script>
-  <script type="module" src="https://cdn.tailwindcss.com"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Seller Dashboard | Jesmont Marketplace</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 </head>
-<body class="bg-gray-100 text-gray-900 min-h-screen">
+<body class="bg-gray-50 min-h-screen text-gray-800">
 
-  <div class="max-w-4xl mx-auto p-6">
-    <div class="flex justify-between items-center mb-6">
-      <h1 class="text-3xl font-bold">Seller Dashboard</h1>
-      <button id="logout-btn" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">Logout</button>
+  <!-- Header -->
+  <header class="bg-green-600 text-white py-4 shadow">
+    <div class="max-w-6xl mx-auto px-4 flex justify-between items-center">
+      <h1 class="text-2xl font-bold">Jesmont Seller Dashboard</h1>
+      <button id="logout-btn" class="bg-red-500 hover:bg-red-600 px-4 py-2 rounded text-sm">Logout</button>
     </div>
+  </header>
 
-    <div id="profile" class="bg-white p-6 rounded-lg shadow-md mb-8">
-      <h2 class="text-xl font-semibold mb-4">Your Profile</h2>
-      <div class="flex items-center gap-4">
-        <img id="logo" src="" alt="Logo" class="w-20 h-20 rounded-full object-cover border">
+  <!-- Main Content -->
+  <main class="max-w-6xl mx-auto px-4 py-8">
+
+    <!-- Seller Profile -->
+    <section id="profile-section" class="bg-white p-6 rounded-lg shadow mb-10">
+      <h2 class="text-xl font-semibold mb-4">Your Business Profile</h2>
+      <div class="flex items-center space-x-6">
+        <img id="logo" class="w-24 h-24 object-cover rounded-full border-2 border-green-500" src="" alt="Logo" />
         <div>
           <p><strong>Name:</strong> <span id="business-name"></span></p>
           <p><strong>Email:</strong> <span id="email"></span></p>
           <p><strong>Phone:</strong> <span id="phone"></span></p>
+          <p><strong>Category:</strong> <span id="category"></span></p>
         </div>
       </div>
-    </div>
+    </section>
 
-    <div id="products-section" class="bg-white p-6 rounded-lg shadow-md">
+    <!-- Products Section -->
+    <section class="bg-white p-6 rounded-lg shadow">
       <h2 class="text-xl font-semibold mb-4">Your Products</h2>
-      <div id="product-list" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <!-- Product cards go here -->
+      <div id="product-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+        <!-- Product cards load here -->
       </div>
-    </div>
-  </div>
+    </section>
 
-  <!-- Firebase App Logic -->
+  </main>
+
+  <!-- Firebase & Script -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-    import { getFirestore, doc, getDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDlakKgMzhADOywIOg4iTCJ5sUFXLMGwVg",
@@ -60,6 +67,7 @@
     const businessNameEl = document.getElementById("business-name");
     const emailEl = document.getElementById("email");
     const phoneEl = document.getElementById("phone");
+    const categoryEl = document.getElementById("category");
     const logoEl = document.getElementById("logo");
     const productListEl = document.getElementById("product-list");
 
@@ -73,32 +81,31 @@
       const querySnapshot = await getDocs(q);
 
       if (!querySnapshot.empty) {
-        const sellerData = querySnapshot.docs[0].data();
-
-        businessNameEl.textContent = sellerData.businessName || "N/A";
-        emailEl.textContent = sellerData.email || "N/A";
-        phoneEl.textContent = sellerData.phone || "N/A";
-        logoEl.src = sellerData.logoURL || "https://via.placeholder.com/80";
+        const data = querySnapshot.docs[0].data();
+        businessNameEl.textContent = data.businessName || "N/A";
+        emailEl.textContent = data.email || "N/A";
+        phoneEl.textContent = data.phone || "N/A";
+        categoryEl.textContent = data.category || "N/A";
+        logoEl.src = data.logoURL || "https://via.placeholder.com/100";
       }
 
-      // Fetch Products
-      const productQuery = query(collection(db, "products"), where("sellerId", "==", user.uid));
-      const productSnapshot = await getDocs(productQuery);
+      // Load Products
+      const productsQ = query(collection(db, "products"), where("sellerId", "==", user.uid));
+      const productSnap = await getDocs(productsQ);
 
-      if (productSnapshot.empty) {
-        productListEl.innerHTML = "<p class='text-gray-500'>No products uploaded yet.</p>";
+      if (productSnap.empty) {
+        productListEl.innerHTML = "<p class='text-gray-500 col-span-3'>You haven't uploaded any products yet.</p>";
       } else {
-        productSnapshot.forEach(doc => {
+        productSnap.forEach(doc => {
           const product = doc.data();
-          const card = `
-            <div class="border rounded-lg p-4 shadow-sm bg-white">
-              <img src="${product.imageURL}" alt="${product.name}" class="w-full h-40 object-cover rounded mb-2">
-              <h3 class="font-bold text-lg">${product.name}</h3>
+          productListEl.innerHTML += `
+            <div class="bg-gray-100 rounded-lg shadow-md p-4">
+              <img src="${product.imageURL}" alt="${product.name}" class="w-full h-40 object-cover rounded mb-3">
+              <h3 class="font-bold text-lg text-green-700">${product.name}</h3>
               <p class="text-sm text-gray-600">${product.description}</p>
-              <p class="text-green-600 font-semibold mt-2">Ksh ${product.price}</p>
+              <p class="text-yellow-600 font-semibold mt-2">Ksh ${product.price}</p>
             </div>
           `;
-          productListEl.innerHTML += card;
         });
       }
     });
@@ -108,5 +115,6 @@
       window.location.href = "index.html";
     });
   </script>
+
 </body>
 </html>
