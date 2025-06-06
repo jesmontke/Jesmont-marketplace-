@@ -75,7 +75,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
 
      form.reset();
-window.location.href = "seller-dashboard.html";
+window.location.href = "dashboard.html";
 
 
     } catch (error) {
