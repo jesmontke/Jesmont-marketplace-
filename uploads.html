@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Upload Product - Jesmont Marketplace</title>
+  <title>Product Upload - Jesmont Marketplace</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet" />
   <style>
@@ -15,46 +15,47 @@
   </style>
 </head>
 
-<body class="max-w-xl mx-auto p-6">
-  <h1 class="text-3xl font-bold mb-6 text-center">Upload New Product</h1>
+<body class="px-4 py-8 max-w-3xl mx-auto">
+  <h1 class="text-3xl font-bold text-center text-gray-800 mb-8">Upload a New Product</h1>
 
-  <form id="productForm" class="bg-white p-6 rounded-lg shadow-md space-y-4">
+  <!-- Upload form, hidden by default -->
+  <form id="uploadForm" style="display:none;" class="bg-white rounded-lg shadow p-6 space-y-4">
     <div>
       <label for="productName" class="block font-semibold mb-1">Product Name</label>
-      <input type="text" id="productName" name="productName" required
+      <input type="text" id="productName" required
         class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
     </div>
 
     <div>
-      <label for="productDescription" class="block font-semibold mb-1">Description</label>
-      <textarea id="productDescription" name="productDescription" rows="3"
+      <label for="productDescription" class="block font-semibold mb-1">Product Description</label>
+      <textarea id="productDescription" rows="4"
         class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
     </div>
 
     <div>
       <label for="price" class="block font-semibold mb-1">Price (KES)</label>
-      <input type="number" id="price" name="price" min="0" step="0.01" required
+      <input type="number" id="price" min="0" step="0.01" required
         class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
     </div>
 
     <div>
       <label for="productImage" class="block font-semibold mb-1">Product Image</label>
-      <input type="file" id="productImage" name="productImage" accept="image/*" required />
+      <input type="file" id="productImage" accept="image/*" required />
     </div>
 
-    <button
-      class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition duration-300 font-semibold"
-      type="submit">Upload Product</button>
+    <button type="submit"
+      class="bg-blue-600 text-white font-semibold px-6 py-2 rounded hover:bg-blue-700 transition">Upload Product</button>
 
-    <p id="statusMessage" class="mt-4 text-center"></p>
+    <p id="uploadStatus" class="mt-4 text-center"></p>
   </form>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
     import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
     import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
+    // Your Firebase config here
     const firebaseConfig = {
       apiKey: "AIzaSyDlakKgMzhADOywIOg4iTCJ5sUFXLMGwVg",
       authDomain: "jesmont-marketplace.firebaseapp.com",
@@ -66,80 +67,69 @@
     };
 
     const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
     const db = getFirestore(app);
+    const auth = getAuth();
     const storage = getStorage(app);
-
-    const form = document.getElementById("productForm");
-    const statusMessage = document.getElementById("statusMessage");
 
     let currentUser = null;
 
-    // Check if user is logged in and redirect if not
+    const uploadForm = document.getElementById("uploadForm");
+    const uploadStatus = document.getElementById("uploadStatus");
+
+    // Show form only if user is logged in
     onAuthStateChanged(auth, user => {
       if (user) {
         currentUser = user;
+        uploadForm.style.display = "block";
       } else {
-        // Redirect to login page or show message
-        statusMessage.textContent = "You must be logged in to upload products.";
-        statusMessage.classList.add("text-red-500");
-        form.style.display = "none";
+        window.location.href = "login.html"; // Change to your actual login page
       }
     });
 
-    form.addEventListener("submit", async (e) => {
+    uploadForm.addEventListener("submit", async (e) => {
       e.preventDefault();
-
+      uploadStatus.textContent = "";
       if (!currentUser) {
-        statusMessage.textContent = "You must be logged in to upload products.";
-        statusMessage.classList.add("text-red-500");
+        uploadStatus.textContent = "You must be logged in to upload a product.";
         return;
       }
 
-      const productName = form.productName.value.trim();
-      const productDescription = form.productDescription.value.trim();
-      const price = parseFloat(form.price.value);
-      const productImage = form.productImage.files[0];
+      const productName = document.getElementById("productName").value.trim();
+      const productDescription = document.getElementById("productDescription").value.trim();
+      const price = parseFloat(document.getElementById("price").value);
+      const productImageInput = document.getElementById("productImage");
+      const file = productImageInput.files[0];
 
-      if (!productName || !price || !productImage) {
-        statusMessage.textContent = "Please fill in all required fields.";
-        statusMessage.classList.add("text-red-500");
+      if (!productName || isNaN(price) || !file) {
+        uploadStatus.textContent = "Please fill all required fields and select an image.";
         return;
       }
 
-      statusMessage.textContent = "Uploading image...";
-      statusMessage.classList.remove("text-red-500");
-      statusMessage.classList.add("text-blue-600");
+      uploadStatus.textContent = "Uploading product image...";
 
       try {
         // Upload image to Firebase Storage
-        const storageRef = ref(storage, `productImages/${currentUser.uid}/${Date.now()}_${productImage.name}`);
-        const snapshot = await uploadBytes(storageRef, productImage);
-        const downloadURL = await getDownloadURL(snapshot.ref);
+        const storageRef = ref(storage, `productImages/${currentUser.uid}/${Date.now()}_${file.name}`);
+        const snapshot = await uploadBytes(storageRef, file);
+        const imageUrl = await getDownloadURL(snapshot.ref);
 
-        statusMessage.textContent = "Saving product info...";
+        uploadStatus.textContent = "Saving product details...";
 
-        // Save product info to Firestore
+        // Save product data to Firestore
         await addDoc(collection(db, "products"), {
           sellerUid: currentUser.uid,
           productName,
           productDescription,
           price,
-          productImageURL: downloadURL,
-          createdAt: serverTimestamp(),
+          productImageURL: imageUrl,
+          createdAt: serverTimestamp()
         });
 
-        statusMessage.textContent = "Product uploaded successfully!";
-        statusMessage.classList.remove("text-red-500");
-        statusMessage.classList.add("text-green-600");
-
-        form.reset();
-
+        uploadStatus.textContent = "Product uploaded successfully!";
+        uploadForm.reset();
       } catch (error) {
         console.error("Error uploading product:", error);
-        statusMessage.textContent = "Failed to upload product. Try again.";
-        statusMessage.classList.remove("text-green-600");
-        statusMessage.classList.add("text-red-500");
+        uploadStatus.textContent = "Failed to upload product. Please try again.";
       }
     });
   </script>
