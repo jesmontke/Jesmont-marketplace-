@@ -49,7 +49,7 @@
     .seller-profile:hover,
     .seller-profile.selected {
       transform: translateY(-4px);
-      border-color: #3b82f6; /* blue-500 */
+      border-color: #3b82f6;
       box-shadow: 0 4px 12px rgb(59 130 246 / 0.4);
     }
 
@@ -59,7 +59,7 @@
       border-radius: 50%;
       object-fit: cover;
       margin-bottom: 0.5rem;
-      background: #e2e8f0; /* gray-200 fallback */
+      background: #e2e8f0;
     }
 
     /* Product listing grid */
@@ -105,7 +105,7 @@
       width: 100%;
       padding: 0.75rem 1.5rem 0.75rem 1rem;
       border-radius: 9999px;
-      border: 1px solid #cbd5e1; /* gray-300 */
+      border: 1px solid #cbd5e1;
       outline: none;
       font-size: 1rem;
       box-shadow: 0 0 0 0 transparent;
@@ -113,7 +113,7 @@
     }
 
     #searchBar:focus {
-      box-shadow: 0 0 0 3px #3b82f6; /* blue-500 ring */
+      box-shadow: 0 0 0 3px #3b82f6;
       border-color: #3b82f6;
     }
 
@@ -122,7 +122,7 @@
       right: 1rem;
       top: 50%;
       transform: translateY(-50%);
-      color: #94a3b8; /* gray-400 */
+      color: #94a3b8;
       pointer-events: none;
     }
 
@@ -145,27 +145,27 @@
     }
 
     .category-btn[data-category="all"] {
-      background-color: #3b82f6; /* blue-500 */
+      background-color: #3b82f6;
     }
 
     .category-btn[data-category="electronics"] {
-      background-color: #10b981; /* green-500 */
+      background-color: #10b981;
     }
 
     .category-btn[data-category="fashion"] {
-      background-color: #f59e0b; /* yellow-500 */
+      background-color: #f59e0b;
     }
 
     .category-btn[data-category="beauty"] {
-      background-color: #8b5cf6; /* purple-500 */
+      background-color: #8b5cf6;
     }
 
     .category-btn[data-category="sports"] {
-      background-color: #ec4899; /* pink-500 */
+      background-color: #ec4899;
     }
 
     .category-btn[data-category="toys"] {
-      background-color: #ef4444; /* red-500 */
+      background-color: #ef4444;
     }
 
     .category-btn.selected {
@@ -213,7 +213,6 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-    // Your Firebase config here
     const firebaseConfig = {
       apiKey: "AIzaSyDlakKgMzhADOywIOg4iTCJ5sUFXLMGwVg",
       authDomain: "jesmont-marketplace.firebaseapp.com",
@@ -232,7 +231,6 @@
     let selectedCategory = "all";
     let selectedSellerUid = null;
 
-    // Load all sellers from Firestore
     async function loadSellers() {
       const sellerProfiles = document.getElementById("sellerProfiles");
       sellerProfiles.innerHTML = "Loading sellers...";
@@ -257,7 +255,6 @@
         }
 
         displaySellerProfiles(allSellers);
-        // Automatically select first seller on load
         selectSeller(allSellers[0].uid);
 
       } catch (error) {
@@ -266,7 +263,6 @@
       }
     }
 
-    // Display seller profiles horizontally
     function displaySellerProfiles(sellers) {
       const sellerProfiles = document.getElementById("sellerProfiles");
       sellerProfiles.innerHTML = "";
@@ -277,11 +273,11 @@
         card.dataset.uid = seller.uid;
         card.dataset.category = seller.category;
 
-        card.innerHTML = 
+        card.innerHTML = `
           <img src="${seller.logoURL || 'https://via.placeholder.com/70?text=Logo'}" alt="${seller.businessName} Logo" />
           <div class="font-semibold text-sm truncate" title="${seller.businessName}">${seller.businessName}</div>
           <div class="text-xs text-gray-500 truncate" title="${seller.category}">${capitalize(seller.category)}</div>
-        ;
+        `;
 
         card.addEventListener("click", () => {
           selectSeller(seller.uid);
@@ -291,7 +287,6 @@
       });
     }
 
-    // Load and display products for a seller
     async function loadProductsForSeller(sellerUid) {
       const productListings = document.getElementById("productListings");
       productListings.innerHTML = "Loading products...";
@@ -318,7 +313,6 @@
       }
     }
 
-    // Display product cards in grid
     function displayProducts(products) {
       const productListings = document.getElementById("productListings");
       productListings.innerHTML = "";
@@ -332,22 +326,21 @@
         const card = document.createElement("div");
         card.className = "product-card";
 
-        card.innerHTML = 
+        card.innerHTML = `
           <img src="${product.productImageURL || 'https://via.placeholder.com/300x200?text=No+Image'}" alt="${product.productName}" class="product-image" />
           <h3 class="text-lg font-semibold">${product.productName}</h3>
           <p class="text-gray-700 text-sm mb-2">${product.productDescription}</p>
           <p class="text-green-600 font-bold">${product.price ? "KES " + product.price : "Price not set"}</p>
-        ;
+        `;
 
         productListings.appendChild(card);
       });
     }
 
-    // Select a seller profile card
     function selectSeller(uid) {
       selectedSellerUid = uid;
 
-      // Highlight selected seller profile
+      // Highlight selected seller card
       const sellerCards = document.querySelectorAll(".seller-profile");
       sellerCards.forEach(card => {
         card.classList.toggle("selected", card.dataset.uid === uid);
@@ -357,61 +350,77 @@
       loadProductsForSeller(uid);
     }
 
-    // Filter sellers based on category and search input
-    function filterSellers() {
-      const searchValue = document.getElementById("searchBar").value.toLowerCase();
-
-      // Filter sellers by category and search text
-      const filteredSellers = allSellers.filter(seller => {
-        const matchesCategory = selectedCategory === "all" || seller.category === selectedCategory;
-        const matchesSearch =
-          seller.businessName.toLowerCase().includes(searchValue) ||
-          seller.description.toLowerCase().includes(searchValue);
-        return matchesCategory && matchesSearch;
-      });
-
-      displaySellerProfiles(filteredSellers);
-
-      // If current selected seller is not in filtered, select first seller or clear products
-      if (!filteredSellers.some(s => s.uid === selectedSellerUid)) {
-        if (filteredSellers.length > 0) {
-          selectSeller(filteredSellers[0].uid);
-        } else {
-          document.getElementById("productListings").innerHTML = "<p class='text-gray-500'>No sellers match your filter.</p>";
-          selectedSellerUid = null;
-        }
-      }
-    }
-
-    // Capitalize first letter helper
     function capitalize(str) {
       return str.charAt(0).toUpperCase() + str.slice(1);
     }
 
-    // Setup event listeners for search bar and category buttons
-    function setupFilters() {
-      const searchBar = document.getElementById("searchBar");
-      searchBar.addEventListener("input", () => {
-        filterSellers();
+    // Filter sellers by category
+    function filterSellersByCategory(category) {
+      selectedCategory = category;
+
+      const sellerCards = document.querySelectorAll(".seller-profile");
+      sellerCards.forEach(card => {
+        if (category === "all" || card.dataset.category === category) {
+          card.style.display = "block";
+        } else {
+          card.style.display = "none";
+        }
       });
 
-      const categoryButtons = document.querySelectorAll(".category-btn");
-      categoryButtons.forEach(btn => {
-        btn.addEventListener("click", () => {
-          selectedCategory = btn.dataset.category.toLowerCase();
+      // If selected seller is filtered out, select first visible seller or clear selection
+      const visibleSellers = [...sellerCards].filter(c => c.style.display === "block");
+      if (visibleSellers.length === 0) {
+        document.getElementById("productListings").innerHTML = "<p class='text-gray-500'>No sellers in this category.</p>";
+      }
 
-          categoryButtons.forEach(b => b.classList.remove("selected"));
-          btn.classList.add("selected");
-
-          filterSellers();
-        });
-      });
+      if (!visibleSellers.some(c => c.dataset.uid === selectedSellerUid)) {
+        if (visibleSellers.length > 0) {
+          selectSeller(visibleSellers[0].dataset.uid);
+        } else {
+          selectedSellerUid = null;
+          document.getElementById("productListings").innerHTML = "";
+        }
+      }
     }
 
-    document.addEventListener("DOMContentLoaded", () => {
-      loadSellers();
-      setupFilters();
+    // Search sellers and products by name
+    function searchHandler() {
+      const term = document.getElementById("searchBar").value.toLowerCase();
+
+      // Filter sellers
+      const sellerCards = document.querySelectorAll(".seller-profile");
+      sellerCards.forEach(card => {
+        const name = card.querySelector("div").textContent.toLowerCase();
+        if (name.includes(term)) {
+          card.style.display = "block";
+        } else {
+          card.style.display = "none";
+        }
+      });
+
+      // Filter products if a seller is selected
+      if (selectedSellerUid) {
+        const filteredProducts = allProducts.filter(product => product.productName.toLowerCase().includes(term));
+        displayProducts(filteredProducts);
+      }
+    }
+
+    // Event listeners for category buttons
+    document.querySelectorAll(".category-btn").forEach(button => {
+      button.addEventListener("click", () => {
+        document.querySelectorAll(".category-btn").forEach(btn => btn.classList.remove("selected"));
+        button.classList.add("selected");
+
+        filterSellersByCategory(button.dataset.category);
+      });
     });
+
+    // Event listener for search bar
+    document.getElementById("searchBar").addEventListener("input", searchHandler);
+
+    // Load sellers on page load
+    loadSellers();
+
   </script>
 </body>
 
