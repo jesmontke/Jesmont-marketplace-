@@ -1,50 +1,47 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Seller Dashboard - Jesmont Marketplace</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <meta charset="UTF-8">
+  <title>Jesmont Seller Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script type="module" src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
+  <script type="module" src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"></script>
+  <script type="module" src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js"></script>
+  <script type="module" src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 font-sans">
-  <div class="max-w-6xl mx-auto py-10 px-4">
-    <div class="flex justify-between items-center mb-8">
-      <h1 class="text-3xl font-bold text-blue-600">Seller Dashboard</h1>
-      <button id="logoutBtn" class="bg-red-500 text-white px-4 py-2 rounded">Logout</button>
+<body class="bg-gray-100 text-gray-900 min-h-screen">
+
+  <div class="max-w-4xl mx-auto p-6">
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-3xl font-bold">Seller Dashboard</h1>
+      <button id="logout-btn" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">Logout</button>
     </div>
 
-    <div class="bg-white p-6 rounded-lg shadow-md mb-8">
-      <h2 class="text-2xl font-semibold mb-4">Your Profile</h2>
-      <div id="profile" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <!-- Profile info will be populated here -->
+    <div id="profile" class="bg-white p-6 rounded-lg shadow-md mb-8">
+      <h2 class="text-xl font-semibold mb-4">Your Profile</h2>
+      <div class="flex items-center gap-4">
+        <img id="logo" src="" alt="Logo" class="w-20 h-20 rounded-full object-cover border">
+        <div>
+          <p><strong>Name:</strong> <span id="business-name"></span></p>
+          <p><strong>Email:</strong> <span id="email"></span></p>
+          <p><strong>Phone:</strong> <span id="phone"></span></p>
+        </div>
       </div>
     </div>
 
-    <div class="bg-white p-6 rounded-lg shadow-md mb-8">
-      <h2 class="text-2xl font-semibold mb-4">Add New Product</h2>
-      <form id="productForm" class="space-y-4">
-        <input type="text" id="product-name" placeholder="Product Name" required class="w-full px-4 py-2 border rounded">
-        <textarea id="product-description" placeholder="Product Description" required class="w-full px-4 py-2 border rounded"></textarea>
-        <input type="number" id="product-price" placeholder="Price" required class="w-full px-4 py-2 border rounded">
-        <input type="file" id="product-image" accept="image/*" required class="w-full">
-        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">Upload Product</button>
-      </form>
-    </div>
-
-    <div class="bg-white p-6 rounded-lg shadow-md">
-      <h2 class="text-2xl font-semibold mb-4">Your Products</h2>
-      <div id="productList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <!-- Product cards will be populated here -->
+    <div id="products-section" class="bg-white p-6 rounded-lg shadow-md">
+      <h2 class="text-xl font-semibold mb-4">Your Products</h2>
+      <div id="product-list" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Product cards go here -->
       </div>
     </div>
   </div>
 
-  <!-- Firebase SDK -->
+  <!-- Firebase App Logic -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-    import { getFirestore, doc, getDoc, collection, addDoc, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+    import { getFirestore, doc, getDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDlakKgMzhADOywIOg4iTCJ5sUFXLMGwVg",
@@ -52,84 +49,64 @@
       projectId: "jesmont-marketplace",
       storageBucket: "jesmont-marketplace.appspot.com",
       messagingSenderId: "543717950238",
-      appId: "1:543717950238:web:df009d49e88a2ea010bf0f"
+      appId: "1:543717950238:web:df009d49e88a2ea010bf0f",
+      measurementId: "G-56TMB41PS8"
     };
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
-    const storage = getStorage(app);
 
-    const profileContainer = document.getElementById("profile");
-    const productList = document.getElementById("productList");
-    const productForm = document.getElementById("productForm");
+    const businessNameEl = document.getElementById("business-name");
+    const emailEl = document.getElementById("email");
+    const phoneEl = document.getElementById("phone");
+    const logoEl = document.getElementById("logo");
+    const productListEl = document.getElementById("product-list");
 
     onAuthStateChanged(auth, async (user) => {
       if (!user) {
-        window.location.href = "sellerregistration.html";
+        window.location.href = "login.html";
         return;
       }
 
-      const docSnap = await getDoc(doc(db, "sellers", user.uid));
-      if (docSnap.exists()) {
-        const data = docSnap.data();
-        profileContainer.innerHTML = `
-          <div>
-            <p><strong>Name:</strong> ${data.businessName}</p>
-            <p><strong>Email:</strong> ${data.email}</p>
-            <p><strong>Type:</strong> ${data.businessType}</p>
-            <p><strong>Category:</strong> ${data.category}</p>
-          </div>
-          <div>
-            <img src="${data.logoURL}" alt="Logo" class="w-32 h-32 object-cover rounded">
-          </div>
-        `;
+      const q = query(collection(db, "sellers"), where("uid", "==", user.uid));
+      const querySnapshot = await getDocs(q);
+
+      if (!querySnapshot.empty) {
+        const sellerData = querySnapshot.docs[0].data();
+
+        businessNameEl.textContent = sellerData.businessName || "N/A";
+        emailEl.textContent = sellerData.email || "N/A";
+        phoneEl.textContent = sellerData.phone || "N/A";
+        logoEl.src = sellerData.logoURL || "https://via.placeholder.com/80";
       }
 
-      const productSnap = await getDocs(collection(db, `sellers/${user.uid}/products`));
-      productSnap.forEach((doc) => {
-        const product = doc.data();
-        productList.innerHTML += `
-          <div class="border p-4 rounded shadow">
-            <img src="${product.imageURL}" class="h-40 w-full object-cover mb-2">
-            <h3 class="text-lg font-bold">${product.name}</h3>
-            <p>${product.description}</p>
-            <p class="font-semibold text-green-600">Ksh ${product.price}</p>
-            <button onclick="deleteProduct('${doc.id}')" class="mt-2 bg-red-500 text-white px-2 py-1 rounded">Delete</button>
-          </div>
-        `;
-      });
+      // Fetch Products
+      const productQuery = query(collection(db, "products"), where("sellerId", "==", user.uid));
+      const productSnapshot = await getDocs(productQuery);
 
-      window.deleteProduct = async function (id) {
-        await deleteDoc(doc(db, `sellers/${user.uid}/products/${id}`));
-        location.reload();
-      };
-
-      productForm.addEventListener("submit", async (e) => {
-        e.preventDefault();
-        const name = document.getElementById("product-name").value;
-        const description = document.getElementById("product-description").value;
-        const price = document.getElementById("product-price").value;
-        const file = document.getElementById("product-image").files[0];
-
-        const imgRef = ref(storage, `products/${user.uid}/${file.name}`);
-        await uploadBytes(imgRef, file);
-        const imageURL = await getDownloadURL(imgRef);
-
-        await addDoc(collection(db, `sellers/${user.uid}/products`), {
-          name, description, price, imageURL, createdAt: new Date()
+      if (productSnapshot.empty) {
+        productListEl.innerHTML = "<p class='text-gray-500'>No products uploaded yet.</p>";
+      } else {
+        productSnapshot.forEach(doc => {
+          const product = doc.data();
+          const card = `
+            <div class="border rounded-lg p-4 shadow-sm bg-white">
+              <img src="${product.imageURL}" alt="${product.name}" class="w-full h-40 object-cover rounded mb-2">
+              <h3 class="font-bold text-lg">${product.name}</h3>
+              <p class="text-sm text-gray-600">${product.description}</p>
+              <p class="text-green-600 font-semibold mt-2">Ksh ${product.price}</p>
+            </div>
+          `;
+          productListEl.innerHTML += card;
         });
-
-        alert("Product added!");
-        productForm.reset();
-        location.reload();
-      });
+      }
     });
 
-    document.getElementById("logoutBtn").addEventListener("click", () => {
-      signOut(auth);
+    document.getElementById("logout-btn").addEventListener("click", async () => {
+      await signOut(auth);
+      window.location.href = "index.html";
     });
   </script>
 </body>
 </html>
-
