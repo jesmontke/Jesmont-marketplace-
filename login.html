@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Jesmont Marketplace - Seller Login</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+  <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
+    <h2 class="text-2xl font-bold mb-6">Seller Login</h2>
+    <form id="login-form" class="space-y-4">
+      <input type="email" id="email" placeholder="Email" required class="w-full p-3 border rounded" />
+      <input type="password" id="password" placeholder="Password" required class="w-full p-3 border rounded" />
+      <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded hover:bg-blue-700 transition">Login</button>
+    </form>
+    <p class="mt-4 text-center text-sm text-gray-600">
+      Don't have an account? <a href="seller-registration.html" class="text-blue-600 hover:underline">Register</a>
+    </p>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDlakKgMzhADOywIOg4iTCJ5sUFXLMGwVg",
+      authDomain: "jesmont-marketplace.firebaseapp.com",
+      projectId: "jesmont-marketplace",
+      storageBucket: "jesmont-marketplace.appspot.com",
+      messagingSenderId: "543717950238",
+      appId: "1:543717950238:web:df009d49e88a2ea010bf0f",
+      measurementId: "G-56TMB41PS8"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    const form = document.getElementById('login-form');
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      const email = form.email.value.trim();
+      const password = form.password.value;
+
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+        alert("Login successful! Redirecting...");
+        window.location.href = 'seller-dashboard.html'; // Redirect after login
+      } catch (error) {
+        alert("Login failed: " + error.message);
+      }
+    });
+  </script>
+</body>
+</html>
