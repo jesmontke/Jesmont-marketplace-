@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Jesmont Marketplace - Upload Product</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+  <div class="bg-white p-8 rounded shadow max-w-lg w-full">
+    <h2 class="text-2xl font-bold mb-6">Add New Product</h2>
+    <form id="product-form" class="space-y-4">
+      <input type="text" id="product-name" placeholder="Product Name" required class="w-full p-3 border rounded" />
+      <textarea id="product-description" placeholder="Product Description" required class="w-full p-3 border rounded"></textarea>
+      <input type="number" id="product-price" placeholder="Price (KES)" required class="w-full p-3 border rounded" />
+      <input type="file" id="product-image" accept="image/*" required class="w-full" />
+      <button type="submit" class="w-full bg-green-600 text-white py-3 rounded hover:bg-green-700 transition">Upload Product</button>
+    </form>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDlakKgMzhADOywIOg4iTCJ5sUFXLMGwVg",
+      authDomain: "jesmont-marketplace.firebaseapp.com",
+      projectId: "jesmont-marketplace",
+      storageBucket: "jesmont-marketplace.appspot.com",
+      messagingSenderId: "543717950238",
+      appId: "1:543717950238:web:df009d49e88a2ea010bf0f",
+      measurementId: "G-56TMB41PS8"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const storage = getStorage(app);
+
+    let currentUserUid = null;
+
+    onAuthStateChanged(auth, user => {
+      if (!user) {
+        alert("Please log in first.");
+        window.location.href = "login.html";
+        return;
+      }
+      currentUserUid = user.uid;
+    });
+
+    const form = document.getElementById("product-form");
+
+    form.addEventListener("submit", async e => {
+      e.preventDefault();
+
+      if (!currentUserUid) {
+        alert("User not authenticated.");
+        return;
+      }
+
+      const name = document.getElementById("product-name").value.trim();
+      const description = document.getElementById("product-description").value.trim();
+      const price = parseFloat(document.getElementById("product-price").value);
+      const imageFile = document.getElementById("product-image").files[0];
+
+      if (!name || !description || !price || !imageFile) {
+        alert("Please fill in all fields and select an image.");
+        return;
+      }
+
+      try {
+        // Upload image
+        const imageRef = ref(storage, `products/${currentUserUid}/${imageFile.name}`);
+        await uploadBytes(imageRef, imageFile);
+        const imageURL = await getDownloadURL(imageRef);
+
+        // Add product doc
+        await addDoc(collection(db, "products"), {
+          sellerUid: currentUserUid,
+          name,
+          description,
+          price,
+          imageURL,
+          createdAt: serverTimestamp()
+        });
+
+        alert("Product uploaded successfully!");
+        form.reset();
+
+      } catch (error) {
+        console.error(error);
+        alert("Error uploading product: " + error.message);
+      }
+    });
+  </script>
+</body>
+</html>
