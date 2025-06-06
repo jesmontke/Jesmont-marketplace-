@@ -1,10 +1,8 @@
-// Firebase Setup
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
-// Firebase Config
 const firebaseConfig = {
   apiKey: "AIzaSyDlakKgMzhADOywIOg4iTCJ5sUFXLMGwVg",
   authDomain: "jesmont-marketplace.firebaseapp.com",
@@ -20,32 +18,38 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
 
-// Wait for form to load
 document.addEventListener("DOMContentLoaded", () => {
   const form = document.querySelector("form");
-  
+
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const businessName = document.getElementById("business-name").value;
+    const businessName = document.getElementById("business-name").value.trim();
     const businessType = document.getElementById("business-type").value;
-    const email = document.getElementById("email").value;
-    const phone = document.getElementById("phone").value;
+    const email = document.getElementById("email").value.trim();
+    const phone = document.getElementById("phone").value.trim();
     const password = document.getElementById("password").value;
     const confirmPassword = document.getElementById("confirm-password").value;
-    const address = document.getElementById("business-address").value;
-    const description = document.getElementById("business-description").value;
+    const address = document.getElementById("business-address").value.trim();
+    const description = document.getElementById("business-description").value.trim();
     const categories = Array.from(document.querySelectorAll("input[type='checkbox']:checked")).map(c => c.id);
     const logoFile = document.getElementById("logo-upload").files[0];
     const category = document.getElementById("category").value;
-
 
     if (password !== confirmPassword) {
       alert("Passwords do not match!");
       return;
     }
 
+    if (!businessName || !businessType || !email || !phone || !address || !description || !category || categories.length === 0) {
+      alert("Please fill all required fields and select categories.");
+      return;
+    }
+
     try {
+      // Optionally disable button here to prevent multiple submits
+      // form.querySelector("button[type='submit']").disabled = true;
+
       const userCred = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCred.user;
 
@@ -56,26 +60,28 @@ document.addEventListener("DOMContentLoaded", () => {
         logoURL = await getDownloadURL(logoRef);
       }
 
-     await addDoc(collection(db, "sellers"), {
-  uid: user.uid,
-  businessName,
-  businessType,
-  email,
-  phone,
-  address,
-  description,
-  category,
-  categories,
-  logoURL,
-  createdAt: new Date()
-});
-
+      await setDoc(doc(db, "sellers", user.uid), {
+        uid: user.uid,
+        businessName,
+        businessType,
+        email,
+        phone,
+        address,
+        description,
+        category,
+        categories,
+        logoURL,
+        createdAt: new Date()
+      });
 
       alert("Seller registered successfully!");
       form.reset();
+
     } catch (error) {
       console.error(error);
       alert("Error: " + error.message);
+    } finally {
+      // form.querySelector("button[type='submit']").disabled = false;
     }
   });
 });
