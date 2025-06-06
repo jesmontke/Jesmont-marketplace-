@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Jesmont Marketplace - Seller Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-8 min-h-screen">
+
+  <div id="dashboard" class="max-w-3xl mx-auto bg-white rounded shadow p-6">
+    <h1 class="text-3xl font-bold mb-6">Welcome, Seller!</h1>
+    <div id="profile-info" class="space-y-4"></div>
+
+    <button id="logout-btn" class="mt-8 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">Logout</button>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDlakKgMzhADOywIOg4iTCJ5sUFXLMGwVg",
+      authDomain: "jesmont-marketplace.firebaseapp.com",
+      projectId: "jesmont-marketplace",
+      storageBucket: "jesmont-marketplace.appspot.com",
+      messagingSenderId: "543717950238",
+      appId: "1:543717950238:web:df009d49e88a2ea010bf0f",
+      measurementId: "G-56TMB41PS8"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const profileInfo = document.getElementById("profile-info");
+    const logoutBtn = document.getElementById("logout-btn");
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        alert("Please log in first.");
+        window.location.href = "login.html";
+        return;
+      }
+      const docRef = doc(db, "sellers", user.uid);
+      const docSnap = await getDoc(docRef);
+
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        profileInfo.innerHTML = `
+          <p><strong>Business Name:</strong> ${data.businessName}</p>
+          <p><strong>Business Type:</strong> ${data.businessType}</p>
+          <p><strong>Email:</strong> ${data.email}</p>
+          <p><strong>Phone:</strong> ${data.phone}</p>
+          <p><strong>Address:</strong> ${data.address}</p>
+          <p><strong>Description:</strong> ${data.description}</p>
+          <p><strong>Category:</strong> ${data.category}</p>
+          <p><strong>Other Categories:</strong> ${data.categories.join(", ")}</p>
+          ${data.logoURL ? `<img src="${data.logoURL}" alt="Business Logo" class="max-w-xs mt-4 rounded"/>` : ''}
+        `;
+      } else {
+        profileInfo.textContent = "No profile data found.";
+      }
+    });
+
+    logoutBtn.addEventListener("click", async () => {
+      await signOut(auth);
+      window.location.href = "login.html";
+    });
+  </script>
+</body>
+</html>
