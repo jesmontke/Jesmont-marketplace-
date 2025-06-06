@@ -45,7 +45,7 @@
       try {
         await signInWithEmailAndPassword(auth, email, password);
         alert("Login successful! Redirecting...");
-        window.location.href = 'seller-dashboard.html'; // Redirect after login
+        window.location.href = 'dashboard.html'; // Redirect after login
       } catch (error) {
         alert("Login failed: " + error.message);
       }
