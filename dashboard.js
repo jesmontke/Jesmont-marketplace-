@@ -1,9 +1,28 @@
 // Firebase Setup
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import { getFirestore, collection, query, where, getDocs, addDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+import {
+  getAuth,
+  onAuthStateChanged,
+  signOut
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import {
+  getFirestore,
+  collection,
+  query,
+  where,
+  getDocs,
+  addDoc,
+  deleteDoc,
+  doc
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import {
+  getStorage,
+  ref,
+  uploadBytes,
+  getDownloadURL
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
+// Firebase config
 const firebaseConfig = {
   apiKey: "AIzaSyDlakKgMzhADOywIOg4iTCJ5sUFXLMGwVg",
   authDomain: "jesmont-marketplace.firebaseapp.com",
@@ -18,18 +37,18 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
 
-// Elements
-const logoutBtn = document.getElementById("logout-btn");   // Note: "logout-btn" matches your HTML
-const productForm = document.getElementById("upload-form"); // matches your modal form id
+// DOM Elements
+const logoutBtn = document.getElementById("logout-btn");
+const productForm = document.getElementById("upload-form");
 const productList = document.getElementById("product-list");
 
-const businessNameEl = document.getElementById("business-name");
+const businessNameEl = document.getElementById("businessName");
 const emailEl = document.getElementById("email");
 const phoneEl = document.getElementById("phone");
 const categoryEl = document.getElementById("category");
 const logoEl = document.getElementById("logo");
 
-// AUTH CHECK
+// AUTH STATE LISTENER
 onAuthStateChanged(auth, async (user) => {
   if (!user) {
     console.log("No user logged in. Redirecting to login...");
@@ -37,14 +56,15 @@ onAuthStateChanged(auth, async (user) => {
     return;
   }
 
-  console.log("Logged in user uid:", user.uid);
+  console.log("Logged in user UID:", user.uid);
 
   try {
-    const sellerDocRef = doc(db, "sellers", user.uid);
-    const sellerDocSnap = await getDoc(sellerDocRef);
+    const sellersRef = collection(db, "sellers");
+    const q = query(sellersRef, where("uid", "==", user.uid));
+    const querySnapshot = await getDocs(q);
 
-    if (sellerDocSnap.exists()) {
-      const sellerData = sellerDocSnap.data();
+    if (!querySnapshot.empty) {
+      const sellerData = querySnapshot.docs[0].data();
 
       businessNameEl.textContent = sellerData.businessName || "Business Name";
       emailEl.textContent = sellerData.email || user.email;
@@ -57,12 +77,11 @@ onAuthStateChanged(auth, async (user) => {
       alert("Seller profile not found.");
     }
   } catch (error) {
-    console.error("Error fetching seller info:", error);
+    console.error("Error fetching seller data:", error);
   }
 });
 
-
-// LOGOUT
+// LOGOUT BUTTON
 logoutBtn.addEventListener("click", () => {
   signOut(auth).then(() => {
     window.location.href = "login.html";
@@ -72,6 +91,7 @@ logoutBtn.addEventListener("click", () => {
 // UPLOAD PRODUCT
 productForm.addEventListener("submit", async (e) => {
   e.preventDefault();
+
   const name = document.getElementById("product-name").value;
   const price = document.getElementById("product-price").value;
   const description = document.getElementById("product-description").value;
@@ -95,13 +115,11 @@ productForm.addEventListener("submit", async (e) => {
     });
 
     productForm.reset();
-    loadProducts(user.uid);
-
-    // Close the upload modal (if you have code to toggle visibility)
     document.getElementById("upload-modal").classList.add("hidden");
+    loadProducts(user.uid);
   } catch (err) {
     console.error("Error uploading product:", err);
-    alert("Error uploading product");
+    alert("Error uploading product.");
   }
 });
 
@@ -115,6 +133,7 @@ async function loadProducts(uid) {
 
   querySnapshot.forEach((docSnap) => {
     const data = docSnap.data();
+
     const productCard = document.createElement("div");
     productCard.className = "border p-4 rounded-lg shadow flex flex-col";
 
