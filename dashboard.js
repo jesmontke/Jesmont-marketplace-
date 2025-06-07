@@ -1,7 +1,7 @@
 // Firebase Setup
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import { getFirestore, collection, query, where, getDocs, deleteDoc, doc, addDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getFirestore, collection, query, where, getDocs, addDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
 const firebaseConfig = {
@@ -18,9 +18,9 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
 
-// Fix element references to match HTML
-const logoutBtn = document.getElementById("logout-btn");
-const productForm = document.getElementById("upload-form");
+// Elements
+const logoutBtn = document.getElementById("logout-btn");   // Note: "logout-btn" matches your HTML
+const productForm = document.getElementById("upload-form"); // matches your modal form id
 const productList = document.getElementById("product-list");
 
 const businessNameEl = document.getElementById("business-name");
@@ -32,12 +32,19 @@ const logoEl = document.getElementById("logo");
 // AUTH CHECK
 onAuthStateChanged(auth, async (user) => {
   if (!user) {
+    console.log("No user logged in. Redirecting to login...");
     window.location.href = "login.html";
     return;
   }
 
-  const q = query(collection(db, "sellers"), where("uid", "==", user.uid));
+  console.log("Logged in user uid:", user.uid);
+
+  // Query seller profile
+  const sellersRef = collection(db, "sellers");
+  const q = query(sellersRef, where("uid", "==", user.uid));
   const querySnapshot = await getDocs(q);
+
+  console.log("Seller querySnapshot docs:", querySnapshot.docs);
 
   if (!querySnapshot.empty) {
     const sellerData = querySnapshot.docs[0].data();
@@ -88,6 +95,9 @@ productForm.addEventListener("submit", async (e) => {
 
     productForm.reset();
     loadProducts(user.uid);
+
+    // Close the upload modal (if you have code to toggle visibility)
+    document.getElementById("upload-modal").classList.add("hidden");
   } catch (err) {
     console.error("Error uploading product:", err);
     alert("Error uploading product");
@@ -98,7 +108,8 @@ productForm.addEventListener("submit", async (e) => {
 async function loadProducts(uid) {
   productList.innerHTML = "";
 
-  const q = query(collection(db, "products"), where("uid", "==", uid));
+  const productsRef = collection(db, "products");
+  const q = query(productsRef, where("uid", "==", uid));
   const querySnapshot = await getDocs(q);
 
   querySnapshot.forEach((docSnap) => {
