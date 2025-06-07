@@ -49,43 +49,41 @@ onAuthStateChanged(auth, async (user) => {
 
     if (docSnap.exists()) {
       const data = docSnap.data();
-      console.log("Seller data:", data);
-
       businessNameEl.textContent = data.businessName || "No business name set";
       sellerEmailEl.textContent = data.email || user.email || "No email set";
-      profileLogo.src = data.logoURL || "https://via.placeholder.com/100";
+      profileLogo.src = data.logoURL || "https://via.placeholder.com/80";
 
       // Prefill Edit Profile inputs:
       document.getElementById("nameInput").value = data.fullName || "";
       document.getElementById("businessInput").value = data.businessName || "";
     } else {
-      console.warn("No seller document found for UID:", user.uid);
       businessNameEl.textContent = "No business data found";
       sellerEmailEl.textContent = user.email || "No email";
-      profileLogo.src = "https://via.placeholder.com/100";
+      profileLogo.src = "https://via.placeholder.com/80";
     }
 
     displayProducts();
   } else {
-    // No user logged in, redirect to login page (index.html)
     window.location.href = "index.html";
   }
 });
 
+// Logout
 logoutBtn.addEventListener("click", () => {
-  signOut(auth).then(() => {
-    window.location.href = "index.html";
-  });
+  signOut(auth).then(() => window.location.href = "index.html");
 });
 
+// Toggle upload product form
 toggleProductFormBtn.addEventListener("click", () => {
   productForm.classList.toggle("hidden");
 });
 
+// Toggle edit profile form
 editProfileBtn.addEventListener("click", () => {
   editProfileForm.classList.toggle("hidden");
 });
 
+// Handle profile update
 editProfileForm.addEventListener("submit", async (e) => {
   e.preventDefault();
 
@@ -96,7 +94,6 @@ editProfileForm.addEventListener("submit", async (e) => {
   let logoURL = profileLogo.src;
 
   if (logoFile) {
-    // Upload to Cloudinary
     const formData = new FormData();
     formData.append("file", logoFile);
     formData.append("upload_preset", "Jesmont");
@@ -117,12 +114,12 @@ editProfileForm.addEventListener("submit", async (e) => {
   });
 
   alert("Profile updated successfully!");
-  // Update UI immediately
   businessNameEl.textContent = business;
   profileLogo.src = logoURL;
   editProfileForm.classList.add("hidden");
 });
 
+// Handle product upload
 productForm.addEventListener("submit", async (e) => {
   e.preventDefault();
 
@@ -130,36 +127,37 @@ productForm.addEventListener("submit", async (e) => {
   const category = document.getElementById("categoryInput").value.trim();
   const description = document.getElementById("descInput").value.trim();
   const price = parseFloat(document.getElementById("priceInput").value);
-  const imageFile = document.getElementById("productImageInput").files[0];
+  const productImageFile = document.getElementById("productImageInput").files[0];
 
-  if (!imageFile) {
+  if (!productImageFile) {
     alert("Please select a product image.");
     return;
   }
 
   // Upload product image to Cloudinary
   const formData = new FormData();
-  formData.append("file", imageFile);
+  formData.append("file", productImageFile);
   formData.append("upload_preset", "Jesmont");
 
-  const response = await fetch("https://api.cloudinary.com/v1_1/dxirsijbl/image/upload", {
+  const res = await fetch("https://api.cloudinary.com/v1_1/dxirsijbl/image/upload", {
     method: "POST",
     body: formData
   });
-  const imageData = await response.json();
+  const data = await res.json();
+  const imageUrl = data.secure_url;
 
-  // Save product to Firestore
+  // Add product doc in Firestore
   await addDoc(collection(db, "products"), {
+    sellerId: currentUser.uid,
     title,
     category,
     description,
     price,
-    imageUrl: imageData.secure_url,
-    sellerId: currentUser.uid,
+    imageUrl,
     createdAt: new Date()
   });
 
-  alert("Product added successfully!");
+  alert("Product added!");
   productForm.reset();
   productForm.classList.add("hidden");
 
@@ -167,41 +165,45 @@ productForm.addEventListener("submit", async (e) => {
 });
 
 async function displayProducts() {
-  productList.innerHTML = "";
-  console.log("Current UID:", currentUser.uid);
+  productList.innerHTML = "<p>Loading products...</p>";
 
-  try {
-    const q = query(
-      collection(db, "products"),
-      where("sellerId", "==", currentUser.uid)
-      // no orderBy here for debugging
-    );
-    const snapshot = await getDocs(q);
-    console.log("Snapshot size:", snapshot.size);
+  const productsQuery = query(
+    collection(db, "products"),
+    where("sellerId", "==", currentUser.uid),
+    orderBy("createdAt", "desc")
+  );
+  const querySnapshot = await getDocs(productsQuery);
 
-    if (snapshot.empty) {
-      productList.innerHTML = "<p>No products found.</p>";
-      return;
-    }
-
-    snapshot.forEach(doc => {
-      const product = doc.data();
-      productList.innerHTML += `<p>${product.title} - KSh ${product.price}</p>`;
-      console.log("Product:", product);
-    });
-  } catch (e) {
-    console.error("Error fetching products:", e);
+  if (querySnapshot.empty) {
+    productList.innerHTML = "<p class='text-gray-500'>No products uploaded yet.</p>";
+    return;
   }
-}
 
-  // Add event listeners for all delete buttons
-  document.querySelectorAll(".deleteBtn").forEach((btn) => {
-    btn.addEventListener("click", async (e) => {
-      const productId = e.target.dataset.id;
-      if (confirm("Are you sure you want to delete this product?")) {
-        await deleteDoc(doc(db, "products", productId));
+  productList.innerHTML = "";
+
+  querySnapshot.forEach((docSnap) => {
+    const product = docSnap.data();
+    const id = docSnap.id;
+
+    const card = document.createElement("div");
+    card.className = "product-card";
+
+    card.innerHTML = `
+      <img src="${product.imageUrl}" alt="${product.title}" />
+      <h4>${product.title}</h4>
+      <p>${product.description}</p>
+      <p class="price">KSh ${product.price.toFixed(2)}</p>
+      <button data-id="${id}" class="deleteBtn">Delete</button>
+    `;
+
+    // Delete button handler
+    card.querySelector(".deleteBtn").addEventListener("click", async () => {
+      if (confirm("Delete this product?")) {
+        await deleteDoc(doc(db, "products", id));
         displayProducts();
       }
     });
+
+    productList.appendChild(card);
   });
 }
