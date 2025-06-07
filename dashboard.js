@@ -1,7 +1,7 @@
 // Firebase Setup
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import { getFirestore, doc, getDoc, collection, addDoc, query, where, getDocs, deleteDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getFirestore, collection, query, where, getDocs, deleteDoc, doc, addDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
 const firebaseConfig = {
@@ -18,12 +18,11 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
 
-// Correct element references
-const logoutBtn = document.getElementById("logout");
-const productForm = document.getElementById("product-form");
+// Fix element references to match HTML
+const logoutBtn = document.getElementById("logout-btn");
+const productForm = document.getElementById("upload-form");
 const productList = document.getElementById("product-list");
 
-// Elements that match your HTML
 const businessNameEl = document.getElementById("business-name");
 const emailEl = document.getElementById("email");
 const phoneEl = document.getElementById("phone");
