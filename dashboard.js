@@ -48,47 +48,49 @@ const phoneEl = document.getElementById("phone");
 const categoryEl = document.getElementById("category");
 const logoEl = document.getElementById("logo");
 
-// AUTH STATE LISTENER
+// AUTH CHECK
 onAuthStateChanged(auth, async (user) => {
   if (!user) {
-    console.log("No user logged in. Redirecting to login...");
+    console.log("Redirecting to login...");
     window.location.href = "login.html";
     return;
   }
 
-  console.log("Logged in user UID:", user.uid);
+  console.log("User logged in:", user.uid);
 
   try {
     const sellersRef = collection(db, "sellers");
     const q = query(sellersRef, where("uid", "==", user.uid));
-    const querySnapshot = await getDocs(q);
+    const snapshot = await getDocs(q);
 
-    if (!querySnapshot.empty) {
-      const sellerData = querySnapshot.docs[0].data();
-
-      businessNameEl.textContent = sellerData.businessName || "Business Name";
-      emailEl.textContent = sellerData.email || user.email;
-      phoneEl.textContent = sellerData.phone || "N/A";
-      categoryEl.textContent = sellerData.category || "Uncategorized";
-      logoEl.src = sellerData.logoURL || "https://via.placeholder.com/100";
-
-      loadProducts(user.uid);
-    } else {
+    if (snapshot.empty) {
       alert("Seller profile not found.");
+      return;
     }
+
+    const sellerData = snapshot.docs[0].data();
+
+    // Display info
+    businessNameEl.textContent = sellerData.businessName || "Business Name";
+    emailEl.textContent = sellerData.email || user.email;
+    phoneEl.textContent = sellerData.phone || "N/A";
+    categoryEl.textContent = sellerData.category || "Uncategorized";
+    logoEl.src = sellerData.logoURL || "https://via.placeholder.com/100";
+
+    loadProducts(user.uid);
   } catch (error) {
-    console.error("Error fetching seller data:", error);
+    console.error("Failed to load seller profile:", error);
   }
 });
 
-// LOGOUT BUTTON
+// LOGOUT
 logoutBtn.addEventListener("click", () => {
   signOut(auth).then(() => {
     window.location.href = "login.html";
   });
 });
 
-// UPLOAD PRODUCT
+// PRODUCT UPLOAD
 productForm.addEventListener("submit", async (e) => {
   e.preventDefault();
 
@@ -98,7 +100,7 @@ productForm.addEventListener("submit", async (e) => {
   const imageFile = document.getElementById("product-image").files[0];
 
   const user = auth.currentUser;
-  if (!user) return;
+  if (!user || !imageFile) return;
 
   try {
     const imageRef = ref(storage, `products/${user.uid}/${Date.now()}-${imageFile.name}`);
@@ -118,8 +120,8 @@ productForm.addEventListener("submit", async (e) => {
     document.getElementById("upload-modal").classList.add("hidden");
     loadProducts(user.uid);
   } catch (err) {
-    console.error("Error uploading product:", err);
-    alert("Error uploading product.");
+    console.error("Upload error:", err);
+    alert("Product upload failed.");
   }
 });
 
@@ -127,13 +129,11 @@ productForm.addEventListener("submit", async (e) => {
 async function loadProducts(uid) {
   productList.innerHTML = "";
 
-  const productsRef = collection(db, "products");
-  const q = query(productsRef, where("uid", "==", uid));
-  const querySnapshot = await getDocs(q);
+  const q = query(collection(db, "products"), where("uid", "==", uid));
+  const snapshot = await getDocs(q);
 
-  querySnapshot.forEach((docSnap) => {
+  snapshot.forEach((docSnap) => {
     const data = docSnap.data();
-
     const productCard = document.createElement("div");
     productCard.className = "border p-4 rounded-lg shadow flex flex-col";
 
