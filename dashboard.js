@@ -168,37 +168,31 @@ productForm.addEventListener("submit", async (e) => {
 
 async function displayProducts() {
   productList.innerHTML = "";
+  console.log("Current UID:", currentUser.uid);
 
-  // Query products where sellerId == currentUser.uid, ordered by date desc
-  const q = query(
-    collection(db, "products"),
-    where("sellerId", "==", currentUser.uid),
-    orderBy("createdAt", "desc")
-  );
-  const querySnapshot = await getDocs(q);
+  try {
+    const q = query(
+      collection(db, "products"),
+      where("sellerId", "==", currentUser.uid)
+      // no orderBy here for debugging
+    );
+    const snapshot = await getDocs(q);
+    console.log("Snapshot size:", snapshot.size);
 
-  if (querySnapshot.empty) {
-    productList.innerHTML = "<p class='text-gray-500'>No products uploaded yet.</p>";
-    return;
+    if (snapshot.empty) {
+      productList.innerHTML = "<p>No products found.</p>";
+      return;
+    }
+
+    snapshot.forEach(doc => {
+      const product = doc.data();
+      productList.innerHTML += `<p>${product.title} - KSh ${product.price}</p>`;
+      console.log("Product:", product);
+    });
+  } catch (e) {
+    console.error("Error fetching products:", e);
   }
-
-  querySnapshot.forEach((docSnap) => {
-    const product = docSnap.data();
-    const id = docSnap.id;
-
-    const card = document.createElement("div");
-    card.className = "border rounded p-4 bg-white shadow";
-
-    card.innerHTML = `
-      <img src="${product.imageUrl}" alt="${product.title}" class="w-full h-48 object-cover rounded mb-3" />
-      <h4 class="text-lg font-semibold mb-1">${product.title}</h4>
-      <p class="text-gray-600 mb-1">${product.description}</p>
-      <p class="font-bold mb-2">KSh ${product.price.toFixed(2)}</p>
-      <button data-id="${id}" class="deleteBtn bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded">Delete</button>
-    `;
-
-    productList.appendChild(card);
-  });
+}
 
   // Add event listeners for all delete buttons
   document.querySelectorAll(".deleteBtn").forEach((btn) => {
