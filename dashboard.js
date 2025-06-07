@@ -13,16 +13,17 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-// Cloudinary config
+// Cloudinary
 const CLOUDINARY_URL = 'https://api.cloudinary.com/v1_1/dxirsijbl/image/upload';
 const CLOUDINARY_UPLOAD_PRESET = 'Jesmont';
 
 let currentUser;
 
-// Auth listener
+// Auth state
 auth.onAuthStateChanged(async user => {
   if (!user) return (window.location.href = 'index.html');
   currentUser = user;
+
   document.getElementById('sellerEmail').textContent = user.email;
 
   const sellerDoc = await db.collection('sellers').doc(user.uid).get();
@@ -31,15 +32,18 @@ auth.onAuthStateChanged(async user => {
     document.getElementById('nameInput').value = data.name || '';
     document.getElementById('businessInput').value = data.business || '';
     document.getElementById('businessName').textContent = data.business || 'Business Name';
-    if (data.logo) {
-      document.getElementById('profileLogo').src = data.logo;
-    }
+    document.getElementById('profileLogo').src = data.logo || '';
   }
 
   loadProducts();
 });
 
-// Edit profile
+// Show Edit Form
+function showEditForm() {
+  document.getElementById('editSection').classList.toggle('hidden');
+}
+
+// Edit Profile
 document.getElementById('profileForm').addEventListener('submit', async e => {
   e.preventDefault();
 
@@ -47,32 +51,33 @@ document.getElementById('profileForm').addEventListener('submit', async e => {
   const business = document.getElementById('businessInput').value;
   const logoFile = document.getElementById('logoInput').files[0];
 
-  let logoUrl;
+  let logoUrl = document.getElementById('profileLogo').src;
+
   if (logoFile) {
     const formData = new FormData();
     formData.append('file', logoFile);
     formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
-
     const res = await fetch(CLOUDINARY_URL, {
       method: 'POST',
       body: formData
     });
     const data = await res.json();
     logoUrl = data.secure_url;
-    document.getElementById('profileLogo').src = logoUrl;
   }
 
   await db.collection('sellers').doc(currentUser.uid).set({
     name,
     business,
-    logo: logoUrl || document.getElementById('profileLogo').src,
+    logo: logoUrl,
     email: currentUser.email
   });
 
   document.getElementById('businessName').textContent = business;
+  document.getElementById('profileLogo').src = logoUrl;
+  document.getElementById('editSection').classList.add('hidden');
 });
 
-// Add product
+// Add Product
 document.getElementById('productForm').addEventListener('submit', async e => {
   e.preventDefault();
 
@@ -85,6 +90,7 @@ document.getElementById('productForm').addEventListener('submit', async e => {
   const formData = new FormData();
   formData.append('file', imageFile);
   formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+
   const res = await fetch(CLOUDINARY_URL, { method: 'POST', body: formData });
   const data = await res.json();
   const imageUrl = data.secure_url;
@@ -103,7 +109,7 @@ document.getElementById('productForm').addEventListener('submit', async e => {
   loadProducts();
 });
 
-// Load products
+// Load Products
 async function loadProducts() {
   const snapshot = await db
     .collection('products')
@@ -130,7 +136,7 @@ async function loadProducts() {
   });
 }
 
-// Delete product
+// Delete Product
 async function deleteProduct(id) {
   await db.collection('products').doc(id).delete();
   loadProducts();
