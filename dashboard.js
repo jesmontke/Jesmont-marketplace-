@@ -186,4 +186,28 @@ async function displayProducts() {
     const product = docSnap.data();
     const id = docSnap.id;
 
-    const card =
+    const card = document.createElement("div");
+    card.className = "border rounded p-4 bg-white shadow";
+
+    card.innerHTML = `
+      <img src="${product.imageUrl}" alt="${product.title}" class="w-full h-48 object-cover rounded mb-3" />
+      <h4 class="text-lg font-semibold mb-1">${product.title}</h4>
+      <p class="text-gray-600 mb-1">${product.description}</p>
+      <p class="font-bold mb-2">KSh ${product.price.toFixed(2)}</p>
+      <button data-id="${id}" class="deleteBtn bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded">Delete</button>
+    `;
+
+    productList.appendChild(card);
+  });
+
+  // Add event listeners for all delete buttons
+  document.querySelectorAll(".deleteBtn").forEach((btn) => {
+    btn.addEventListener("click", async (e) => {
+      const productId = e.target.dataset.id;
+      if (confirm("Are you sure you want to delete this product?")) {
+        await deleteDoc(doc(db, "products", productId));
+        displayProducts();
+      }
+    });
+  });
+}
