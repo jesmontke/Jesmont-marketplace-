@@ -39,27 +39,28 @@ onAuthStateChanged(auth, async (user) => {
 
   console.log("Logged in user uid:", user.uid);
 
-  // Query seller profile
-  const sellersRef = collection(db, "sellers");
-  const q = query(sellersRef, where("uid", "==", user.uid));
-  const querySnapshot = await getDocs(q);
+  try {
+    const sellerDocRef = doc(db, "sellers", user.uid);
+    const sellerDocSnap = await getDoc(sellerDocRef);
 
-  console.log("Seller querySnapshot docs:", querySnapshot.docs);
+    if (sellerDocSnap.exists()) {
+      const sellerData = sellerDocSnap.data();
 
-  if (!querySnapshot.empty) {
-    const sellerData = querySnapshot.docs[0].data();
+      businessNameEl.textContent = sellerData.businessName || "Business Name";
+      emailEl.textContent = sellerData.email || user.email;
+      phoneEl.textContent = sellerData.phone || "N/A";
+      categoryEl.textContent = sellerData.category || "Uncategorized";
+      logoEl.src = sellerData.logoURL || "https://via.placeholder.com/100";
 
-    businessNameEl.textContent = sellerData.businessName || "Business Name";
-    emailEl.textContent = sellerData.email || user.email;
-    phoneEl.textContent = sellerData.phone || "N/A";
-    categoryEl.textContent = sellerData.category || "Uncategorized";
-    logoEl.src = sellerData.logoURL || "https://via.placeholder.com/100";
-
-    loadProducts(user.uid);
-  } else {
-    alert("Seller profile not found.");
+      loadProducts(user.uid);
+    } else {
+      alert("Seller profile not found.");
+    }
+  } catch (error) {
+    console.error("Error fetching seller info:", error);
   }
 });
+
 
 // LOGOUT
 logoutBtn.addEventListener("click", () => {
