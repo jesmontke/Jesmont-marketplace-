@@ -60,11 +60,12 @@ onAuthStateChanged(auth, async (user) => {
     if (sellerSnap.exists()) {
       const sellerData = sellerSnap.data();
 
-      sellerName.textContent = sellerData.businessName || "Business Name";
-      sellerEmail.textContent = "Email: " + (sellerData.email || user.email);
-      sellerPhone.textContent = "Phone: " + (sellerData.phone || "N/A");
-      sellerLogo.src = sellerData.logoURL || "https://via.placeholder.com/100";
-
+     document.getElementById("business-name").textContent = sellerData.businessName || "Business Name";
+document.getElementById("email").textContent = sellerData.email || user.email;
+document.getElementById("phone").textContent = sellerData.phone || "N/A";
+document.getElementById("category").textContent = sellerData.category || "Uncategorized";
+document.getElementById("logo").src = sellerData.logoURL || "https://via.placeholder.com/100";
+ 
       loadProducts(user.uid);
     } else {
       alert("Seller profile not found.");
