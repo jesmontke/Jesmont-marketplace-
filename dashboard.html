@@ -1,81 +1,77 @@
 <!DOCTYPE html>
-<html lang="en" >
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Jesmont Seller Dashboard</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Seller Dashboard - Jesmont Marketplace</title>
+<script type="module" src="dashboard.js" defer></script>
+<style>
+  body { font-family: Arial, sans-serif; background: #f4f4f4; margin: 0; padding: 20px; }
+  header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+  #profileLogo { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 2px solid #333; }
+  .btn { cursor: pointer; background: #333; color: white; border: none; padding: 10px 15px; margin: 0 5px; border-radius: 5px; }
+  .btn:hover { background: #555; }
+  .hidden { display: none; }
+  form { background: white; padding: 15px; border-radius: 8px; margin-bottom: 20px; max-width: 400px; }
+  label { display: block; margin: 10px 0 5px; font-weight: bold; }
+  input, select, textarea { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
+  #productList { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px; }
+  .product-card { background: white; border-radius: 8px; padding: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+  .product-card img { width: 100%; height: 150px; object-fit: cover; border-radius: 6px; }
+  .product-card h4 { margin: 10px 0 5px; }
+  .product-card p { margin: 0 0 10px; color: #555; }
+  .product-card .price { font-weight: bold; margin-bottom: 10px; }
+  .deleteBtn { background: #e74c3c; border: none; color: white; padding: 7px 12px; border-radius: 5px; cursor: pointer; }
+  .deleteBtn:hover { background: #c0392b; }
+</style>
 </head>
-<body class="bg-gray-50 min-h-screen flex flex-col items-center p-6">
+<body>
 
-  <div class="max-w-3xl w-full bg-white rounded-lg shadow p-6 space-y-6">
-
-    <!-- Seller Profile Info -->
-    <div class="flex items-center space-x-4">
-      <img id="profileLogo" src="https://via.placeholder.com/100" alt="Profile Logo" class="w-24 h-24 rounded-full object-cover border" />
-      <div>
-        <h2 id="businessName" class="text-2xl font-semibold">Business Name</h2>
-        <p id="sellerEmail" class="text-gray-600">email@example.com</p>
-      </div>
-    </div>
-
-    <!-- Buttons -->
-    <div class="space-x-4">
-      <button id="editProfileBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">Edit Profile</button>
-      <button id="toggleProductFormBtn" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">Upload Product</button>
-      <button id="logoutBtn" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded">Logout</button>
-    </div>
-
-    <!-- Edit Profile Form (hidden initially) -->
-    <form id="editProfileForm" class="hidden space-y-4 border p-4 rounded" autocomplete="off">
-      <div>
-        <label class="block font-medium mb-1" for="nameInput">Full Name</label>
-        <input id="nameInput" type="text" class="w-full border rounded px-3 py-2" required />
-      </div>
-      <div>
-        <label class="block font-medium mb-1" for="businessInput">Business Name</label>
-        <input id="businessInput" type="text" class="w-full border rounded px-3 py-2" required />
-      </div>
-      <div>
-        <label class="block font-medium mb-1" for="logoInput">Logo Image</label>
-        <input id="logoInput" type="file" accept="image/*" class="w-full" />
-      </div>
-      <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">Save Profile</button>
-    </form>
-
-    <!-- Upload Product Form (hidden initially) -->
-    <form id="productForm" class="hidden space-y-4 border p-4 rounded" autocomplete="off">
-      <div>
-        <label class="block font-medium mb-1" for="titleInput">Product Title</label>
-        <input id="titleInput" type="text" class="w-full border rounded px-3 py-2" required />
-      </div>
-      <div>
-        <label class="block font-medium mb-1" for="categoryInput">Category</label>
-        <input id="categoryInput" type="text" class="w-full border rounded px-3 py-2" required />
-      </div>
-      <div>
-        <label class="block font-medium mb-1" for="descInput">Description</label>
-        <textarea id="descInput" rows="3" class="w-full border rounded px-3 py-2" required></textarea>
-      </div>
-      <div>
-        <label class="block font-medium mb-1" for="priceInput">Price (KSh)</label>
-        <input id="priceInput" type="number" min="0" class="w-full border rounded px-3 py-2" required />
-      </div>
-      <div>
-        <label class="block font-medium mb-1" for="productImageInput">Product Image</label>
-        <input id="productImageInput" type="file" accept="image/*" class="w-full" required />
-      </div>
-      <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">Add Product</button>
-    </form>
-
-    <!-- Product List -->
-    <div>
-      <h3 class="text-xl font-semibold mb-3">Your Products</h3>
-      <div id="productList" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
-    </div>
-
+<header>
+  <div>
+    <img id="profileLogo" src="https://via.placeholder.com/80" alt="Seller Logo" />
+    <h2 id="businessName">Business Name</h2>
+    <p id="sellerEmail">Email</p>
   </div>
+  <div>
+    <button id="editProfileBtn" class="btn">Edit Profile</button>
+    <button id="toggleProductFormBtn" class="btn">Upload Product</button>
+    <button id="logoutBtn" class="btn">Logout</button>
+  </div>
+</header>
 
-  <script type="module" src="dashboard.js"></script>
+<!-- Edit Profile Form (hidden initially) -->
+<form id="editProfileForm" class="hidden">
+  <h3>Edit Profile</h3>
+  <label for="nameInput">Full Name</label>
+  <input type="text" id="nameInput" required />
+  <label for="businessInput">Business Name</label>
+  <input type="text" id="businessInput" required />
+  <label for="logoInput">Business Logo</label>
+  <input type="file" id="logoInput" accept="image/*" />
+  <button type="submit" class="btn" style="margin-top: 10px;">Save Profile</button>
+</form>
+
+<!-- Upload Product Form (hidden initially) -->
+<form id="productForm" class="hidden">
+  <h3>Upload Product</h3>
+  <label for="titleInput">Product Title</label>
+  <input type="text" id="titleInput" required />
+  <label for="categoryInput">Category</label>
+  <input type="text" id="categoryInput" required />
+  <label for="descInput">Description</label>
+  <textarea id="descInput" rows="3" required></textarea>
+  <label for="priceInput">Price (KSh)</label>
+  <input type="number" id="priceInput" step="0.01" required />
+  <label for="productImageInput">Product Image</label>
+  <input type="file" id="productImageInput" accept="image/*" required />
+  <button type="submit" class="btn" style="margin-top: 10px;">Add Product</button>
+</form>
+
+<!-- Product List -->
+<section id="productList">
+  <!-- Products will be rendered here -->
+</section>
+
 </body>
 </html>
