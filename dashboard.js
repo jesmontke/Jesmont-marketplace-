@@ -1,148 +1,134 @@
-// Firebase config
+// Firebase Setup
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js';
+import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js';
+import { getFirestore, doc, getDoc, setDoc, collection, addDoc, query, where, getDocs, deleteDoc } from 'https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js';
+
 const firebaseConfig = {
   apiKey: "AIzaSyDlakKgMzhADOywIOg4iTCJ5sUFXLMGwVg",
   authDomain: "jesmont-marketplace.firebaseapp.com",
   projectId: "jesmont-marketplace",
-  storageBucket: "jesmont-marketplace.firebasestorage.app",
+  storageBucket: "jesmont-marketplace.appspot.com",
   messagingSenderId: "543717950238",
   appId: "1:543717950238:web:df009d49e88a2ea010bf0f",
   measurementId: "G-56TMB41PS8"
 };
 
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.firestore();
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const cloudinaryUploadPreset = 'Jesmont';
+const cloudinaryURL = 'https://api.cloudinary.com/v1_1/dxirsijbl/image/upload';
 
-// Cloudinary
-const CLOUDINARY_URL = 'https://api.cloudinary.com/v1_1/dxirsijbl/image/upload';
-const CLOUDINARY_UPLOAD_PRESET = 'Jesmont';
+let currentUser = null;
 
-let currentUser;
-
-// Auth state
-auth.onAuthStateChanged(async user => {
-  if (!user) return (window.location.href = 'index.html');
+onAuthStateChanged(auth, async (user) => {
+  if (!user) return location.href = 'index.html';
   currentUser = user;
 
   document.getElementById('sellerEmail').textContent = user.email;
 
-  const sellerDoc = await db.collection('sellers').doc(user.uid).get();
-  if (sellerDoc.exists) {
-    const data = sellerDoc.data();
-    document.getElementById('nameInput').value = data.name || '';
-    document.getElementById('businessInput').value = data.business || '';
-    document.getElementById('businessName').textContent = data.business || 'Business Name';
-    document.getElementById('profileLogo').src = data.logo || '';
+  const sellerRef = doc(db, 'sellers', user.uid);
+  const sellerSnap = await getDoc(sellerRef);
+
+  if (sellerSnap.exists()) {
+    const data = sellerSnap.data();
+    document.getElementById('businessName').textContent = data.businessName || "No Business Name";
+    document.getElementById('profileLogo').src = data.logoURL || "https://via.placeholder.com/100";
+    document.getElementById('nameInput').value = data.name || "";
+    document.getElementById('businessInput').value = data.businessName || "";
   }
 
   loadProducts();
 });
 
-// Show Edit Form
-function showEditForm() {
-  document.getElementById('editSection').classList.toggle('hidden');
+function loadProducts() {
+  const productList = document.getElementById('productList');
+  productList.innerHTML = '';
+
+  const q = query(collection(db, 'products'), where('uid', '==', currentUser.uid));
+  getDocs(q).then(snapshot => {
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      const div = document.createElement('div');
+      div.className = 'border p-3 rounded shadow';
+      div.innerHTML = `
+        <img src="${data.imageURL}" class="w-full h-40 object-cover rounded mb-2" />
+        <h3 class="font-bold text-lg">${data.title}</h3>
+        <p>${data.description}</p>
+        <p class="text-blue-600 font-bold">Ksh ${data.price}</p>
+        <button onclick="deleteProduct('${doc.id}')" class="mt-2 bg-red-500 text-white px-2 py-1 rounded">Delete</button>
+      `;
+      productList.appendChild(div);
+    });
+  });
 }
 
-// Edit Profile
-document.getElementById('profileForm').addEventListener('submit', async e => {
-  e.preventDefault();
+window.deleteProduct = async (productId) => {
+  await deleteDoc(doc(db, 'products', productId));
+  loadProducts();
+};
 
-  const name = document.getElementById('nameInput').value;
-  const business = document.getElementById('businessInput').value;
-  const logoFile = document.getElementById('logoInput').files[0];
-
-  let logoUrl = document.getElementById('profileLogo').src;
-
-  if (logoFile) {
-    const formData = new FormData();
-    formData.append('file', logoFile);
-    formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
-    const res = await fetch(CLOUDINARY_URL, {
-      method: 'POST',
-      body: formData
-    });
-    const data = await res.json();
-    logoUrl = data.secure_url;
-  }
-
-  await db.collection('sellers').doc(currentUser.uid).set({
-    name,
-    business,
-    logo: logoUrl,
-    email: currentUser.email
-  });
-
-  document.getElementById('businessName').textContent = business;
-  document.getElementById('profileLogo').src = logoUrl;
-  document.getElementById('editSection').classList.add('hidden');
+document.getElementById('logoutBtn').addEventListener('click', () => {
+  signOut(auth);
 });
 
-// Add Product
-document.getElementById('productForm').addEventListener('submit', async e => {
+document.getElementById('editProfileBtn').addEventListener('click', () => {
+  document.getElementById('editProfileForm').classList.toggle('hidden');
+});
+
+document.getElementById('editProfileForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const name = document.getElementById('nameInput').value;
+  const business = document.getElementById('businessInput').value;
+  const file = document.getElementById('logoInput').files[0];
+
+  let logoURL = "";
+  if (file) {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_preset', cloudinaryUploadPreset);
+
+    const res = await axios.post(cloudinaryURL, formData);
+    logoURL = res.data.secure_url;
+  }
+
+  await setDoc(doc(db, 'sellers', currentUser.uid), {
+    uid: currentUser.uid,
+    email: currentUser.email,
+    name,
+    businessName: business,
+    logoURL
+  }, { merge: true });
+
+  location.reload();
+});
+
+document.getElementById('productForm').addEventListener('submit', async (e) => {
   e.preventDefault();
 
-  const name = document.getElementById('productName').value;
-  const description = document.getElementById('productDescription').value;
-  const price = parseFloat(document.getElementById('productPrice').value);
-  const category = document.getElementById('productCategory').value;
-  const imageFile = document.getElementById('productImage').files[0];
+  const title = document.getElementById('titleInput').value;
+  const description = document.getElementById('descInput').value;
+  const price = parseInt(document.getElementById('priceInput').value);
+  const category = document.getElementById('categoryInput').value;
+  const file = document.getElementById('productImageInput').files[0];
 
   const formData = new FormData();
-  formData.append('file', imageFile);
-  formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+  formData.append('file', file);
+  formData.append('upload_preset', cloudinaryUploadPreset);
 
-  const res = await fetch(CLOUDINARY_URL, { method: 'POST', body: formData });
-  const data = await res.json();
-  const imageUrl = data.secure_url;
+  const res = await axios.post(cloudinaryURL, formData);
+  const imageURL = res.data.secure_url;
 
-  await db.collection('products').add({
-    sellerId: currentUser.uid,
-    name,
+  await addDoc(collection(db, 'products'), {
+    title,
     description,
     price,
     category,
-    image: imageUrl,
-    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    imageURL,
+    uid: currentUser.uid,
+    createdAt: new Date()
   });
 
   e.target.reset();
   loadProducts();
 });
-
-// Load Products
-async function loadProducts() {
-  const snapshot = await db
-    .collection('products')
-    .where('sellerId', '==', currentUser.uid)
-    .orderBy('createdAt', 'desc')
-    .get();
-
-  const productList = document.getElementById('productList');
-  productList.innerHTML = '';
-
-  snapshot.forEach(doc => {
-    const product = doc.data();
-    const card = document.createElement('div');
-    card.className = 'bg-white p-3 rounded shadow';
-    card.innerHTML = `
-      <img src="${product.image}" class="w-full h-32 object-cover rounded mb-2" />
-      <h4 class="font-bold">${product.name}</h4>
-      <p class="text-sm">${product.description}</p>
-      <p class="text-green-600 font-semibold">Ksh ${product.price}</p>
-      <p class="text-xs text-gray-500">Category: ${product.category}</p>
-      <button class="mt-2 bg-red-600 text-white px-3 py-1 rounded" onclick="deleteProduct('${doc.id}')">Delete</button>
-    `;
-    productList.appendChild(card);
-  });
-}
-
-// Delete Product
-async function deleteProduct(id) {
-  await db.collection('products').doc(id).delete();
-  loadProducts();
-}
-
-// Logout
-function logout() {
-  auth.signOut();
-}
