@@ -3,30 +3,56 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Seller Dashboard – Jesmont Marketplace</title>
+  <title>Jesmont Seller Dashboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script defer src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script defer src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
   <script defer src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+  <script defer src="dashboard.js"></script>
 </head>
-<body class="bg-white text-gray-800 px-4 py-6">
-  <div class="max-w-4xl mx-auto">
-    <h1 class="text-3xl font-bold mb-6 text-center text-blue-600">Jesmont Seller Dashboard</h1>
+<body class="bg-gray-50 text-gray-800">
+  <div class="max-w-5xl mx-auto p-6">
+    <!-- Header -->
+    <header class="flex items-center justify-between mb-6">
+      <div class="flex items-center space-x-4">
+        <img id="profileLogo" src="" alt="Logo" class="w-14 h-14 rounded-full border" />
+        <div>
+          <h2 id="businessName" class="text-2xl font-bold">Business Name</h2>
+          <p id="sellerEmail" class="text-sm text-gray-500">email@example.com</p>
+        </div>
+      </div>
+      <button onclick="logout()" class="bg-red-600 text-white px-4 py-2 rounded">Logout</button>
+    </header>
 
-    <div id="profile" class="mb-6 bg-blue-50 p-4 rounded shadow"></div>
+    <!-- Edit Profile -->
+    <section class="mb-6 bg-white p-4 rounded shadow">
+      <h3 class="text-lg font-semibold mb-2">Edit Seller Profile</h3>
+      <form id="profileForm" class="space-y-3">
+        <input type="text" id="nameInput" placeholder="Your Name" class="w-full p-2 border rounded" required />
+        <input type="text" id="businessInput" placeholder="Business Name" class="w-full p-2 border rounded" required />
+        <input type="file" id="logoInput" accept="image/*" class="w-full p-2 border rounded" />
+        <button class="bg-blue-600 text-white px-4 py-2 rounded" type="submit">Save Profile</button>
+      </form>
+    </section>
 
-    <form id="productForm" class="bg-gray-100 p-4 rounded shadow mb-8">
-      <h2 class="text-xl font-semibold mb-3">Add New Product</h2>
-      <input type="text" id="productName" placeholder="Product Name" required class="w-full mb-3 p-2 border rounded" />
-      <textarea id="productDescription" placeholder="Description" required class="w-full mb-3 p-2 border rounded"></textarea>
-      <input type="number" id="productPrice" placeholder="Price (Ksh)" required class="w-full mb-3 p-2 border rounded" />
-      <input type="file" id="productImage" accept="image/*" required class="w-full mb-3 p-2 border rounded" />
-      <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded">Upload Product</button>
-    </form>
+    <!-- Add Product -->
+    <section class="mb-6 bg-white p-4 rounded shadow">
+      <h3 class="text-lg font-semibold mb-2">Add New Product</h3>
+      <form id="productForm" class="space-y-3">
+        <input type="text" id="productName" placeholder="Product Name" required class="w-full p-2 border rounded" />
+        <textarea id="productDescription" placeholder="Description" required class="w-full p-2 border rounded"></textarea>
+        <input type="number" id="productPrice" placeholder="Price (Ksh)" required class="w-full p-2 border rounded" />
+        <input type="text" id="productCategory" placeholder="Category (e.g., Electronics)" required class="w-full p-2 border rounded" />
+        <input type="file" id="productImage" accept="image/*" required class="w-full p-2 border rounded" />
+        <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded">Upload Product</button>
+      </form>
+    </section>
 
-    <div id="productList" class="grid gap-4 sm:grid-cols-2 md:grid-cols-3"></div>
+    <!-- Product List -->
+    <section>
+      <h3 class="text-lg font-semibold mb-2">Your Products</h3>
+      <div id="productList" class="grid sm:grid-cols-2 md:grid-cols-3 gap-4"></div>
+    </section>
   </div>
-
-  <script src="dashboard.js"></script>
 </body>
 </html>
