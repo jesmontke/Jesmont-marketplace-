@@ -3,74 +3,30 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Seller Dashboard | Jesmont Marketplace</title>
+  <title>Seller Dashboard – Jesmont Marketplace</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <script defer src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script defer src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script defer src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 </head>
-<body class="bg-gray-50 min-h-screen text-gray-800">
+<body class="bg-white text-gray-800 px-4 py-6">
+  <div class="max-w-4xl mx-auto">
+    <h1 class="text-3xl font-bold mb-6 text-center text-blue-600">Jesmont Seller Dashboard</h1>
 
-  <!-- Header -->
-  <header class="bg-green-600 text-white py-4 shadow">
-    <div class="max-w-6xl mx-auto px-4 flex justify-between items-center">
-      <h1 class="text-2xl font-bold">Jesmont Seller Dashboard</h1>
-      <button id="logout-btn" class="bg-red-500 hover:bg-red-600 px-4 py-2 rounded text-sm">Logout</button>
-    </div>
-  </header>
+    <div id="profile" class="mb-6 bg-blue-50 p-4 rounded shadow"></div>
 
-  <!-- Main Content -->
-  <main class="max-w-6xl mx-auto px-4 py-8">
+    <form id="productForm" class="bg-gray-100 p-4 rounded shadow mb-8">
+      <h2 class="text-xl font-semibold mb-3">Add New Product</h2>
+      <input type="text" id="productName" placeholder="Product Name" required class="w-full mb-3 p-2 border rounded" />
+      <textarea id="productDescription" placeholder="Description" required class="w-full mb-3 p-2 border rounded"></textarea>
+      <input type="number" id="productPrice" placeholder="Price (Ksh)" required class="w-full mb-3 p-2 border rounded" />
+      <input type="file" id="productImage" accept="image/*" required class="w-full mb-3 p-2 border rounded" />
+      <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded">Upload Product</button>
+    </form>
 
-    <!-- Seller Profile -->
-    <section id="profile-section" class="bg-white p-6 rounded-lg shadow mb-10">
-      <div class="flex justify-between items-center mb-4">
-        <h2 class="text-xl font-semibold">Your Business Profile</h2>
-        <button id="edit-profile-btn" class="text-blue-600 hover:underline">Edit</button>
-      </div>
-      <div class="flex items-center space-x-6">
-        <img id="logo" class="w-24 h-24 object-cover rounded-full border-2 border-green-500" src="" alt="Logo" />
-        <div>
-          <p><strong>Name:</strong> <span id="businessName"></span></p>
-          <p><strong>Email:</strong> <span id="email"></span></p>
-          <p><strong>Phone:</strong> <span id="phone"></span></p>
-          <p><strong>Category:</strong> <span id="category"></span></p>
-        </div>
-      </div>
-    </section>
-
-    <!-- Upload Product Button -->
-    <div class="flex justify-end mb-4">
-      <button id="upload-btn" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Upload Product</button>
-    </div>
-
-    <!-- Products Section -->
-    <section class="bg-white p-6 rounded-lg shadow">
-      <h2 class="text-xl font-semibold mb-4">Your Products</h2>
-      <div id="product-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-        <!-- Product cards will be loaded here -->
-      </div>
-    </section>
-
-  </main>
-
-  <!-- Upload Modal -->
-  <div id="upload-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
-    <div class="bg-white p-6 rounded shadow-lg w-full max-w-md">
-      <h3 class="text-lg font-bold mb-4">Upload Product</h3>
-      <form id="upload-form" class="space-y-4">
-        <input type="text" id="product-name" placeholder="Product Name" class="w-full p-2 border rounded" required />
-        <textarea id="product-description" placeholder="Description" class="w-full p-2 border rounded" required></textarea>
-        <input type="number" id="product-price" placeholder="Price" class="w-full p-2 border rounded" required />
-        <input type="file" id="product-image" accept="image/*" class="w-full p-2" required />
-        <div class="flex justify-end space-x-2">
-          <button type="button" id="cancel-upload" class="text-gray-600">Cancel</button>
-          <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded">Upload</button>
-        </div>
-      </form>
-    </div>
+    <div id="productList" class="grid gap-4 sm:grid-cols-2 md:grid-cols-3"></div>
   </div>
 
-  <!-- Firebase and Main Script -->
-  <script type="module" src="dashboard.js"></script>
-
+  <script src="dashboard.js"></script>
 </body>
 </html>
