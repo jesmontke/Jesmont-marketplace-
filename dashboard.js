@@ -1,9 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
-import {
-  getAuth,
-  onAuthStateChanged,
-  signOut
-} from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
 import {
   getFirestore,
   doc,
@@ -22,7 +18,7 @@ const firebaseConfig = {
   apiKey: "AIzaSyDlakKgMzhADOywIOg4iTCJ5sUFXLMGwVg",
   authDomain: "jesmont-marketplace.firebaseapp.com",
   projectId: "jesmont-marketplace",
-  storageBucket: "jesmont-marketplace.appspot.com",
+  storageBucket: "jesmont-marketplace.firebasestorage.app",
   messagingSenderId: "543717950238",
   appId: "1:543717950238:web:df009d49e88a2ea010bf0f",
   measurementId: "G-56TMB41PS8"
@@ -32,6 +28,7 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth();
 const db = getFirestore(app);
 
+// DOM Elements
 const businessNameEl = document.getElementById("businessName");
 const sellerEmailEl = document.getElementById("sellerEmail");
 const profileLogo = document.getElementById("profileLogo");
@@ -45,35 +42,37 @@ const editProfileForm = document.getElementById("editProfileForm");
 let currentUser;
 
 onAuthStateChanged(auth, async (user) => {
-  if (!user) {
-    window.location.href = "index.html";
-    return;
-  }
+  if (user) {
+    currentUser = user;
 
-  currentUser = user;
-  const docRef = doc(db, "sellers", user.uid);
-  const docSnap = await getDoc(docRef);
+    const docRef = doc(db, "sellers", user.uid);
+    const docSnap = await getDoc(docRef);
 
-  if (docSnap.exists()) {
-    const data = docSnap.data();
-    businessNameEl.textContent = data.businessName || "No business name";
-    sellerEmailEl.textContent = data.email || user.email;
-    profileLogo.src = data.logoURL || "https://via.placeholder.com/100";
+    if (docSnap.exists()) {
+      const data = docSnap.data();
 
-    document.getElementById("nameInput").value = data.fullName || "";
-    document.getElementById("businessInput").value = data.businessName || "";
+      businessNameEl.textContent = data.businessName || "No business name set";
+      sellerEmailEl.textContent = data.email || user.email || "No email set";
+      profileLogo.src = data.logoURL || "https://via.placeholder.com/100";
+
+      // Prefill edit form
+      document.getElementById("nameInput").value = data.fullName || "";
+      document.getElementById("businessInput").value = data.businessName || "";
+    } else {
+      businessNameEl.textContent = "No business data found";
+      sellerEmailEl.textContent = user.email || "No email";
+      profileLogo.src = "https://via.placeholder.com/100";
+    }
+
+    displayProducts();
+
   } else {
-    businessNameEl.textContent = "No seller data";
-    sellerEmailEl.textContent = user.email;
+    window.location.href = "index.html";
   }
-
-  displayProducts();
 });
 
 logoutBtn.addEventListener("click", () => {
-  signOut(auth).then(() => {
-    window.location.href = "index.html";
-  });
+  signOut(auth).then(() => window.location.href = "index.html");
 });
 
 toggleProductFormBtn.addEventListener("click", () => {
@@ -87,9 +86,10 @@ editProfileBtn.addEventListener("click", () => {
 editProfileForm.addEventListener("submit", async (e) => {
   e.preventDefault();
 
-  const name = document.getElementById("nameInput").value;
-  const business = document.getElementById("businessInput").value;
+  const name = document.getElementById("nameInput").value.trim();
+  const business = document.getElementById("businessInput").value.trim();
   const logoFile = document.getElementById("logoInput").files[0];
+
   let logoURL = profileLogo.src;
 
   if (logoFile) {
@@ -105,8 +105,8 @@ editProfileForm.addEventListener("submit", async (e) => {
     logoURL = data.secure_url;
   }
 
-  const sellerRef = doc(db, "sellers", currentUser.uid);
-  await updateDoc(sellerRef, {
+  const sellerDoc = doc(db, "sellers", currentUser.uid);
+  await updateDoc(sellerDoc, {
     fullName: name,
     businessName: business,
     logoURL
@@ -115,15 +115,15 @@ editProfileForm.addEventListener("submit", async (e) => {
   businessNameEl.textContent = business;
   profileLogo.src = logoURL;
   editProfileForm.classList.add("hidden");
-  alert("Profile updated");
+  alert("Profile updated successfully!");
 });
 
 productForm.addEventListener("submit", async (e) => {
   e.preventDefault();
 
-  const title = document.getElementById("titleInput").value;
-  const category = document.getElementById("categoryInput").value;
-  const description = document.getElementById("descInput").value;
+  const title = document.getElementById("titleInput").value.trim();
+  const category = document.getElementById("categoryInput").value.trim();
+  const description = document.getElementById("descInput").value.trim();
   const price = parseFloat(document.getElementById("priceInput").value);
   const imageFile = document.getElementById("productImageInput").files[0];
 
@@ -132,76 +132,87 @@ productForm.addEventListener("submit", async (e) => {
     return;
   }
 
+  // Upload product image to Cloudinary or alternative image hosting
   const formData = new FormData();
   formData.append("file", imageFile);
-  formData.append("upload_preset", "Jesmont");
+  formData.append("upload_preset", "Jesmont"); // You need to create this preset in Cloudinary dashboard
 
-  const uploadRes = await fetch("https://api.cloudinary.com/v1_1/dxirsijbl/image/upload", {
+  const res = await fetch("https://api.cloudinary.com/v1_1/dxirsijbl/image/upload", {
     method: "POST",
     body: formData
   });
-  const uploadData = await uploadRes.json();
 
-  await addDoc(collection(db, "products"), {
+  const data = await res.json();
+
+  const productData = {
+    sellerId: currentUser.uid,
     title,
     category,
     description,
     price,
-    imageUrl: uploadData.secure_url,
-    sellerId: currentUser.uid,
+    imageUrl: data.secure_url,
     createdAt: new Date()
-  });
+  };
 
+  await addDoc(collection(db, "products"), productData);
+
+  alert("Product uploaded successfully!");
   productForm.reset();
   productForm.classList.add("hidden");
+
   displayProducts();
 });
 
 async function displayProducts() {
-  productList.innerHTML = "<p>Loading products...</p>";
-
   try {
+    productList.innerHTML = "<p>Loading products...</p>";
+
     const q = query(
       collection(db, "products"),
       where("sellerId", "==", currentUser.uid),
       orderBy("createdAt", "desc")
     );
 
-    const snapshot = await getDocs(q);
+    const querySnapshot = await getDocs(q);
 
-    if (snapshot.empty) {
+    if (querySnapshot.empty) {
       productList.innerHTML = "<p class='text-gray-500'>No products uploaded yet.</p>";
       return;
     }
 
     productList.innerHTML = "";
 
-    snapshot.forEach((docSnap) => {
+    querySnapshot.forEach((docSnap) => {
       const product = docSnap.data();
       const id = docSnap.id;
 
       const card = document.createElement("div");
-      card.className = "border p-4 rounded bg-white shadow";
+      card.className = "card";
 
       card.innerHTML = `
-        <img src="${product.imageUrl}" class="w-full h-48 object-cover rounded mb-3" />
-        <h4 class="text-lg font-semibold">${product.title}</h4>
+        <img src="${product.imageUrl}" alt="${product.title}" />
+        <h4>${product.title}</h4>
         <p>${product.description}</p>
-        <p class="font-bold text-green-600">KSh ${product.price.toFixed(2)}</p>
-        <button data-id="${id}" class="deleteBtn bg-red-500 text-white px-3 py-1 rounded mt-2">Delete</button>
+        <p><strong>KSh ${product.price.toFixed(2)}</strong></p>
+        <button class="btn btn-danger deleteBtn" data-id="${id}">Delete</button>
       `;
-
-      card.querySelector(".deleteBtn").addEventListener("click", async () => {
-        if (confirm("Are you sure you want to delete this product?")) {
-          await deleteDoc(doc(db, "products", id));
-          displayProducts();
-        }
-      });
 
       productList.appendChild(card);
     });
+
+    // Add event listeners for delete buttons
+    document.querySelectorAll(".deleteBtn").forEach(btn => {
+      btn.addEventListener("click", async (e) => {
+        const productId = e.target.dataset.id;
+        if (confirm("Delete this product?")) {
+          await deleteDoc(doc(db, "products", productId));
+          displayProducts();
+        }
+      });
+    });
+
   } catch (error) {
-    console.error("Error displaying products:", error);
-    productList.innerHTML = `<p class="text-red-500">Error loading products: ${error.message}</p>`;
+    console.error("Error loading products:", error);
+    productList.innerHTML = "<p class='text-red-500'>Failed to load products.</p>";
   }
 }
