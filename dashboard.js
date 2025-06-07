@@ -1,119 +1,110 @@
-// dashboard.js
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
-import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
-import { getFirestore, doc, getDoc, collection, addDoc, query, where, getDocs } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
-
+// ✅ Firebase Config (yours)
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT_ID.appspot.com",
-  messagingSenderId: "SENDER_ID",
-  appId: "APP_ID"
+  apiKey: "AIzaSyDlakKgMzhADOywIOg4iTCJ5sUFXLMGwVg",
+  authDomain: "jesmont-marketplace.firebaseapp.com",
+  projectId: "jesmont-marketplace",
+  storageBucket: "jesmont-marketplace.firebasestorage.app",
+  messagingSenderId: "543717950238",
+  appId: "1:543717950238:web:df009d49e88a2ea010bf0f",
+  measurementId: "G-56TMB41PS8"
 };
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth();
-const db = getFirestore();
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
 
-const CLOUDINARY_URL = "https://api.cloudinary.com/v1_1/dxirsijbl/image/upload";
-const UPLOAD_PRESET = "jesmont";
-
-const businessName = document.getElementById("businessName");
-const email = document.getElementById("email");
-const phone = document.getElementById("phone");
-const category = document.getElementById("category");
-const logo = document.getElementById("logo");
-
-const productList = document.getElementById("product-list");
-const uploadBtn = document.getElementById("upload-btn");
-const uploadModal = document.getElementById("upload-modal");
-const cancelUpload = document.getElementById("cancel-upload");
-const uploadForm = document.getElementById("upload-form");
-
-uploadBtn.addEventListener("click", () => uploadModal.classList.remove("hidden"));
-cancelUpload.addEventListener("click", () => uploadModal.classList.add("hidden"));
-
-onAuthStateChanged(auth, async (user) => {
-  if (user) {
-    const uid = user.uid;
-    const sellerRef = doc(db, "sellers", uid);
-    const sellerSnap = await getDoc(sellerRef);
-
-    if (sellerSnap.exists()) {
-      const data = sellerSnap.data();
-      businessName.textContent = data.businessName;
-      email.textContent = data.email;
-      phone.textContent = data.phone;
-      category.textContent = data.category;
-      logo.src = data.logoURL || "https://via.placeholder.com/100";
-
-      loadProducts(uid);
-    }
-  } else {
+// 🔐 Auth Check
+auth.onAuthStateChanged(user => {
+  if (!user) {
     window.location.href = "login.html";
+  } else {
+    loadProfile(user);
+    loadProducts(user.uid);
   }
 });
 
-document.getElementById("logout-btn").addEventListener("click", () => {
-  signOut(auth);
-});
+// 👤 Display profile
+function loadProfile(user) {
+  document.getElementById("profile").innerHTML = `
+    <p><strong>Email:</strong> ${user.email}</p>
+    <p><strong>User ID:</strong> ${user.uid}</p>
+    <button onclick="logout()" class="mt-2 bg-red-500 text-white px-3 py-1 rounded">Logout</button>
+  `;
+}
 
-uploadForm.addEventListener("submit", async (e) => {
+function logout() {
+  auth.signOut().then(() => window.location.href = "login.html");
+}
+
+// 🛒 Add Product
+document.getElementById("productForm").addEventListener("submit", async (e) => {
   e.preventDefault();
+
+  const name = document.getElementById("productName").value;
+  const description = document.getElementById("productDescription").value;
+  const price = parseFloat(document.getElementById("productPrice").value);
+  const imageFile = document.getElementById("productImage").files[0];
   const user = auth.currentUser;
-  if (!user) return;
+  if (!user) return alert("You must be logged in");
 
-  const name = document.getElementById("product-name").value;
-  const description = document.getElementById("product-description").value;
-  const price = parseFloat(document.getElementById("product-price").value);
-  const imageFile = document.getElementById("product-image").files[0];
-
+  // 🌩 Upload to Cloudinary
   const formData = new FormData();
   formData.append("file", imageFile);
-  formData.append("upload_preset", UPLOAD_PRESET);
+  formData.append("upload_preset", "Jesmont");
 
-  try {
-    const cloudRes = await fetch(CLOUDINARY_URL, {
-      method: "POST",
-      body: formData
-    });
-    const cloudData = await cloudRes.json();
-    const imageUrl = cloudData.secure_url;
+  const cloudRes = await fetch("https://api.cloudinary.com/v1_1/dxirsijbl/image/upload", {
+    method: "POST",
+    body: formData
+  });
 
-    await addDoc(collection(db, "products"), {
-      sellerId: user.uid,
-      name,
-      description,
-      price,
-      imageUrl,
-      createdAt: new Date()
-    });
+  const cloudData = await cloudRes.json();
+  const imageUrl = cloudData.secure_url;
 
-    alert("Product uploaded successfully");
-    uploadForm.reset();
-    uploadModal.classList.add("hidden");
-    loadProducts(user.uid);
-  } catch (error) {
-    console.error("Upload failed:", error);
-    alert("Failed to upload product.");
-  }
+  // 📝 Save to Firestore
+  await db.collection("products").add({
+    uid: user.uid,
+    name,
+    description,
+    price,
+    imageUrl,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  });
+
+  e.target.reset();
+  loadProducts(user.uid);
 });
 
+// 📦 Load Products
 async function loadProducts(uid) {
-  productList.innerHTML = "";
-  const q = query(collection(db, "products"), where("sellerId", "==", uid));
-  const querySnap = await getDocs(q);
-  querySnap.forEach(doc => {
+  const list = document.getElementById("productList");
+  list.innerHTML = "<p>Loading...</p>";
+
+  const snapshot = await db.collection("products")
+    .where("uid", "==", uid)
+    .orderBy("createdAt", "desc")
+    .get();
+
+  if (snapshot.empty) return (list.innerHTML = "<p>No products found.</p>");
+  list.innerHTML = "";
+
+  snapshot.forEach(doc => {
     const product = doc.data();
-    const card = document.createElement("div");
-    card.className = "bg-white border rounded shadow p-4";
-    card.innerHTML = `
-      <img src="${product.imageUrl}" alt="${product.name}" class="w-full h-40 object-cover rounded mb-2"/>
-      <h3 class="font-semibold">${product.name}</h3>
-      <p class="text-sm text-gray-600">${product.description}</p>
-      <p class="text-green-600 font-bold mt-1">KES ${product.price}</p>
+    list.innerHTML += `
+      <div class="bg-white p-4 rounded shadow border">
+        <img src="${product.imageUrl}" class="w-full h-40 object-cover mb-2 rounded" />
+        <h3 class="font-bold">${product.name}</h3>
+        <p>${product.description}</p>
+        <p class="text-green-600 font-semibold">Ksh ${product.price}</p>
+        <button onclick="deleteProduct('${doc.id}')" class="mt-2 bg-red-600 text-white px-3 py-1 rounded">Delete</button>
+      </div>
     `;
-    productList.appendChild(card);
   });
+}
+
+// 🗑 Delete product
+async function deleteProduct(id) {
+  if (confirm("Are you sure you want to delete this product?")) {
+    await db.collection("products").doc(id).delete();
+    loadProducts(auth.currentUser.uid);
+  }
 }
