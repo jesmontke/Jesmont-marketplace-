@@ -69,6 +69,14 @@ onAuthStateChanged(auth, async (user) => {
     }
 
     const sellerData = snapshot.docs[0].data();
+    console.log("Auth check started...");
+if (!user) {
+  console.log("No user found, redirecting.");
+  window.location.href = "login.html";
+  return;
+}
+console.log("User logged in:", user.uid);
+
 
     // Display info
     businessNameEl.textContent = sellerData.businessName || "Business Name";
