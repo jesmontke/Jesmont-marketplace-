@@ -1,63 +1,57 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Jesmont Seller Dashboard</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script defer src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-  <script defer src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
-  <script defer src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Seller Dashboard - Jesmont</title>
   <script defer src="dashboard.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
-<body class="bg-gray-50 text-gray-800">
-  <div class="max-w-5xl mx-auto p-6">
+<body class="bg-gray-100 text-gray-800">
+  <div class="max-w-4xl mx-auto p-4">
+    <div class="flex justify-between items-center mb-4">
+      <h1 class="text-2xl font-bold">Seller Dashboard</h1>
+      <button id="logoutBtn" class="bg-red-500 text-white px-4 py-2 rounded">Logout</button>
+    </div>
 
-    <!-- Header -->
-    <header class="flex items-center justify-between mb-6">
+    <div class="bg-white rounded shadow p-4 mb-6">
       <div class="flex items-center space-x-4">
-        <img id="profileLogo" src="" alt="Logo" class="w-14 h-14 rounded-full border" />
+        <img id="profileLogo" src="https://via.placeholder.com/100" class="w-20 h-20 object-cover rounded-full" />
         <div>
-          <h2 id="businessName" class="text-2xl font-bold">Business Name</h2>
-          <p id="sellerEmail" class="text-sm text-gray-500">email@example.com</p>
+          <h2 id="businessName" class="text-xl font-bold">Business Name</h2>
+          <p id="sellerEmail" class="text-gray-600">sample@email.com</p>
         </div>
       </div>
-      <div class="space-x-2">
-        <button onclick="showEditForm()" class="bg-blue-500 text-white px-4 py-2 rounded">Edit Profile</button>
-        <button onclick="logout()" class="bg-red-600 text-white px-4 py-2 rounded">Logout</button>
-      </div>
-    </header>
+      <button id="editProfileBtn" class="mt-4 bg-blue-500 text-white px-3 py-1 rounded">Edit Profile</button>
 
-    <!-- Edit Profile (Hidden Initially) -->
-    <section id="editSection" class="mb-6 bg-white p-4 rounded shadow hidden">
-      <h3 class="text-lg font-semibold mb-2">Edit Seller Profile</h3>
-      <form id="profileForm" class="space-y-3">
-        <input type="text" id="nameInput" placeholder="Your Name" class="w-full p-2 border rounded" required />
-        <input type="text" id="businessInput" placeholder="Business Name" class="w-full p-2 border rounded" required />
-        <input type="file" id="logoInput" accept="image/*" class="w-full p-2 border rounded" />
-        <button class="bg-blue-600 text-white px-4 py-2 rounded" type="submit">Save Profile</button>
+      <form id="editProfileForm" class="mt-4 space-y-2 hidden">
+        <input type="text" id="nameInput" placeholder="Full Name" class="w-full border p-2 rounded" required />
+        <input type="text" id="businessInput" placeholder="Business Name" class="w-full border p-2 rounded" required />
+        <input type="file" id="logoInput" class="w-full" />
+        <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded">Save</button>
       </form>
-    </section>
+    </div>
 
-    <!-- Add Product -->
-    <section class="mb-6 bg-white p-4 rounded shadow">
-      <h3 class="text-lg font-semibold mb-2">Add New Product</h3>
-      <form id="productForm" class="space-y-3">
-        <input type="text" id="productName" placeholder="Product Name" required class="w-full p-2 border rounded" />
-        <textarea id="productDescription" placeholder="Description" required class="w-full p-2 border rounded"></textarea>
-        <input type="number" id="productPrice" placeholder="Price (Ksh)" required class="w-full p-2 border rounded" />
-        <input type="text" id="productCategory" placeholder="Category (e.g., Electronics)" required class="w-full p-2 border rounded" />
-        <input type="file" id="productImage" accept="image/*" required class="w-full p-2 border rounded" />
-        <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded">Upload Product</button>
+    <div class="bg-white rounded shadow p-4 mb-6">
+      <h2 class="text-xl font-bold mb-4">Add Product</h2>
+      <form id="productForm" class="space-y-2">
+        <input type="text" id="titleInput" placeholder="Product Title" class="w-full border p-2 rounded" required />
+        <input type="text" id="categoryInput" placeholder="Category" class="w-full border p-2 rounded" required />
+        <textarea id="descInput" placeholder="Description" class="w-full border p-2 rounded" required></textarea>
+        <input type="number" id="priceInput" placeholder="Price" class="w-full border p-2 rounded" required />
+        <input type="file" id="productImageInput" class="w-full" required />
+        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">Upload Product</button>
       </form>
-    </section>
+    </div>
 
-    <!-- Product List -->
-    <section>
-      <h3 class="text-lg font-semibold mb-2">Your Products</h3>
-      <div id="productList" class="grid sm:grid-cols-2 md:grid-cols-3 gap-4"></div>
-    </section>
-    
+    <div class="bg-white rounded shadow p-4">
+      <h2 class="text-xl font-bold mb-4">Your Products</h2>
+      <div id="productList" class="grid gap-4 sm:grid-cols-2"></div>
+    </div>
   </div>
 </body>
 </html>
