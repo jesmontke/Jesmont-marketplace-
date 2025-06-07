@@ -190,12 +190,13 @@ async function displayProducts() {
       card.className = "card";
 
       card.innerHTML = `
-        <img src="${product.imageUrl}" alt="${product.title}" />
-        <h4>${product.title}</h4>
-        <p>${product.description}</p>
-        <p><strong>KSh ${product.price.toFixed(2)}</strong></p>
-        <button class="btn btn-danger deleteBtn" data-id="${id}">Delete</button>
-      `;
+  <img src="${product.imageUrl}" alt="${product.title}" class="w-full max-w-xs h-48 object-cover rounded mb-3" />
+  <h4 class="text-lg font-semibold mb-1">${product.title}</h4>
+  <p class="text-gray-600 mb-1">${product.description}</p>
+  <p class="font-bold mb-2">KSh ${product.price.toFixed(2)}</p>
+  <button data-id="${id}" class="deleteBtn bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded">Delete</button>
+`;
+
 
       productList.appendChild(card);
     });
