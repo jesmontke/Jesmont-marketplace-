@@ -173,7 +173,7 @@ async function displayProducts() {
   const q = query(
     collection(db, "products"),
     where("sellerId", "==", currentUser.uid),
-    ("createdAt", "desc")
+    order by("createdAt", "desc")
   );
   const querySnapshot = await getDocs(q);
 
