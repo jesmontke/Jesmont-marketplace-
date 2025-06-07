@@ -2,52 +2,77 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Seller Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Seller Dashboard - Jesmont Marketplace</title>
   <script type="module" src="dashboard.js" defer></script>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet"/>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; background: #f7f9fc; }
+    .hidden { display: none; }
+    .btn { padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; }
+    .btn-primary { background-color: #007bff; color: white; }
+    .btn-danger { background-color: #dc3545; color: white; }
+    .btn-secondary { background-color: #6c757d; color: white; }
+    .card { background: white; padding: 16px; margin-bottom: 12px; border-radius: 6px; box-shadow: 0 2px 5px rgb(0 0 0 / 0.1); }
+    img { max-width: 100%; border-radius: 6px; }
+    #profileLogo { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; }
+    label { display: block; margin-top: 12px; font-weight: bold; }
+    input, select, textarea { width: 100%; padding: 8px; margin-top: 4px; border-radius: 4px; border: 1px solid #ccc; }
+  </style>
 </head>
-<body class="bg-gray-100 text-gray-800">
-  <div class="max-w-4xl mx-auto p-4">
-    <header class="flex justify-between items-center mb-6">
-      <div class="flex items-center space-x-4">
-        <img id="profileLogo" src="https://via.placeholder.com/100" class="w-16 h-16 rounded-full"/>
-        <div>
-          <h2 id="businessName" class="text-xl font-bold">Loading...</h2>
-          <p id="sellerEmail" class="text-sm text-gray-600"></p>
-        </div>
-      </div>
-      <div class="space-x-2">
-        <button id="editProfileBtn" class="bg-yellow-400 px-4 py-2 rounded">Edit Profile</button>
-        <button id="toggleProductFormBtn" class="bg-blue-500 px-4 py-2 text-white rounded">Add Product</button>
-        <button id="logoutBtn" class="bg-red-500 px-4 py-2 text-white rounded">Logout</button>
-      </div>
-    </header>
+<body>
 
-    <!-- Edit Profile Form -->
-    <form id="editProfileForm" class="hidden bg-white p-4 rounded shadow mb-6">
-      <label class="block mb-2">Full Name</label>
-      <input type="text" id="nameInput" class="border w-full p-2 mb-4"/>
-      <label class="block mb-2">Business Name</label>
-      <input type="text" id="businessInput" class="border w-full p-2 mb-4"/>
-      <label class="block mb-2">Logo</label>
-      <input type="file" id="logoInput" class="mb-4"/>
-      <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded">Save</button>
+  <header>
+    <h1>Seller Dashboard</h1>
+    <button id="logoutBtn" class="btn btn-danger">Logout</button>
+  </header>
+
+  <section id="sellerInfo" class="card">
+    <img id="profileLogo" src="https://via.placeholder.com/100" alt="Profile Logo" />
+    <h2 id="businessName">Loading business name...</h2>
+    <p id="sellerEmail">Loading email...</p>
+    <button id="editProfileBtn" class="btn btn-secondary">Edit Profile</button>
+
+    <form id="editProfileForm" class="hidden">
+      <label for="nameInput">Full Name</label>
+      <input type="text" id="nameInput" required />
+
+      <label for="businessInput">Business Name</label>
+      <input type="text" id="businessInput" required />
+
+      <label for="logoInput">Profile Logo (optional)</label>
+      <input type="file" id="logoInput" accept="image/*" />
+
+      <button type="submit" class="btn btn-primary" style="margin-top:12px;">Save Profile</button>
     </form>
+  </section>
 
-    <!-- Product Form -->
-    <form id="productForm" class="hidden bg-white p-4 rounded shadow mb-6">
-      <input id="titleInput" type="text" placeholder="Product Title" class="w-full border p-2 mb-3" required/>
-      <input id="categoryInput" type="text" placeholder="Category" class="w-full border p-2 mb-3" required/>
-      <textarea id="descInput" placeholder="Description" class="w-full border p-2 mb-3" required></textarea>
-      <input id="priceInput" type="number" placeholder="Price" class="w-full border p-2 mb-3" required/>
-      <input id="productImageInput" type="file" accept="image/*" class="mb-3" required/>
-      <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded">Upload</button>
+  <section>
+    <button id="toggleProductFormBtn" class="btn btn-primary" style="margin:20px 0;">Upload Product</button>
+
+    <form id="productForm" class="hidden card">
+      <label for="titleInput">Product Title</label>
+      <input type="text" id="titleInput" required />
+
+      <label for="categoryInput">Category</label>
+      <input type="text" id="categoryInput" required />
+
+      <label for="descInput">Description</label>
+      <textarea id="descInput" rows="3" required></textarea>
+
+      <label for="priceInput">Price (KSh)</label>
+      <input type="number" id="priceInput" min="0" step="0.01" required />
+
+      <label for="productImageInput">Product Image</label>
+      <input type="file" id="productImageInput" accept="image/*" required />
+
+      <button type="submit" class="btn btn-primary" style="margin-top:12px;">Add Product</button>
     </form>
+  </section>
 
-    <div id="productList" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <p>Loading products...</p>
-    </div>
-  </div>
+  <section id="productList">
+    <!-- Products will appear here -->
+    <p>Loading products...</p>
+  </section>
+
 </body>
 </html>
