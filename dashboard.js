@@ -8,7 +8,10 @@ import {
   addDoc,
   getDocs,
   deleteDoc,
-  updateDoc
+  updateDoc,
+  query,
+  where,
+  orderBy
 } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -25,6 +28,7 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth();
 const db = getFirestore(app);
 
+// DOM Elements
 const businessNameEl = document.getElementById("businessName");
 const sellerEmailEl = document.getElementById("sellerEmail");
 const profileLogo = document.getElementById("profileLogo");
@@ -45,19 +49,33 @@ onAuthStateChanged(auth, async (user) => {
 
     if (docSnap.exists()) {
       const data = docSnap.data();
-      businessNameEl.textContent = data.businessName;
-      sellerEmailEl.textContent = data.email;
-      if (data.logoURL) profileLogo.src = data.logoURL;
+      console.log("Seller data:", data);
+
+      businessNameEl.textContent = data.businessName || "No business name set";
+      sellerEmailEl.textContent = data.email || user.email || "No email set";
+      profileLogo.src = data.logoURL || "https://via.placeholder.com/100";
+
+      // Prefill Edit Profile inputs:
+      document.getElementById("nameInput").value = data.fullName || "";
+      document.getElementById("businessInput").value = data.businessName || "";
+    } else {
+      console.warn("No seller document found for UID:", user.uid);
+      businessNameEl.textContent = "No business data found";
+      sellerEmailEl.textContent = user.email || "No email";
+      profileLogo.src = "https://via.placeholder.com/100";
     }
 
     displayProducts();
   } else {
+    // No user logged in, redirect to login page (index.html)
     window.location.href = "index.html";
   }
 });
 
 logoutBtn.addEventListener("click", () => {
-  signOut(auth).then(() => window.location.href = "index.html");
+  signOut(auth).then(() => {
+    window.location.href = "index.html";
+  });
 });
 
 toggleProductFormBtn.addEventListener("click", () => {
@@ -68,16 +86,19 @@ editProfileBtn.addEventListener("click", () => {
   editProfileForm.classList.toggle("hidden");
 });
 
-document.getElementById("editProfileForm").addEventListener("submit", async (e) => {
+editProfileForm.addEventListener("submit", async (e) => {
   e.preventDefault();
-  const name = document.getElementById("nameInput").value;
-  const business = document.getElementById("businessInput").value;
-  const logo = document.getElementById("logoInput").files[0];
 
-  let logoURL = "";
-  if (logo) {
+  const name = document.getElementById("nameInput").value.trim();
+  const business = document.getElementById("businessInput").value.trim();
+  const logoFile = document.getElementById("logoInput").files[0];
+
+  let logoURL = profileLogo.src;
+
+  if (logoFile) {
+    // Upload to Cloudinary
     const formData = new FormData();
-    formData.append("file", logo);
+    formData.append("file", logoFile);
     formData.append("upload_preset", "Jesmont");
 
     const res = await fetch("https://api.cloudinary.com/v1_1/dxirsijbl/image/upload", {
@@ -88,28 +109,35 @@ document.getElementById("editProfileForm").addEventListener("submit", async (e) 
     logoURL = data.secure_url;
   }
 
-  const docRef = doc(db, "sellers", currentUser.uid);
-  await updateDoc(docRef, {
+  const sellerDoc = doc(db, "sellers", currentUser.uid);
+  await updateDoc(sellerDoc, {
     fullName: name,
     businessName: business,
-    logoURL: logoURL || profileLogo.src
+    logoURL
   });
 
-  alert("Profile updated");
-  location.reload();
+  alert("Profile updated successfully!");
+  // Update UI immediately
+  businessNameEl.textContent = business;
+  profileLogo.src = logoURL;
+  editProfileForm.classList.add("hidden");
 });
 
-document.getElementById("productForm").addEventListener("submit", async (e) => {
+productForm.addEventListener("submit", async (e) => {
   e.preventDefault();
 
-  const title = document.getElementById("titleInput").value;
-  const category = document.getElementById("categoryInput").value;
-  const description = document.getElementById("descInput").value;
-  const price = document.getElementById("priceInput").value;
+  const title = document.getElementById("titleInput").value.trim();
+  const category = document.getElementById("categoryInput").value.trim();
+  const description = document.getElementById("descInput").value.trim();
+  const price = parseFloat(document.getElementById("priceInput").value);
   const imageFile = document.getElementById("productImageInput").files[0];
 
-  if (!imageFile) return alert("Please select an image");
+  if (!imageFile) {
+    alert("Please select a product image.");
+    return;
+  }
 
+  // Upload product image to Cloudinary
   const formData = new FormData();
   formData.append("file", imageFile);
   formData.append("upload_preset", "Jesmont");
@@ -120,6 +148,7 @@ document.getElementById("productForm").addEventListener("submit", async (e) => {
   });
   const imageData = await response.json();
 
+  // Save product to Firestore
   await addDoc(collection(db, "products"), {
     title,
     category,
@@ -130,35 +159,31 @@ document.getElementById("productForm").addEventListener("submit", async (e) => {
     createdAt: new Date()
   });
 
-  alert("Product added");
+  alert("Product added successfully!");
   productForm.reset();
+  productForm.classList.add("hidden");
+
   displayProducts();
 });
 
 async function displayProducts() {
   productList.innerHTML = "";
-  const querySnapshot = await getDocs(collection(db, "products"));
+
+  // Query products where sellerId == currentUser.uid, ordered by date desc
+  const q = query(
+    collection(db, "products"),
+    where("sellerId", "==", currentUser.uid),
+    orderBy("createdAt", "desc")
+  );
+  const querySnapshot = await getDocs(q);
+
+  if (querySnapshot.empty) {
+    productList.innerHTML = "<p class='text-gray-500'>No products uploaded yet.</p>";
+    return;
+  }
+
   querySnapshot.forEach((docSnap) => {
     const product = docSnap.data();
-    if (product.sellerId === currentUser.uid) {
-      const div = document.createElement("div");
-      div.className = "bg-white p-4 rounded shadow";
-      div.innerHTML = `
-        <img src="${product.imageUrl}" class="w-full h-40 object-cover rounded mb-2">
-        <h3 class="text-lg font-semibold">${product.title}</h3>
-        <p class="text-sm text-gray-600">${product.description}</p>
-        <p class="text-green-600 font-bold">KSh ${product.price}</p>
-        <button data-id="${docSnap.id}" class="mt-2 bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded deleteBtn">Delete</button>
-      `;
-      productList.appendChild(div);
-    }
-  });
+    const id = docSnap.id;
 
-  document.querySelectorAll(".deleteBtn").forEach((btn) => {
-    btn.addEventListener("click", async (e) => {
-      const id = e.target.getAttribute("data-id");
-      await deleteDoc(doc(db, "products", id));
-      displayProducts();
-    });
-  });
-}
+    const card =
