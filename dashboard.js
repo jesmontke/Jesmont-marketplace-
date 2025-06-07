@@ -1,134 +1,164 @@
-// Firebase Setup
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js';
-import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js';
-import { getFirestore, doc, getDoc, setDoc, collection, addDoc, query, where, getDocs, deleteDoc } from 'https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js';
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+import {
+  getFirestore,
+  doc,
+  getDoc,
+  collection,
+  addDoc,
+  getDocs,
+  deleteDoc,
+  updateDoc
+} from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDlakKgMzhADOywIOg4iTCJ5sUFXLMGwVg",
   authDomain: "jesmont-marketplace.firebaseapp.com",
   projectId: "jesmont-marketplace",
-  storageBucket: "jesmont-marketplace.appspot.com",
+  storageBucket: "jesmont-marketplace.firebasestorage.app",
   messagingSenderId: "543717950238",
   appId: "1:543717950238:web:df009d49e88a2ea010bf0f",
   measurementId: "G-56TMB41PS8"
 };
 
 const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
+const auth = getAuth();
 const db = getFirestore(app);
-const cloudinaryUploadPreset = 'Jesmont';
-const cloudinaryURL = 'https://api.cloudinary.com/v1_1/dxirsijbl/image/upload';
 
-let currentUser = null;
+const businessNameEl = document.getElementById("businessName");
+const sellerEmailEl = document.getElementById("sellerEmail");
+const profileLogo = document.getElementById("profileLogo");
+const productList = document.getElementById("productList");
+const productForm = document.getElementById("productForm");
+const toggleProductFormBtn = document.getElementById("toggleProductFormBtn");
+const logoutBtn = document.getElementById("logoutBtn");
+const editProfileBtn = document.getElementById("editProfileBtn");
+const editProfileForm = document.getElementById("editProfileForm");
+
+let currentUser;
 
 onAuthStateChanged(auth, async (user) => {
-  if (!user) return location.href = 'index.html';
-  currentUser = user;
+  if (user) {
+    currentUser = user;
+    const docRef = doc(db, "sellers", user.uid);
+    const docSnap = await getDoc(docRef);
 
-  document.getElementById('sellerEmail').textContent = user.email;
+    if (docSnap.exists()) {
+      const data = docSnap.data();
+      businessNameEl.textContent = data.businessName;
+      sellerEmailEl.textContent = data.email;
+      if (data.logoURL) profileLogo.src = data.logoURL;
+    }
 
-  const sellerRef = doc(db, 'sellers', user.uid);
-  const sellerSnap = await getDoc(sellerRef);
-
-  if (sellerSnap.exists()) {
-    const data = sellerSnap.data();
-    document.getElementById('businessName').textContent = data.businessName || "No Business Name";
-    document.getElementById('profileLogo').src = data.logoURL || "https://via.placeholder.com/100";
-    document.getElementById('nameInput').value = data.name || "";
-    document.getElementById('businessInput').value = data.businessName || "";
+    displayProducts();
+  } else {
+    window.location.href = "index.html";
   }
-
-  loadProducts();
 });
 
-function loadProducts() {
-  const productList = document.getElementById('productList');
-  productList.innerHTML = '';
-
-  const q = query(collection(db, 'products'), where('uid', '==', currentUser.uid));
-  getDocs(q).then(snapshot => {
-    snapshot.forEach(doc => {
-      const data = doc.data();
-      const div = document.createElement('div');
-      div.className = 'border p-3 rounded shadow';
-      div.innerHTML = `
-        <img src="${data.imageURL}" class="w-full h-40 object-cover rounded mb-2" />
-        <h3 class="font-bold text-lg">${data.title}</h3>
-        <p>${data.description}</p>
-        <p class="text-blue-600 font-bold">Ksh ${data.price}</p>
-        <button onclick="deleteProduct('${doc.id}')" class="mt-2 bg-red-500 text-white px-2 py-1 rounded">Delete</button>
-      `;
-      productList.appendChild(div);
-    });
-  });
-}
-
-window.deleteProduct = async (productId) => {
-  await deleteDoc(doc(db, 'products', productId));
-  loadProducts();
-};
-
-document.getElementById('logoutBtn').addEventListener('click', () => {
-  signOut(auth);
+logoutBtn.addEventListener("click", () => {
+  signOut(auth).then(() => window.location.href = "index.html");
 });
 
-document.getElementById('editProfileBtn').addEventListener('click', () => {
-  document.getElementById('editProfileForm').classList.toggle('hidden');
+toggleProductFormBtn.addEventListener("click", () => {
+  productForm.classList.toggle("hidden");
 });
 
-document.getElementById('editProfileForm').addEventListener('submit', async (e) => {
+editProfileBtn.addEventListener("click", () => {
+  editProfileForm.classList.toggle("hidden");
+});
+
+document.getElementById("editProfileForm").addEventListener("submit", async (e) => {
   e.preventDefault();
-  const name = document.getElementById('nameInput').value;
-  const business = document.getElementById('businessInput').value;
-  const file = document.getElementById('logoInput').files[0];
+  const name = document.getElementById("nameInput").value;
+  const business = document.getElementById("businessInput").value;
+  const logo = document.getElementById("logoInput").files[0];
 
   let logoURL = "";
-  if (file) {
+  if (logo) {
     const formData = new FormData();
-    formData.append('file', file);
-    formData.append('upload_preset', cloudinaryUploadPreset);
+    formData.append("file", logo);
+    formData.append("upload_preset", "Jesmont");
 
-    const res = await axios.post(cloudinaryURL, formData);
-    logoURL = res.data.secure_url;
+    const res = await fetch("https://api.cloudinary.com/v1_1/dxirsijbl/image/upload", {
+      method: "POST",
+      body: formData
+    });
+    const data = await res.json();
+    logoURL = data.secure_url;
   }
 
-  await setDoc(doc(db, 'sellers', currentUser.uid), {
-    uid: currentUser.uid,
-    email: currentUser.email,
-    name,
+  const docRef = doc(db, "sellers", currentUser.uid);
+  await updateDoc(docRef, {
+    fullName: name,
     businessName: business,
-    logoURL
-  }, { merge: true });
+    logoURL: logoURL || profileLogo.src
+  });
 
+  alert("Profile updated");
   location.reload();
 });
 
-document.getElementById('productForm').addEventListener('submit', async (e) => {
+document.getElementById("productForm").addEventListener("submit", async (e) => {
   e.preventDefault();
 
-  const title = document.getElementById('titleInput').value;
-  const description = document.getElementById('descInput').value;
-  const price = parseInt(document.getElementById('priceInput').value);
-  const category = document.getElementById('categoryInput').value;
-  const file = document.getElementById('productImageInput').files[0];
+  const title = document.getElementById("titleInput").value;
+  const category = document.getElementById("categoryInput").value;
+  const description = document.getElementById("descInput").value;
+  const price = document.getElementById("priceInput").value;
+  const imageFile = document.getElementById("productImageInput").files[0];
+
+  if (!imageFile) return alert("Please select an image");
 
   const formData = new FormData();
-  formData.append('file', file);
-  formData.append('upload_preset', cloudinaryUploadPreset);
+  formData.append("file", imageFile);
+  formData.append("upload_preset", "Jesmont");
 
-  const res = await axios.post(cloudinaryURL, formData);
-  const imageURL = res.data.secure_url;
+  const response = await fetch("https://api.cloudinary.com/v1_1/dxirsijbl/image/upload", {
+    method: "POST",
+    body: formData
+  });
+  const imageData = await response.json();
 
-  await addDoc(collection(db, 'products'), {
+  await addDoc(collection(db, "products"), {
     title,
+    category,
     description,
     price,
-    category,
-    imageURL,
-    uid: currentUser.uid,
+    imageUrl: imageData.secure_url,
+    sellerId: currentUser.uid,
     createdAt: new Date()
   });
 
-  e.target.reset();
-  loadProducts();
+  alert("Product added");
+  productForm.reset();
+  displayProducts();
 });
+
+async function displayProducts() {
+  productList.innerHTML = "";
+  const querySnapshot = await getDocs(collection(db, "products"));
+  querySnapshot.forEach((docSnap) => {
+    const product = docSnap.data();
+    if (product.sellerId === currentUser.uid) {
+      const div = document.createElement("div");
+      div.className = "bg-white p-4 rounded shadow";
+      div.innerHTML = `
+        <img src="${product.imageUrl}" class="w-full h-40 object-cover rounded mb-2">
+        <h3 class="text-lg font-semibold">${product.title}</h3>
+        <p class="text-sm text-gray-600">${product.description}</p>
+        <p class="text-green-600 font-bold">KSh ${product.price}</p>
+        <button data-id="${docSnap.id}" class="mt-2 bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded deleteBtn">Delete</button>
+      `;
+      productList.appendChild(div);
+    }
+  });
+
+  document.querySelectorAll(".deleteBtn").forEach((btn) => {
+    btn.addEventListener("click", async (e) => {
+      const id = e.target.getAttribute("data-id");
+      await deleteDoc(doc(db, "products", id));
+      displayProducts();
+    });
+  });
+}
