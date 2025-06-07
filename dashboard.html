@@ -1,57 +1,55 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Seller Dashboard - Jesmont</title>
-  <script defer src="dashboard.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jesmont Seller Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
-<body class="bg-gray-100 text-gray-800">
-  <div class="max-w-4xl mx-auto p-4">
-    <div class="flex justify-between items-center mb-4">
-      <h1 class="text-2xl font-bold">Seller Dashboard</h1>
-      <button id="logoutBtn" class="bg-red-500 text-white px-4 py-2 rounded">Logout</button>
+<body class="bg-gray-100 min-h-screen p-4">
+  <div class="max-w-5xl mx-auto">
+    <div class="flex items-center justify-between mb-6">
+      <h1 class="text-2xl font-bold text-gray-800">Seller Dashboard</h1>
+      <button id="logoutBtn" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded">Logout</button>
     </div>
 
-    <div class="bg-white rounded shadow p-4 mb-6">
+    <div class="bg-white p-4 rounded shadow mb-4">
       <div class="flex items-center space-x-4">
-        <img id="profileLogo" src="https://via.placeholder.com/100" class="w-20 h-20 object-cover rounded-full" />
+        <img id="profileLogo" src="https://via.placeholder.com/100" alt="Logo" class="w-24 h-24 object-cover rounded-full">
         <div>
-          <h2 id="businessName" class="text-xl font-bold">Business Name</h2>
-          <p id="sellerEmail" class="text-gray-600">sample@email.com</p>
+          <h2 id="businessName" class="text-xl font-semibold text-gray-700">Business Name</h2>
+          <p id="sellerEmail" class="text-gray-500">sample@email.com</p>
         </div>
       </div>
-      <button id="editProfileBtn" class="mt-4 bg-blue-500 text-white px-3 py-1 rounded">Edit Profile</button>
-
-      <form id="editProfileForm" class="mt-4 space-y-2 hidden">
-        <input type="text" id="nameInput" placeholder="Full Name" class="w-full border p-2 rounded" required />
-        <input type="text" id="businessInput" placeholder="Business Name" class="w-full border p-2 rounded" required />
-        <input type="file" id="logoInput" class="w-full" />
-        <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded">Save</button>
+      <button id="editProfileBtn" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded">Edit Profile</button>
+      <form id="editProfileForm" class="mt-4 hidden">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <input type="text" id="nameInput" placeholder="Full Name" class="border p-2 rounded">
+          <input type="text" id="businessInput" placeholder="Business Name" class="border p-2 rounded">
+          <input type="file" id="logoInput" accept="image/*" class="border p-2 rounded">
+        </div>
+        <button type="submit" class="mt-4 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">Save Changes</button>
       </form>
     </div>
 
-    <div class="bg-white rounded shadow p-4 mb-6">
-      <h2 class="text-xl font-bold mb-4">Add Product</h2>
-      <form id="productForm" class="space-y-2">
-        <input type="text" id="titleInput" placeholder="Product Title" class="w-full border p-2 rounded" required />
-        <input type="text" id="categoryInput" placeholder="Category" class="w-full border p-2 rounded" required />
-        <textarea id="descInput" placeholder="Description" class="w-full border p-2 rounded" required></textarea>
-        <input type="number" id="priceInput" placeholder="Price" class="w-full border p-2 rounded" required />
-        <input type="file" id="productImageInput" class="w-full" required />
-        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">Upload Product</button>
+    <div class="mb-4">
+      <button id="toggleProductFormBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">Upload Product</button>
+      <form id="productForm" class="mt-4 hidden bg-white p-4 rounded shadow">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <input type="text" id="titleInput" placeholder="Product Title" class="border p-2 rounded">
+          <input type="text" id="categoryInput" placeholder="Category" class="border p-2 rounded">
+          <textarea id="descInput" placeholder="Product Description" class="border p-2 rounded"></textarea>
+          <input type="number" id="priceInput" placeholder="Price" class="border p-2 rounded">
+          <input type="file" id="productImageInput" accept="image/*" class="border p-2 rounded">
+        </div>
+        <button type="submit" class="mt-4 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">Add Product</button>
       </form>
     </div>
 
-    <div class="bg-white rounded shadow p-4">
-      <h2 class="text-xl font-bold mb-4">Your Products</h2>
-      <div id="productList" class="grid gap-4 sm:grid-cols-2"></div>
-    </div>
+    <div id="productList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
   </div>
+
+  <script type="module" src="dashboard.js"></script>
 </body>
 </html>
