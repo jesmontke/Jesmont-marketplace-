@@ -1,4 +1,4 @@
-// Firebase config + initialization
+// Firebase config - replace with your own config
 const firebaseConfig = {
   apiKey: "AIzaSyDlakKgMzhADOywIOg4iTCJ5sUFXLMGwVg",
   authDomain: "jesmont-marketplace.firebaseapp.com",
@@ -9,243 +9,196 @@ const firebaseConfig = {
   measurementId: "G-56TMB41PS8"
 };
 
+// Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-const searchBar = document.getElementById("search-bar");
-const categoriesContainer = document.getElementById("categories");
-const sellerProfilesContainer = document.getElementById("seller-profiles");
-const productListings = document.getElementById("product-listings");
+// DOM elements
+const searchBar = document.getElementById("searchBar");
+const categoryFilters = document.getElementById("categoryFilters");
+const sellerProfiles = document.getElementById("sellerProfiles");
+const productListings = document.getElementById("productListings");
 
+// State
+let categories = new Set();
 let sellers = [];
 let products = [];
-let categories = [];
-
 let selectedCategory = "All";
 let selectedSellerId = null;
-let searchTerm = "";
+let searchQuery = "";
 
-// Fetch sellers from Firestore
+// Utility function: sanitize strings for search matching
+function normalizeText(text) {
+  return text.toLowerCase();
+}
+
+// Fetch all sellers from Firestore
 async function fetchSellers() {
-  try {
-    const snapshot = await db.collection("sellers").get();
-    sellers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-
-    // Derive categories from sellers businessCategory if needed
-    // But we'll get categories from products (more inclusive)
-    // console.log("Sellers fetched:", sellers);
-  } catch (err) {
-    console.error("Error fetching sellers:", err);
-  }
+  const snapshot = await db.collection("sellers").get();
+  sellers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  // Collect all categories from sellers as well
+  sellers.forEach(s => {
+    if (s.category) categories.add(s.category.toLowerCase());
+  });
+  categories.add("all");
 }
 
-// Fetch products from Firestore
+// Fetch all products from Firestore
 async function fetchProducts() {
-  try {
-    const snapshot = await db.collection("products").get();
-    products = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    // Derive categories from products
-    const catSet = new Set(products.map(p => p.category).filter(c => !!c));
-    categories = Array.from(catSet).sort();
-    categories.unshift("All"); // Add 'All' at front
-
-    // console.log("Products fetched:", products);
-    // console.log("Categories derived:", categories);
-  } catch (err) {
-    console.error("Error fetching products:", err);
-  }
+  const snapshot = await db.collection("products").get();
+  products = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  // Also collect product categories
+  products.forEach(p => {
+    if (p.category) categories.add(p.category.toLowerCase());
+  });
+  categories.add("all");
 }
 
-function createCategoryButtons() {
-  categoriesContainer.innerHTML = "";
+// Render category filter buttons
+function renderCategories() {
+  // Sort and display 'All' first
+  const sortedCats = Array.from(categories).sort((a, b) => {
+    if (a === "all") return -1;
+    if (b === "all") return 1;
+    return a.localeCompare(b);
+  });
 
-  categories.forEach(category => {
+  categoryFilters.innerHTML = "";
+  sortedCats.forEach(cat => {
     const btn = document.createElement("button");
+    btn.textContent = cat.charAt(0).toUpperCase() + cat.slice(1);
     btn.className = "category-btn";
-    if (category === selectedCategory) btn.classList.add("selected");
-    btn.textContent = category;
-    btn.onclick = () => {
-      selectedCategory = category;
-      selectedSellerId = null; // Reset seller filter when selecting category
-      updateUI();
-    };
-    categoriesContainer.appendChild(btn);
+    if (cat === selectedCategory.toLowerCase()) {
+      btn.classList.add("selected");
+    }
+    btn.addEventListener("click", () => {
+      selectedCategory = cat;
+      selectedSellerId = null; // Reset seller filter when category changes
+      renderCategories();
+      renderSellerProfiles();
+      renderProducts();
+    });
+    categoryFilters.appendChild(btn);
   });
 }
 
-function createSellerProfiles() {
-  sellerProfilesContainer.innerHTML = "";
+// Render seller profiles horizontally with logos and View Profile buttons
+function renderSellerProfiles() {
+  sellerProfiles.innerHTML = "";
 
-  // Add the "All Sellers" card with View Profile disabled
-  const allSellersCard = document.createElement("div");
-  allSellersCard.className = "seller-card" + (selectedSellerId === null ? " selected" : "");
-
-  // Logo placeholder for "All Sellers"
-  const allLogo = document.createElement("img");
-  allLogo.src = "https://via.placeholder.com/80?text=All";
-  allLogo.alt = "All Sellers";
-  allLogo.className = "seller-logo";
-  allSellersCard.appendChild(allLogo);
-
-  const allName = document.createElement("div");
-  allName.className = "seller-name";
-  allName.textContent = "All Sellers";
-  allSellersCard.appendChild(allName);
-
-  // Disabled "View Profile" button for All Sellers
-  const allBtn = document.createElement("button");
-  allBtn.className = "view-profile-btn";
-  allBtn.textContent = "View Profile";
-  allBtn.disabled = true;
-  allBtn.style.cursor = "default";
-  allSellersCard.appendChild(allBtn);
-
-  // Clicking entire card selects all sellers filter
-  allSellersCard.onclick = () => {
+  // Add "All Sellers" card
+  const allCard = document.createElement("div");
+  allCard.className = "seller-profile" + (selectedSellerId === null ? " selected" : "");
+  allCard.innerHTML = `
+    <img src="https://cdn-icons-png.flaticon.com/512/1077/1077114.png" alt="All Sellers" />
+    <div class="business-name">All Sellers</div>
+    <div class="category-label">All</div>
+    <button class="view-profile-btn">View Profile</button>
+  `;
+  allCard.querySelector("button").addEventListener("click", () => {
     selectedSellerId = null;
-    updateUI();
-  };
+    renderSellerProfiles();
+    renderProducts();
+  });
+  sellerProfiles.appendChild(allCard);
 
-  sellerProfilesContainer.appendChild(allSellersCard);
-
-  // Filter sellers by selected category if not "All"
-  const filteredSellers = selectedCategory === "All"
-    ? sellers
-    : sellers.filter(seller => {
-      if (!seller.businessCategory) return false;
-      if (Array.isArray(seller.businessCategory)) {
-        return seller.businessCategory.includes(selectedCategory);
-      }
-      return seller.businessCategory === selectedCategory;
-    });
+  // Filter sellers by selectedCategory if not "all"
+  let filteredSellers = sellers;
+  if (selectedCategory.toLowerCase() !== "all") {
+    filteredSellers = sellers.filter(s => s.category?.toLowerCase() === selectedCategory.toLowerCase());
+  }
 
   filteredSellers.forEach(seller => {
     const card = document.createElement("div");
-    card.className = "seller-card" + (selectedSellerId === seller.id ? " selected" : "");
-
-    card.onclick = () => {
-      if (selectedSellerId === seller.id) {
-        selectedSellerId = null; // deselect
-      } else {
-        selectedSellerId = seller.id;
-      }
-      updateUI();
-    };
-
-    const logo = document.createElement("img");
-    logo.src = seller.logoUrl || "https://via.placeholder.com/80?text=No+Logo";
-    logo.alt = seller.businessName || "Seller Logo";
-    logo.className = "seller-logo";
-
-    const name = document.createElement("div");
-    name.className = "seller-name";
-    name.textContent = seller.businessName || "Unnamed Seller";
-
-    const btn = document.createElement("button");
-    btn.className = "view-profile-btn";
-    btn.textContent = "View Profile";
-    btn.onclick = (e) => {
-      e.stopPropagation();
-      alert(`View profile clicked for seller: ${seller.businessName} (ID: ${seller.id})`);
-      // TODO: Replace alert with navigation to seller profile page
-    };
-
-    card.appendChild(logo);
-    card.appendChild(name);
-    card.appendChild(btn);
-
-    sellerProfilesContainer.appendChild(card);
+    card.className = "seller-profile" + (selectedSellerId === seller.id ? " selected" : "");
+    card.innerHTML = `
+      <img src="${seller.logoUrl || "https://cdn-icons-png.flaticon.com/512/1077/1077114.png"}" alt="${seller.businessName}" />
+      <div class="business-name">${seller.businessName}</div>
+      <div class="category-label">${seller.category || ""}</div>
+      <button class="view-profile-btn">View Profile</button>
+    `;
+    card.querySelector("button").addEventListener("click", () => {
+      selectedSellerId = seller.id;
+      renderSellerProfiles();
+      renderProducts();
+    });
+    sellerProfiles.appendChild(card);
   });
+}
 
-  // Show message if no sellers for this category
-  if (filteredSellers.length === 0 && selectedCategory !== "All") {
-    const msg = document.createElement("div");
-    msg.textContent = "No sellers in this category.";
-    msg.style.color = "#999";
-    msg.style.fontStyle = "italic";
-    msg.style.padding = "0.5rem";
-    sellerProfilesContainer.appendChild(msg);
+// Render product cards filtered by search, category, and seller
+function renderProducts() {
+  const q = normalizeText(searchQuery);
+
+  let filtered = products;
+
+  // Filter by selected category (if not All)
+  if (selectedCategory.toLowerCase() !== "all") {
+    filtered = filtered.filter(
+      p => p.category && p.category.toLowerCase() === selectedCategory.toLowerCase()
+    );
   }
-}
 
-function filterProducts() {
-  return products.filter(product => {
-    // Category filter (if 'All', allow all)
-    const categoryMatch = selectedCategory === "All" || product.category === selectedCategory;
+  // Filter by selected seller
+  if (selectedSellerId) {
+    filtered = filtered.filter(p => p.sellerId === selectedSellerId);
+  }
 
-    // Seller filter
-    const sellerMatch = !selectedSellerId || product.sellerId === selectedSellerId;
+  // Filter by search query: match product name, description, or seller business name
+  if (q) {
+    filtered = filtered.filter(p => {
+      const prodName = p.name ? normalizeText(p.name) : "";
+      const prodDesc = p.description ? normalizeText(p.description) : "";
+      // Find seller business name from sellers array
+      const sellerName = sellers.find(s => s.id === p.sellerId)?.businessName || "";
+      return (
+        prodName.includes(q) ||
+        prodDesc.includes(q) ||
+        normalizeText(sellerName).includes(q)
+      );
+    });
+  }
 
-    // Search filter (case insensitive on product name)
-    const searchMatch = product.name.toLowerCase().includes(searchTerm.toLowerCase());
-
-    return categoryMatch && sellerMatch && searchMatch;
-  });
-}
-
-function displayProducts(filteredProducts) {
+  // Render
   productListings.innerHTML = "";
 
-  if (filteredProducts.length === 0) {
-    productListings.innerHTML = `<p>No products found.</p>`;
+  if (filtered.length === 0) {
+    productListings.innerHTML = `<p style="text-align:center; color:#777;">No products found.</p>`;
     return;
   }
 
-  filteredProducts.forEach(product => {
-    const card = document.createElement("article");
-    card.className = "product-card";
-
-    const img = document.createElement("img");
-    img.className = "product-image";
-    img.src = product.imageUrl || "https://via.placeholder.com/280x160?text=No+Image";
-    img.alt = product.name || "Product Image";
-
-    const title = document.createElement("h3");
-    title.textContent = product.name || "Unnamed Product";
-
-    const price = document.createElement("div");
-    price.className = "price";
-    price.textContent = product.price ? `Ksh ${product.price}` : "Price not set";
-
-    const desc = document.createElement("p");
-    desc.textContent = product.description || "";
-
-    const seller = sellers.find(s => s.id === product.sellerId);
-    const sellerInfo = document.createElement("div");
-    sellerInfo.className = "seller-info";
-    sellerInfo.textContent = seller ? seller.businessName : "Unknown Seller";
-
-    card.appendChild(img);
-    card.appendChild(title);
-    card.appendChild(price);
-    card.appendChild(desc);
-    card.appendChild(sellerInfo);
-
-    productListings.appendChild(card);
+  filtered.forEach(p => {
+    const seller = sellers.find(s => s.id === p.sellerId);
+    const productCard = document.createElement("article");
+    productCard.className = "product-card";
+    productCard.innerHTML = `
+      <img
+        loading="lazy"
+        class="product-image"
+        src="${p.imageUrl || 'https://via.placeholder.com/300x225?text=No+Image'}"
+        alt="${p.name || 'Product Image'}"
+      />
+      <h3>${p.name || "Unnamed Product"}</h3>
+      <div class="price">Ksh ${p.price?.toFixed(2) || "N/A"}</div>
+      <p>${p.description || "No description."}</p>
+      <div class="seller-name">Seller: ${seller?.businessName || "Unknown"}</div>
+    `;
+    productListings.appendChild(productCard);
   });
 }
 
-function updateUI() {
-  createCategoryButtons();
-  createSellerProfiles();
-
-  const filteredProducts = filterProducts();
-  displayProducts(filteredProducts);
-}
-
-// Search input event
+// Event listeners
 searchBar.addEventListener("input", e => {
-  searchTerm = e.target.value.trim();
-  // reset seller filter when searching
-  selectedSellerId = null;
-  updateUI();
+  searchQuery = e.target.value;
+  renderProducts();
 });
 
-// Initialization
+// Initial fetch and render
 async function init() {
-  await fetchSellers();
-  await fetchProducts();
-  updateUI();
+  await Promise.all([fetchSellers(), fetchProducts()]);
+  renderCategories();
+  renderSellerProfiles();
+  renderProducts();
 }
 
 init();
