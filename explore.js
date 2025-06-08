@@ -1,4 +1,4 @@
-// Firebase config — use your actual config here
+// Initialize Firebase with your config
 const firebaseConfig = {
   apiKey: "AIzaSyDlakKgMzhADOywIOg4iTCJ5sUFXLMGwVg",
   authDomain: "jesmont-marketplace.firebaseapp.com",
@@ -23,19 +23,43 @@ let selectedCategory = "All";
 let selectedSellerId = null;
 let searchTerm = "";
 
+// Fetch sellers from Firestore
+async function fetchSellers() {
+  try {
+    const snapshot = await db.collection("sellers").get();
+    sellers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    console.log("Sellers fetched:", sellers);
+  } catch (error) {
+    console.error("Error fetching sellers:", error);
+    sellerProfilesContainer.innerHTML = `<p style="color:red;">Error loading sellers</p>`;
+  }
+}
+
+// Fetch products from Firestore
+async function fetchProducts() {
+  try {
+    const snapshot = await db.collection("products").get();
+    products = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    console.log("Products fetched:", products);
+  } catch (error) {
+    console.error("Error fetching products:", error);
+    productListings.innerHTML = `<p style="color:red;">Error loading products</p>`;
+  }
+}
+
 function getUniqueCategories() {
-  const cats = new Set();
-  sellers.forEach(seller => {
-    if (seller.category && seller.category.trim() !== "") {
-      cats.add(seller.category.trim());
+  const categoriesSet = new Set();
+  sellers.forEach(s => {
+    if (s.category && s.category.trim()) {
+      categoriesSet.add(s.category.trim());
     }
   });
-  products.forEach(prod => {
-    if (prod.category && prod.category.trim() !== "") {
-      cats.add(prod.category.trim());
+  products.forEach(p => {
+    if (p.category && p.category.trim()) {
+      categoriesSet.add(p.category.trim());
     }
   });
-  return Array.from(cats).sort();
+  return Array.from(categoriesSet).sort();
 }
 
 function createCategoryButtons() {
@@ -68,121 +92,126 @@ function createCategoryButtons() {
 function createSellerProfiles() {
   sellerProfilesContainer.innerHTML = "";
 
-  // "All Sellers" card
-  const allSellerCard = document.createElement("div");
-  allSellerCard.className = "seller-card" + (selectedSellerId === null ? " selected" : "");
-  allSellerCard.title = "All Sellers";
-  allSellerCard.onclick = () => {
+  // Add All Sellers card to deselect seller filter
+  const allSellersCard = document.createElement("div");
+  allSellersCard.className = "seller-card" + (selectedSellerId === null ? " selected" : "");
+  allSellersCard.textContent = "All Sellers";
+  allSellersCard.style.fontWeight = "700";
+  allSellersCard.style.padding = "10px 15px";
+  allSellersCard.style.border = "2px solid var(--black)";
+  allSellersCard.style.borderRadius = "10px";
+  allSellersCard.style.userSelect = "none";
+  allSellersCard.style.cursor = "pointer";
+  allSellersCard.onclick = () => {
     selectedSellerId = null;
     updateUI();
   };
-  // Placeholder all sellers icon
-  allSellerCard.innerHTML = `
-    <img src="https://img.icons8.com/ios-filled/100/000000/shop.png" alt="All Sellers" class="seller-logo" />
-    <div class="seller-name">All Sellers</div>
-  `;
-  sellerProfilesContainer.appendChild(allSellerCard);
+  sellerProfilesContainer.appendChild(allSellersCard);
 
   sellers.forEach(seller => {
     const card = document.createElement("div");
     card.className = "seller-card" + (selectedSellerId === seller.id ? " selected" : "");
-    card.title = seller.businessName || "Unnamed Seller";
     card.onclick = () => {
-      selectedSellerId = seller.id;
+      if (selectedSellerId === seller.id) {
+        // Deselect if clicked again
+        selectedSellerId = null;
+      } else {
+        selectedSellerId = seller.id;
+      }
       updateUI();
     };
 
-    const logoUrl = seller.logoUrl && seller.logoUrl.trim() !== "" ? seller.logoUrl : "https://via.placeholder.com/60?text=Logo";
+    const logo = document.createElement("img");
+    logo.src = seller.logoUrl || "https://via.placeholder.com/60?text=No+Logo";
+    logo.alt = `${seller.businessName} Logo`;
+    logo.className = "seller-logo";
 
-    card.innerHTML = `
-      <img src="${logoUrl}" alt="${seller.businessName || "Seller Logo"}" class="seller-logo" />
-      <div class="seller-name">${seller.businessName || "Unnamed Seller"}</div>
-    `;
+    const name = document.createElement("div");
+    name.textContent = seller.businessName || "Unnamed Seller";
+    name.className = "seller-name";
+
+    card.appendChild(logo);
+    card.appendChild(name);
+
     sellerProfilesContainer.appendChild(card);
   });
 }
 
-function displayProducts() {
+function filterProducts() {
+  return products.filter(product => {
+    // Filter by category
+    const categoryMatch = selectedCategory === "All" || product.category === selectedCategory;
+
+    // Filter by seller
+    const sellerMatch = !selectedSellerId || product.sellerId === selectedSellerId;
+
+    // Filter by search term
+    const searchMatch = product.name.toLowerCase().includes(searchTerm.toLowerCase());
+
+    return categoryMatch && sellerMatch && searchMatch;
+  });
+}
+
+function displayProducts(filteredProducts) {
   productListings.innerHTML = "";
-
-  let filteredProducts = products;
-
-  if (selectedCategory !== "All") {
-    filteredProducts = filteredProducts.filter(p => p.category === selectedCategory);
-  }
-  if (selectedSellerId) {
-    filteredProducts = filteredProducts.filter(p => p.sellerId === selectedSellerId);
-  }
-  if (searchTerm.trim() !== "") {
-    const term = searchTerm.trim().toLowerCase();
-    filteredProducts = filteredProducts.filter(p => p.name && p.name.toLowerCase().includes(term));
-  }
-
   if (filteredProducts.length === 0) {
-    productListings.innerHTML = `<p>No products found.</p>`;
+    productListings.innerHTML = "<p>No products found.</p>";
     return;
   }
-
   filteredProducts.forEach(product => {
-    const card = document.createElement("article");
-    card.className = "product-card";
+    const productCard = document.createElement("article");
+    productCard.className = "product-card";
 
     const img = document.createElement("img");
-    img.className = "product-image";
-    img.src = product.imageUrl && product.imageUrl.trim() !== "" ? product.imageUrl : "https://via.placeholder.com/400x300?text=No+Image";
+    img.src = product.imageUrl || "https://via.placeholder.com/280x160?text=No+Image";
     img.alt = product.name || "Product Image";
-    card.appendChild(img);
+    img.className = "product-image";
 
     const title = document.createElement("h3");
     title.textContent = product.name || "Unnamed Product";
-    card.appendChild(title);
 
     const price = document.createElement("div");
     price.className = "price";
-    price.textContent = product.price != null ? `Ksh ${product.price.toLocaleString()}` : "Price N/A";
-    card.appendChild(price);
+    price.textContent = product.price ? `Ksh ${product.price}` : "Price not set";
 
     const desc = document.createElement("p");
     desc.textContent = product.description || "";
-    card.appendChild(desc);
 
     const seller = sellers.find(s => s.id === product.sellerId);
-    const sellerName = seller ? seller.businessName : "Unknown Seller";
     const sellerInfo = document.createElement("div");
     sellerInfo.className = "seller-info";
-    sellerInfo.textContent = `Seller: ${sellerName}`;
-    card.appendChild(sellerInfo);
+    sellerInfo.textContent = seller ? seller.businessName : "Unknown Seller";
 
-    productListings.appendChild(card);
+    productCard.appendChild(img);
+    productCard.appendChild(title);
+    productCard.appendChild(price);
+    productCard.appendChild(desc);
+    productCard.appendChild(sellerInfo);
+
+    productListings.appendChild(productCard);
   });
 }
 
 function updateUI() {
   createCategoryButtons();
   createSellerProfiles();
-  displayProducts();
+
+  const filteredProducts = filterProducts();
+  displayProducts(filteredProducts);
 }
 
+// Setup event listener for search input
 searchBar.addEventListener("input", (e) => {
-  searchTerm = e.target.value;
-  selectedSellerId = null; // Reset seller filter on new search
+  searchTerm = e.target.value.trim();
+  selectedSellerId = null; // reset seller filter when searching
   updateUI();
 });
 
-async function fetchSellers() {
-  const snapshot = await db.collection("sellers").get();
-  sellers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-}
-
-async function fetchProducts() {
-  const snapshot = await db.collection("products").get();
-  products = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-}
-
-async function initialize() {
+// Main initialization function
+async function init() {
   await fetchSellers();
   await fetchProducts();
   updateUI();
 }
 
-initialize();
+init();
