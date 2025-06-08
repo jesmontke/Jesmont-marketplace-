@@ -1,17 +1,19 @@
+// Firebase imports
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
 import {
   getFirestore,
   collection,
   getDocs,
   query,
-  orderBy
+  orderBy,
 } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";
 
+// Firebase config
 const firebaseConfig = {
   apiKey: "AIzaSyDlakKgMzhADOywIOg4iTCJ5sUFXLMGwVg",
   authDomain: "jesmont-marketplace.firebaseapp.com",
   projectId: "jesmont-marketplace",
-  storageBucket: "jesmont-marketplace.appspot.com",
+  storageBucket: "jesmont-marketplace.firebasestorage.app",
   messagingSenderId: "543717950238",
   appId: "1:543717950238:web:df009d49e88a2ea010bf0f",
   measurementId: "G-56TMB41PS8"
@@ -20,121 +22,151 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
+const sellerProfilesEl = document.getElementById("sellerProfiles");
+const productListingsEl = document.getElementById("productListings");
 const searchBar = document.getElementById("searchBar");
 const categoryFilters = document.getElementById("categoryFilters");
-const sellerProfiles = document.getElementById("sellerProfiles");
-const productListings = document.getElementById("productListings");
 
 let sellers = [];
 let products = [];
 let selectedCategory = "all";
-let selectedSeller = null;
+let selectedSellerId = null;
+
+function truncateText(text, maxLength = 25) {
+  return !text ? "" : (text.length > maxLength ? text.slice(0, maxLength) + "…" : text);
+}
 
 async function fetchSellers() {
-  const q = query(collection(db, "sellers"), orderBy("businessName"));
+  const q = query(collection(db, "sellers"), orderBy("businessName", "asc"));
   const snapshot = await getDocs(q);
-  sellers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  sellers = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
   renderSellers();
 }
 
 async function fetchProducts() {
   const q = query(collection(db, "products"), orderBy("createdAt", "desc"));
   const snapshot = await getDocs(q);
-  products = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  products = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
   renderProducts();
 }
 
 function renderSellers() {
-  sellerProfiles.innerHTML = "";
-  sellers.forEach(seller => {
+  sellerProfilesEl.innerHTML = "";
+  sellers.forEach((seller) => {
     const card = document.createElement("div");
-    card.className = "seller-card" + (selectedSeller === seller.id ? " selected" : "");
-    card.onclick = () => {
-      selectedSeller = selectedSeller === seller.id ? null : seller.id;
-      renderSellers();
-      renderProducts();
-    };
+    card.className = "min-w-[140px] bg-blue-100 rounded-xl p-3 flex-shrink-0 cursor-pointer hover:shadow-md transition";
+    if (selectedSellerId === seller.id) card.classList.add("selected");
 
     const img = document.createElement("img");
-    img.src = seller.logoUrl || "https://via.placeholder.com/100?text=Logo";
-    img.alt = "Seller Logo";
-    img.className = "w-20 h-20 rounded-full object-cover mb-2";
+    img.src = seller.logoUrl || "https://via.placeholder.com/90?text=Logo";
+    img.alt = seller.businessName;
+    img.className = "w-16 h-16 object-cover rounded-full mx-auto mb-2";
+    card.appendChild(img);
 
     const name = document.createElement("div");
-    name.textContent = seller.businessName;
-    name.className = "font-semibold text-sm text-center text-blue-700";
+    name.textContent = truncateText(seller.businessName);
+    name.className = "text-center font-semibold text-sm";
+    card.appendChild(name);
 
     const category = document.createElement("div");
-    category.textContent = seller.category || "";
-    category.className = "text-xs text-gray-500";
+    category.textContent = seller.category || "N/A";
+    category.className = "text-center text-xs text-gray-500";
+    card.appendChild(category);
 
     const viewBtn = document.createElement("a");
     viewBtn.href = `seller.html?uid=${seller.id}`;
-    viewBtn.textContent = "View";
-    viewBtn.className = "mt-2 px-3 py-1 bg-green-500 text-white text-xs rounded hover:bg-green-600";
+    viewBtn.textContent = "View Profile";
+    viewBtn.className = "block mt-2 text-center text-blue-600 text-sm underline";
+    viewBtn.addEventListener("click", (e) => e.stopPropagation());
+    card.appendChild(viewBtn);
 
-    card.append(img, name, category, viewBtn);
-    sellerProfiles.appendChild(card);
+    card.addEventListener("click", () => {
+      selectedSellerId = (selectedSellerId === seller.id) ? null : seller.id;
+      updateFiltersAndRender();
+    });
+
+    sellerProfilesEl.appendChild(card);
   });
 }
 
 function renderProducts() {
-  const search = searchBar.value.toLowerCase();
-  const filtered = products.filter(product => {
-    const matchSearch =
-      product.name?.toLowerCase().includes(search) ||
-      product.description?.toLowerCase().includes(search);
+  productListingsEl.innerHTML = "";
+  const searchTerm = searchBar.value.trim().toLowerCase();
 
-    const matchCategory =
+  const filtered = products.filter((product) => {
+    const seller = sellers.find((s) => s.id === product.sellerId);
+    const matchesSearch =
+      product.name.toLowerCase().includes(searchTerm) ||
+      product.description?.toLowerCase().includes(searchTerm) ||
+      seller?.businessName.toLowerCase().includes(searchTerm);
+
+    const matchesCategory =
       selectedCategory === "all" || product.category === selectedCategory;
 
-    const matchSeller =
-      !selectedSeller || product.sellerId === selectedSeller;
+    const matchesSeller =
+      !selectedSellerId || product.sellerId === selectedSellerId;
 
-    return matchSearch && matchCategory && matchSeller;
+    return matchesSearch && matchesCategory && matchesSeller;
   });
 
-  productListings.innerHTML = filtered.length === 0
-    ? '<p class="text-center text-gray-500 col-span-full">No products found.</p>'
-    : "";
+  if (filtered.length === 0) {
+    productListingsEl.innerHTML = '<p class="text-center text-gray-500 col-span-full">No products found.</p>';
+    return;
+  }
 
-  filtered.forEach(p => {
+  filtered.forEach((product) => {
     const card = document.createElement("div");
-    card.className = "bg-white p-4 border rounded-xl shadow hover:shadow-lg transition";
+    card.className = "bg-yellow-100 rounded-lg shadow p-4";
 
     const img = document.createElement("img");
-    img.src = p.imageUrl || "https://via.placeholder.com/200x140?text=No+Image";
-    img.alt = p.name;
-    img.className = "w-full h-40 object-cover rounded-lg mb-2";
+    img.src = product.imageUrl || "https://via.placeholder.com/220x140?text=No+Image";
+    img.alt = product.name;
+    img.className = "w-full h-40 object-cover rounded-md mb-3";
+    card.appendChild(img);
 
     const name = document.createElement("h3");
-    name.textContent = p.name || "Untitled";
-    name.className = "text-lg font-semibold mb-1 text-blue-700";
+    name.textContent = truncateText(product.name, 30);
+    name.className = "text-lg font-bold text-gray-800 mb-1";
+    card.appendChild(name);
 
     const price = document.createElement("p");
-    price.textContent = `Ksh ${p.price || "N/A"}`;
-    price.className = "text-green-600 font-bold mb-1";
+    price.textContent = `Ksh ${product.price?.toFixed(2) || "N/A"}`;
+    price.className = "text-green-700 font-semibold mb-1";
+    card.appendChild(price);
 
     const desc = document.createElement("p");
-    desc.textContent = p.description || "";
+    desc.textContent = truncateText(product.description, 60);
     desc.className = "text-sm text-gray-600";
+    card.appendChild(desc);
 
-    card.append(img, name, price, desc);
-    productListings.appendChild(card);
+    productListingsEl.appendChild(card);
   });
 }
 
-searchBar.addEventListener("input", renderProducts);
+function updateFiltersAndRender() {
+  [...categoryFilters.children].forEach((btn) => {
+    btn.classList.toggle("bg-yellow-500", btn.dataset.category === selectedCategory);
+  });
+
+  [...sellerProfilesEl.children].forEach((card, i) => {
+    const id = sellers[i]?.id;
+    card.classList.toggle("selected", id === selectedSellerId);
+  });
+
+  renderProducts();
+}
 
 categoryFilters.addEventListener("click", (e) => {
-  if (e.target.dataset.category) {
+  if (e.target.classList.contains("category-btn")) {
     selectedCategory = e.target.dataset.category;
-    document.querySelectorAll(".category-btn").forEach(btn =>
-      btn.classList.toggle("selected", btn.dataset.category === selectedCategory)
-    );
-    renderProducts();
+    updateFiltersAndRender();
   }
 });
 
-await fetchSellers();
-await fetchProducts();
+searchBar.addEventListener("input", () => updateFiltersAndRender());
+
+(async () => {
+  await fetchSellers();
+  await fetchProducts();
+  updateFiltersAndRender();
+})();
