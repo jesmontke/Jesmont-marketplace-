@@ -1,274 +1,53 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Explore - Jesmont Marketplace</title>
+    <script type="module" src="explore.js" defer></script>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.3.2/dist/tailwind.min.css" rel="stylesheet">
+  </head>
+  <body class="bg-gray-100 font-sans text-gray-900">
+    <div class="max-w-6xl mx-auto px-4 py-6 space-y-6">
+      <h1 class="text-3xl font-bold text-blue-700">Explore Products</h1>
 
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Explore Sellers - Jesmont Marketplace</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet" />
-  <style>
-    body {
-      font-family: 'Poppins', sans-serif;
-      background-color: #f9fafb;
-    }
+      <input
+        type="text"
+        id="searchBar"
+        placeholder="Search by product or seller..."
+        class="w-full p-3 rounded-xl border border-gray-300 shadow"
+      />
 
-    /* Horizontal scrolling for seller profiles */
-    #sellerProfiles {
-      display: flex;
-      overflow-x: auto;
-      gap: 1rem;
-      padding: 1rem 0;
-      scrollbar-width: thin;
-      scrollbar-color: #a0aec0 transparent;
-    }
+      <!-- Category Filters -->
+      <div id="categoryFilters" class="flex overflow-x-auto gap-3 py-2">
+        <span class="category-btn selected whitespace-nowrap" data-category="all">All</span>
+        <span class="category-btn whitespace-nowrap" data-category="Fashion">Fashion</span>
+        <span class="category-btn whitespace-nowrap" data-category="Electronics">Electronics</span>
+        <span class="category-btn whitespace-nowrap" data-category="Food">Food</span>
+        <span class="category-btn whitespace-nowrap" data-category="Home">Home</span>
+        <span class="category-btn whitespace-nowrap" data-category="Other">Other</span>
+      </div>
 
-    #sellerProfiles::-webkit-scrollbar {
-      height: 8px;
-    }
+      <!-- Seller Profiles -->
+      <div id="sellerProfiles" class="flex overflow-x-auto gap-4 py-2"></div>
 
-    #sellerProfiles::-webkit-scrollbar-thumb {
-      background-color: #a0aec0;
-      border-radius: 10px;
-    }
+      <!-- Product Listings -->
+      <div id="productListings" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+    </div>
 
-    /* Seller profile card */
-    .seller-profile {
-      flex: 0 0 auto;
-      width: 180px;
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 2px 6px rgb(0 0 0 / 0.1);
-      padding: 0.75rem;
-      text-align: center;
-      cursor: pointer;
-      transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
-      border: 2px solid transparent;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      position: relative;
-    }
-
-    .seller-profile:hover,
-    .seller-profile.selected {
-      transform: translateY(-4px);
-      border-color: #3b82f6;
-      box-shadow: 0 4px 12px rgb(59 130 246 / 0.4);
-    }
-
-    .seller-profile img {
-      width: 90px;
-      height: 90px;
-      border-radius: 50%;
-      object-fit: cover;
-      margin-bottom: 0.5rem;
-      background: #e2e8f0;
-      flex-shrink: 0;
-    }
-
-    .seller-profile .business-name {
-      font-weight: 600;
-      font-size: 1rem;
-      margin-bottom: 0.25rem;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      width: 100%;
-    }
-
-    .seller-profile .category {
-      font-size: 0.8rem;
-      color: #6b7280; /* Tailwind gray-500 */
-      margin-bottom: 0.5rem;
-      text-transform: capitalize;
-    }
-
-    /* View Profile button */
-    .view-profile-btn {
-      margin-top: auto;
-      background-color: #3b82f6;
-      color: white;
-      padding: 0.3rem 0.75rem;
-      border-radius: 9999px;
-      font-size: 0.85rem;
-      font-weight: 600;
-      text-decoration: none;
-      transition: background-color 0.3s ease;
-    }
-
-    .view-profile-btn:hover {
-      background-color: #2563eb; /* Tailwind blue-600 */
-    }
-
-    /* Product listing grid */
-    #productListings {
-      margin-top: 2rem;
-      display: grid;
-      gap: 1rem;
-      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    }
-
-    .product-card {
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 2px 6px rgb(0 0 0 / 0.1);
-      padding: 1rem;
-      display: flex;
-      flex-direction: column;
-      transition: transform 0.2s ease;
-    }
-
-    .product-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 6px 18px rgb(0 0 0 / 0.15);
-    }
-
-    .product-image {
-      width: 100%;
-      height: 140px;
-      object-fit: cover;
-      border-radius: 8px;
-      margin-bottom: 0.75rem;
-      background: #e2e8f0;
-      flex-shrink: 0;
-    }
-
-    /* Search bar and category filters */
-    #searchContainer {
-      max-width: 600px;
-      margin: 0 auto 1.5rem auto;
-      position: relative;
-    }
-
-    #searchBar {
-      width: 100%;
-      padding: 0.75rem 1.5rem 0.75rem 1rem;
-      border-radius: 9999px;
-      border: 1px solid #cbd5e1;
-      outline: none;
-      font-size: 1rem;
-      box-shadow: 0 0 0 0 transparent;
-      transition: box-shadow 0.3s ease;
-    }
-
-    #searchBar:focus {
-      box-shadow: 0 0 0 3px #3b82f6;
-      border-color: #3b82f6;
-    }
-
-    #searchIcon {
-      position: absolute;
-      right: 1rem;
-      top: 50%;
-      transform: translateY(-50%);
-      color: #94a3b8;
-      pointer-events: none;
-    }
-
-    /* Category Filters container scroll */
-    #categoryFilters {
-      display: flex;
-      overflow-x: auto;
-      gap: 0.75rem;
-      padding-bottom: 0.5rem;
-      scrollbar-width: thin;
-      scrollbar-color: #a0aec0 transparent;
-      margin-bottom: 1.5rem;
-      max-width: 100%;
-    }
-
-    #categoryFilters::-webkit-scrollbar {
-      height: 8px;
-    }
-
-    #categoryFilters::-webkit-scrollbar-thumb {
-      background-color: #a0aec0;
-      border-radius: 10px;
-    }
-
-    /* Category buttons */
-    .category-btn {
-      flex: 0 0 auto;
-      padding: 0.5rem 1.25rem;
-      border-radius: 9999px;
-      border: none;
-      cursor: pointer;
-      font-weight: 600;
-      transition: all 0.3s ease;
-      color: white;
-      white-space: nowrap;
-      user-select: none;
-      font-size: 0.9rem;
-    }
-
-    .category-btn[data-category="all"] {
-      background-color: #3b82f6; /* Blue */
-    }
-
-    .category-btn[data-category="electronics"] {
-      background-color: #10b981; /* Green */
-    }
-
-    .category-btn[data-category="fashion"] {
-      background-color: #facc15; /* Yellow */
-      color: #333;
-    }
-
-    .category-btn[data-category="beauty"] {
-      background-color: #3b82f6;
-    }
-
-    .category-btn[data-category="sports"] {
-      background-color: #10b981;
-    }
-
-    .category-btn[data-category="toys"] {
-      background-color: #facc15;
-      color: #333;
-    }
-
-    .category-btn.selected {
-      box-shadow: 0 0 0 3px white inset;
-      filter: brightness(0.8);
-    }
-  </style>
-</head>
-
-<body class="px-4 py-8 max-w-7xl mx-auto">
-  <h1 class="text-4xl font-bold text-center text-gray-800 mb-8">Explore Sellers</h1>
-
-  <!-- Search Bar -->
-  <div id="searchContainer">
-    <input type="text" id="searchBar" placeholder="Search sellers or products..." autocomplete="off" />
-    <svg id="searchIcon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
-      stroke="currentColor" stroke-width="2">
-      <path stroke-linecap="round" stroke-linejoin="round"
-        d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 1110.5 3a7.5 7.5 0 016.15 13.65z" />
-    </svg>
-  </div>
-
-  <!-- Category Filters -->
-  <div id="categoryFilters" aria-label="Category Filters">
-    <button class="category-btn selected" data-category="all">All</button>
-    <button class="category-btn" data-category="electronics">Electronics</button>
-    <button class="category-btn" data-category="fashion">Fashion</button>
-    <button class="category-btn" data-category="beauty">Beauty</button>
-    <button class="category-btn" data-category="sports">Sports</button>
-    <button class="category-btn" data-category="toys">Toys</button>
-  </div>
-
-  <!-- Seller Profiles Horizontal Scroll -->
-  <div id="sellerProfiles" role="list" aria-label="Seller Profiles">
-    <!-- Seller cards inserted here dynamically -->
-  </div>
-
-  <!-- Product Listings Grid -->
-  <div id="productListings" role="list" aria-label="Product Listings">
-    <!-- Product cards inserted here dynamically -->
-  </div>
-
-  <script src="explore.js"></script>
-</body>
-
+    <style>
+      .category-btn {
+        @apply px-4 py-1 bg-yellow-100 rounded-full text-sm font-medium cursor-pointer hover:bg-yellow-200 transition;
+      }
+      .category-btn.selected {
+        @apply bg-yellow-400 text-white;
+      }
+      .seller-card {
+        @apply flex flex-col items-center bg-white border border-gray-200 rounded-2xl shadow p-4 w-44 cursor-pointer transition hover:scale-105;
+      }
+      .seller-card.selected {
+        @apply ring-4 ring-blue-300;
+      }
+    </style>
+  </body>
 </html>
