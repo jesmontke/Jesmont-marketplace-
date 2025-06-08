@@ -4,271 +4,272 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Jesmont Marketplace - Explore</title>
-  <link rel="icon" href="favicon.ico" />
   <style>
+    /* Reset and basic */
     body {
-      font-family: sans-serif;
-      background: #f4f4f4;
-      padding: 1rem;
       margin: 0;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: #fff;
+      color: #111;
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: 0 1rem 3rem;
     }
-
     h1 {
-      font-size: 1.8rem;
-      margin-bottom: 1rem;
+      font-weight: 700;
+      color: #222;
+      margin: 2rem 0 1rem;
+      font-size: 2rem;
+      text-align: center;
+      border-bottom: 3px solid #f7d41e; /* yellow underline */
+      padding-bottom: 0.3rem;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
     }
-
-    input[type="search"] {
+    /* Search bar styling */
+    #searchBar {
+      max-width: 400px;
       width: 100%;
-      padding: 0.75rem;
+      margin: 0 auto 1.5rem;
+      display: block;
       font-size: 1rem;
-      margin-bottom: 1rem;
-      border-radius: 8px;
-      border: 1px solid #ccc;
+      padding: 0.5rem 1rem;
+      border: 2px solid #444;
+      border-radius: 30px;
+      outline-offset: 2px;
+      transition: border-color 0.3s ease;
+    }
+    #searchBar:focus {
+      border-color: #3a6a1e; /* dark green */
+      box-shadow: 0 0 5px #3a6a1e88;
     }
 
+    /* Categories scroll */
     #categoryFilters {
       display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-      margin-bottom: 1rem;
+      overflow-x: auto;
+      gap: 0.6rem;
+      padding: 1rem 0;
+      justify-content: center;
+      scrollbar-width: thin;
+      max-width: 100%;
+      box-sizing: border-box;
     }
-
-    .category-btn {
+    #categoryFilters::-webkit-scrollbar {
+      height: 6px;
+    }
+    #categoryFilters::-webkit-scrollbar-thumb {
+      background-color: #bdb76b; /* olive/yellowish */
+      border-radius: 3px;
+    }
+    button.category-btn {
+      flex-shrink: 0;
       padding: 0.5rem 1rem;
-      background: #ddd;
-      border: none;
-      border-radius: 20px;
+      border: 2px solid #444; /* dark gray border */
+      background: #fff;
+      color: #444;
+      font-weight: 600;
+      border-radius: 30px;
       cursor: pointer;
+      transition: all 0.25s ease;
+      user-select: none;
+      min-width: 70px;
+      text-align: center;
+      white-space: nowrap;
+    }
+    button.category-btn.selected {
+      background: #f7d41e; /* bright yellow */
+      border-color: #222;
+      color: #111;
+      box-shadow: 0 0 8px #f7d41e99;
+    }
+    button.category-btn:hover:not(.selected) {
+      background: #d7cc2a;
+      color: #111;
+      border-color: #999;
     }
 
-    .category-btn.selected {
-      background: #000;
-      color: #fff;
-    }
-
+    /* Seller Profiles horizontal scroll container */
     #sellerProfiles {
       display: flex;
-      overflow-x: auto;
       gap: 1rem;
-      padding: 1rem 0;
-      margin-bottom: 1rem;
-      scroll-snap-type: x mandatory;
+      overflow-x: auto;
+      padding-bottom: 1rem;
+      margin-bottom: 2rem;
+      justify-content: center;
+      max-width: 100%;
+      box-sizing: border-box;
     }
-
+    #sellerProfiles::-webkit-scrollbar {
+      height: 8px;
+    }
+    #sellerProfiles::-webkit-scrollbar-thumb {
+      background-color: #bdb76b;
+      border-radius: 4px;
+    }
     .seller-profile {
-      min-width: 160px;
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-      padding: 1rem;
-      text-align: center;
-      scroll-snap-align: start;
+      flex: 0 0 140px;
+      border: 2px solid transparent;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgb(0 0 0 / 0.1);
+      padding: 0.8rem 0.6rem 1rem;
+      background: #fefefe;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
       cursor: pointer;
-      transition: transform 0.2s;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+      user-select: none;
+      min-width: 140px;
+      box-sizing: border-box;
     }
-
     .seller-profile.selected {
-      border: 2px solid #000;
-      transform: scale(1.05);
+      border-color: #3a6a1e; /* dark green */
+      box-shadow: 0 0 10px #3a6a1eaa;
+      background: #e6f2d6;
     }
-
     .seller-profile img {
-      width: 80px;
-      height: 80px;
+      width: 110px;
+      height: 110px;
       object-fit: cover;
       border-radius: 50%;
+      border: 3px solid #f7d41e; /* yellow border around logo */
       margin-bottom: 0.5rem;
+      background: #fff;
     }
-
-    .business-name {
-      font-weight: bold;
-      font-size: 0.95rem;
+    .seller-profile .business-name {
+      font-weight: 700;
+      font-size: 1.1rem;
+      text-align: center;
+      color: #222;
+      margin-bottom: 0.2rem;
+      line-height: 1.2;
+      word-break: break-word;
     }
-
-    .category {
+    .seller-profile .category {
       font-size: 0.85rem;
-      color: #555;
-      margin: 0.25rem 0;
+      color: #666;
+      font-weight: 600;
+      background: #d9e6c2; /* light green */
+      padding: 0.15rem 0.4rem;
+      border-radius: 12px;
+      user-select: none;
+      text-transform: capitalize;
+      margin-bottom: 0.5rem;
+      white-space: nowrap;
     }
-
     .view-profile-btn {
-      margin-top: 0.5rem;
-      display: inline-block;
-      padding: 0.4rem 0.8rem;
-      font-size: 0.8rem;
-      border-radius: 8px;
-      background: #000;
-      color: #fff;
+      font-size: 0.85rem;
+      padding: 0.3rem 0.7rem;
+      background: #3a6a1e; /* dark green */
+      color: white;
+      border-radius: 6px;
       text-decoration: none;
+      font-weight: 600;
+      user-select: none;
+      transition: background-color 0.3s ease;
+    }
+    .view-profile-btn:hover {
+      background: #2a4d13;
     }
 
+    /* Products grid */
     #productListings {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 1rem;
-    }
-
-    .product-card {
-      background: white;
-      border-radius: 12px;
-      padding: 1rem;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-    }
-
-    .product-card img {
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 3rem;
+      max-width: 1200px;
+      margin-left: auto;
+      margin-right: auto;
+      box-sizing: border-box;
       width: 100%;
-      max-height: 180px;
+    }
+    .product-card {
+      border: 2px solid #d9e6c2;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgb(0 0 0 / 0.07);
+      background: #fafaf0;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      transition: box-shadow 0.3s ease;
+    }
+    .product-card:hover {
+      box-shadow: 0 6px 18px rgb(0 0 0 / 0.15);
+    }
+    .product-image {
+      width: 100%;
+      aspect-ratio: 4 / 3;
       object-fit: cover;
-      border-radius: 8px;
+      border-bottom: 2px solid #f7d41e;
+      background: #ddd; /* fallback bg if image missing */
     }
-
     .product-card h3 {
-      margin: 0.5rem 0 0.3rem;
+      margin: 0.7rem 1rem 0.3rem;
+      font-weight: 700;
+      color: #222;
+      font-size: 1.25rem;
     }
-
     .price {
-      color: green;
-      font-weight: bold;
-      margin-bottom: 0.5rem;
+      color: #3a6a1e;
+      font-weight: 700;
+      margin: 0 1rem 0.5rem;
+      font-size: 1.1rem;
+    }
+    .product-card p {
+      margin: 0 1rem 1rem;
+      font-size: 0.95rem;
+      color: #444;
+      flex-grow: 1;
+    }
+    .product-card > div:last-child {
+      margin: 0 1rem 1rem;
+      font-weight: 600;
+      color: #3a6a1e;
+      font-size: 0.9rem;
+      text-align: right;
+      user-select: none;
     }
 
-    @media (max-width: 500px) {
+    /* Responsive adjustments */
+    @media (max-width: 600px) {
       .seller-profile {
-        min-width: 130px;
+        flex: 0 0 110px;
+        min-width: 110px;
+      }
+      .seller-profile img {
+        width: 90px;
+        height: 90px;
       }
     }
   </style>
 </head>
 <body>
+
   <h1>Explore Products</h1>
-  <input type="search" id="searchBar" placeholder="Search products or sellers..." autocomplete="off" />
-  <div id="categoryFilters"></div>
-  <div id="sellerProfiles"></div>
-  <main id="productListings"></main>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import {
-      getFirestore,
-      collection,
-      getDocs
-    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  <!-- Search Bar -->
+  <input
+    type="search"
+    id="searchBar"
+    placeholder="Search products or sellers..."
+    aria-label="Search products or sellers"
+    autocomplete="off"
+  />
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyDlakKgMzhADOywIOg4iTCJ5sUFXLMGwVg",
-      authDomain: "jesmont-marketplace.firebaseapp.com",
-      projectId: "jesmont-marketplace",
-      storageBucket: "jesmont-marketplace.appspot.com",
-      messagingSenderId: "543717950238",
-      appId: "1:543717950238:web:df009d49e88a2ea010bf0f",
-      measurementId: "G-56TMB41PS8",
-    };
+  <!-- Category Filters -->
+  <div id="categoryFilters" aria-label="Product Categories"></div>
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
+  <!-- Seller Profiles -->
+  <div id="sellerProfiles" aria-label="Seller Profiles"></div>
 
-    const productListings = document.getElementById("productListings");
-    const categoryFilters = document.getElementById("categoryFilters");
-    const sellerProfiles = document.getElementById("sellerProfiles");
-    const searchBar = document.getElementById("searchBar");
+  <!-- Product Listings -->
+  <main id="productListings" aria-live="polite" aria-relevant="additions"></main>
 
-    let allProducts = [];
-    let allSellers = [];
-    let selectedCategory = "All";
-    let selectedSellerId = null;
-
-    function renderProducts(products) {
-      productListings.innerHTML = "";
-      products.forEach((product) => {
-        const card = document.createElement("div");
-        card.className = "product-card";
-        card.innerHTML = `
-          <img src="${product.imageURL || 'https://via.placeholder.com/400x300'}" alt="${product.name}" />
-          <h3>${product.name}</h3>
-          <div class="price">Ksh ${product.price}</div>
-          <p>${product.description}</p>
-          <div>By: ${product.businessName}</div>
-        `;
-        productListings.appendChild(card);
-      });
-    }
-
-    function renderCategories(categories) {
-      const unique = Array.from(new Set(["All", ...categories]));
-      categoryFilters.innerHTML = "";
-
-      unique.forEach((cat) => {
-        const btn = document.createElement("button");
-        btn.className = "category-btn";
-        btn.textContent = cat;
-        if (cat === selectedCategory) btn.classList.add("selected");
-        btn.onclick = () => {
-          selectedCategory = cat;
-          document.querySelectorAll(".category-btn").forEach((b) => b.classList.remove("selected"));
-          btn.classList.add("selected");
-          applyFilters();
-        };
-        categoryFilters.appendChild(btn);
-      });
-    }
-
-    function renderSellers(sellers) {
-      sellerProfiles.innerHTML = "";
-      sellers.forEach((seller) => {
-        const div = document.createElement("div");
-        div.className = "seller-profile";
-        if (seller.id === selectedSellerId) div.classList.add("selected");
-        div.innerHTML = `
-          <img src="${seller.logoURL || 'https://via.placeholder.com/100'}" alt="${seller.businessName}" />
-          <div class="business-name">${seller.businessName}</div>
-          <div class="category">${seller.category}</div>
-          <a class="view-profile-btn" href="seller.html?id=${seller.id}">View</a>
-        `;
-        div.onclick = () => {
-          selectedSellerId = (selectedSellerId === seller.id) ? null : seller.id;
-          applyFilters();
-        };
-        sellerProfiles.appendChild(div);
-      });
-    }
-
-    function applyFilters() {
-      const term = searchBar.value.toLowerCase();
-      let filtered = allProducts.filter((p) => {
-        const matchCategory = selectedCategory === "All" || p.category === selectedCategory;
-        const matchSeller = !selectedSellerId || p.sellerId === selectedSellerId;
-        const matchSearch = p.name.toLowerCase().includes(term)
-          || p.description.toLowerCase().includes(term)
-          || p.businessName.toLowerCase().includes(term);
-        return matchCategory && matchSeller && matchSearch;
-      });
-
-      renderProducts(filtered);
-      renderSellers(allSellers);
-    }
-
-    async function loadData() {
-      const sellerSnap = await getDocs(collection(db, "sellers"));
-      allSellers = sellerSnap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-
-      const productSnap = await getDocs(collection(db, "products"));
-      allProducts = productSnap.docs.map((doc) => {
-        const data = doc.data();
-        const seller = allSellers.find((s) => s.id === data.sellerId);
-        return {
-          ...data,
-          businessName: seller ? seller.businessName : "Unknown Seller",
-        };
-      });
-
-      const categories = allProducts.map((p) => p.category);
-      renderCategories(categories);
-      applyFilters();
-    }
-
-    searchBar.addEventListener("input", applyFilters);
-    loadData();
-  </script>
+  <script type="module" src="explore.js"></script>
 </body>
 </html>
