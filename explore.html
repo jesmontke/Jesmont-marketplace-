@@ -1,275 +1,205 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Jesmont Marketplace - Explore</title>
-  <style>
-    /* Reset and basic */
-    body {
-      margin: 0;
-      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-      background: #fff;
-      color: #111;
-      line-height: 1.5;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      padding: 0 1rem 3rem;
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Jesmont Marketplace - Explore</title>
+<style>
+  :root {
+    --black: #000000;
+    --blue: #007bff;
+    --green: #28a745;
+    --yellow: #ffc107;
+    --gray-light: #f9f9f9;
+    --gray-dark: #333333;
+  }
+  body {
+    margin: 0; padding: 0; font-family: Arial, sans-serif; background: var(--gray-light); color: var(--gray-dark);
+  }
+  header {
+    background: var(--black);
+    color: white;
+    padding: 1rem 1.5rem;
+    text-align: center;
+    font-weight: bold;
+    font-size: 1.5rem;
+  }
+  main {
+    max-width: 1000px;
+    margin: 1rem auto;
+    padding: 0 1rem;
+  }
+  /* Search bar */
+  #search-bar {
+    width: 100%;
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    margin-bottom: 1rem;
+    border-radius: 4px;
+    border: 2px solid var(--black);
+    outline-color: var(--blue);
+  }
+  /* Categories */
+  #categories {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+  }
+  .category-btn {
+    background: var(--gray-light);
+    border: 2px solid var(--black);
+    border-radius: 20px;
+    padding: 0.3rem 1rem;
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--black);
+    transition: background 0.3s, color 0.3s;
+    user-select: none;
+  }
+  .category-btn.selected {
+    background: var(--blue);
+    color: white;
+    border-color: var(--blue);
+  }
+  /* Seller profiles horizontal scroll */
+  #seller-profiles {
+    display: flex;
+    overflow-x: auto;
+    gap: 1rem;
+    padding-bottom: 1rem;
+    margin-bottom: 1rem;
+    border-bottom: 2px solid var(--black);
+  }
+  #seller-profiles::-webkit-scrollbar {
+    height: 8px;
+  }
+  #seller-profiles::-webkit-scrollbar-thumb {
+    background-color: var(--blue);
+    border-radius: 4px;
+  }
+  .seller-card {
+    flex: 0 0 auto;
+    text-align: center;
+    cursor: pointer;
+    padding: 0.2rem 0.5rem;
+    border-radius: 10px;
+    transition: background-color 0.3s;
+    user-select: none;
+  }
+  .seller-card.selected {
+    background-color: var(--green);
+    color: white;
+  }
+  .seller-logo {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--black);
+    margin-bottom: 0.3rem;
+  }
+  .seller-name {
+    font-size: 0.9rem;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  /* Products grid */
+  #product-listings {
+    display: grid;
+    grid-template-columns: repeat(auto-fill,minmax(280px,1fr));
+    gap: 1rem;
+  }
+  article.product-card {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    transition: box-shadow 0.3s;
+  }
+  article.product-card:hover {
+    box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+  }
+  .product-image {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 0.7rem;
+  }
+  article.product-card h3 {
+    margin: 0 0 0.3rem 0;
+    font-size: 1.2rem;
+    color: var(--black);
+  }
+  .price {
+    font-weight: bold;
+    color: var(--green);
+    margin-bottom: 0.5rem;
+  }
+  article.product-card p {
+    flex-grow: 1;
+    font-size: 0.9rem;
+    color: #555;
+    margin-bottom: 0.5rem;
+  }
+  .seller-info {
+    font-size: 0.85rem;
+    color: var(--blue);
+    font-weight: 600;
+  }
+  /* No products found */
+  #product-listings p {
+    grid-column: 1/-1;
+    text-align: center;
+    color: #666;
+    font-size: 1.1rem;
+    font-style: italic;
+  }
+  /* Responsive */
+  @media (max-width: 480px) {
+    .seller-logo {
+      width: 50px;
+      height: 50px;
     }
-    h1 {
-      font-weight: 700;
-      color: #222;
-      margin: 2rem 0 1rem;
-      font-size: 2rem;
-      text-align: center;
-      border-bottom: 3px solid #f7d41e; /* yellow underline */
-      padding-bottom: 0.3rem;
-      max-width: 600px;
-      margin-left: auto;
-      margin-right: auto;
+    .seller-name {
+      font-size: 0.8rem;
     }
-    /* Search bar styling */
-    #searchBar {
-      max-width: 400px;
-      width: 100%;
-      margin: 0 auto 1.5rem;
-      display: block;
-      font-size: 1rem;
-      padding: 0.5rem 1rem;
-      border: 2px solid #444;
-      border-radius: 30px;
-      outline-offset: 2px;
-      transition: border-color 0.3s ease;
-    }
-    #searchBar:focus {
-      border-color: #3a6a1e; /* dark green */
-      box-shadow: 0 0 5px #3a6a1e88;
-    }
-
-    /* Categories scroll */
-    #categoryFilters {
-      display: flex;
-      overflow-x: auto;
-      gap: 0.6rem;
-      padding: 1rem 0;
-      justify-content: center;
-      scrollbar-width: thin;
-      max-width: 100%;
-      box-sizing: border-box;
-    }
-    #categoryFilters::-webkit-scrollbar {
-      height: 6px;
-    }
-    #categoryFilters::-webkit-scrollbar-thumb {
-      background-color: #bdb76b; /* olive/yellowish */
-      border-radius: 3px;
-    }
-    button.category-btn {
-      flex-shrink: 0;
-      padding: 0.5rem 1rem;
-      border: 2px solid #444; /* dark gray border */
-      background: #fff;
-      color: #444;
-      font-weight: 600;
-      border-radius: 30px;
-      cursor: pointer;
-      transition: all 0.25s ease;
-      user-select: none;
-      min-width: 70px;
-      text-align: center;
-      white-space: nowrap;
-    }
-    button.category-btn.selected {
-      background: #f7d41e; /* bright yellow */
-      border-color: #222;
-      color: #111;
-      box-shadow: 0 0 8px #f7d41e99;
-    }
-    button.category-btn:hover:not(.selected) {
-      background: #d7cc2a;
-      color: #111;
-      border-color: #999;
-    }
-
-    /* Seller Profiles horizontal scroll container */
-    #sellerProfiles {
-      display: flex;
-      gap: 1rem;
-      overflow-x: auto;
-      padding-bottom: 1rem;
-      margin-bottom: 2rem;
-      justify-content: center;
-      max-width: 100%;
-      box-sizing: border-box;
-    }
-    #sellerProfiles::-webkit-scrollbar {
-      height: 8px;
-    }
-    #sellerProfiles::-webkit-scrollbar-thumb {
-      background-color: #bdb76b;
-      border-radius: 4px;
-    }
-    .seller-profile {
-      flex: 0 0 140px;
-      border: 2px solid transparent;
-      border-radius: 10px;
-      box-shadow: 0 2px 6px rgb(0 0 0 / 0.1);
-      padding: 0.8rem 0.6rem 1rem;
-      background: #fefefe;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      cursor: pointer;
-      transition: border-color 0.3s ease, box-shadow 0.3s ease;
-      user-select: none;
-      min-width: 140px;
-      box-sizing: border-box;
-    }
-    .seller-profile.selected {
-      border-color: #3a6a1e; /* dark green */
-      box-shadow: 0 0 10px #3a6a1eaa;
-      background: #e6f2d6;
-    }
-    .seller-profile img {
-      width: 110px;
-      height: 110px;
-      object-fit: cover;
-      border-radius: 50%;
-      border: 3px solid #f7d41e; /* yellow border around logo */
-      margin-bottom: 0.5rem;
-      background: #fff;
-    }
-    .seller-profile .business-name {
-      font-weight: 700;
-      font-size: 1.1rem;
-      text-align: center;
-      color: #222;
-      margin-bottom: 0.2rem;
-      line-height: 1.2;
-      word-break: break-word;
-    }
-    .seller-profile .category {
-      font-size: 0.85rem;
-      color: #666;
-      font-weight: 600;
-      background: #d9e6c2; /* light green */
-      padding: 0.15rem 0.4rem;
-      border-radius: 12px;
-      user-select: none;
-      text-transform: capitalize;
-      margin-bottom: 0.5rem;
-      white-space: nowrap;
-    }
-    .view-profile-btn {
-      font-size: 0.85rem;
-      padding: 0.3rem 0.7rem;
-      background: #3a6a1e; /* dark green */
-      color: white;
-      border-radius: 6px;
-      text-decoration: none;
-      font-weight: 600;
-      user-select: none;
-      transition: background-color 0.3s ease;
-    }
-    .view-profile-btn:hover {
-      background: #2a4d13;
-    }
-
-    /* Products grid */
-    #productListings {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 1.5rem;
-      margin-bottom: 3rem;
-      max-width: 1200px;
-      margin-left: auto;
-      margin-right: auto;
-      box-sizing: border-box;
-      width: 100%;
-    }
-    .product-card {
-      border: 2px solid #d9e6c2;
-      border-radius: 12px;
-      box-shadow: 0 2px 6px rgb(0 0 0 / 0.07);
-      background: #fafaf0;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-      transition: box-shadow 0.3s ease;
-    }
-    .product-card:hover {
-      box-shadow: 0 6px 18px rgb(0 0 0 / 0.15);
-    }
-    .product-image {
-      width: 100%;
-      aspect-ratio: 4 / 3;
-      object-fit: cover;
-      border-bottom: 2px solid #f7d41e;
-      background: #ddd; /* fallback bg if image missing */
-    }
-    .product-card h3 {
-      margin: 0.7rem 1rem 0.3rem;
-      font-weight: 700;
-      color: #222;
-      font-size: 1.25rem;
-    }
-    .price {
-      color: #3a6a1e;
-      font-weight: 700;
-      margin: 0 1rem 0.5rem;
-      font-size: 1.1rem;
-    }
-    .product-card p {
-      margin: 0 1rem 1rem;
-      font-size: 0.95rem;
-      color: #444;
-      flex-grow: 1;
-    }
-    .product-card > div:last-child {
-      margin: 0 1rem 1rem;
-      font-weight: 600;
-      color: #3a6a1e;
-      font-size: 0.9rem;
-      text-align: right;
-      user-select: none;
-    }
-
-    /* Responsive adjustments */
-    @media (max-width: 600px) {
-      .seller-profile {
-        flex: 0 0 110px;
-        min-width: 110px;
-      }
-      .seller-profile img {
-        width: 90px;
-        height: 90px;
-      }
-    }
-  </style>
+  }
+</style>
 </head>
 <body>
 
-  <h1>Explore Products</h1>
+<header>Jesmont Marketplace - Explore</header>
 
-  <!-- Search Bar -->
+<main>
   <input
     type="search"
-    id="searchBar"
-    placeholder="Search products or sellers..."
-    aria-label="Search products or sellers"
+    id="search-bar"
+    placeholder="Search products..."
     autocomplete="off"
+    aria-label="Search products"
   />
 
-  <!-- Category Filters -->
-  <div id="categoryFilters" aria-label="Product Categories"></div>
+  <section id="categories" aria-label="Product Categories">
+    <!-- category buttons inserted here dynamically -->
+  </section>
 
-  <!-- Seller Profiles -->
-  <div id="sellerProfiles" aria-label="Seller Profiles"></div>
+  <section id="seller-profiles" aria-label="Sellers">
+    <!-- seller cards inserted here dynamically -->
+  </section>
 
-  <!-- Product Listings -->
-  <main id="productListings" aria-live="polite" aria-relevant="additions"></main>
+  <section id="product-listings" aria-label="Product Listings">
+    <!-- product cards inserted here dynamically -->
+  </section>
+</main>
 
-  <script type="module" src="explore.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+
+<script src="explore.js"></script>
+
 </body>
 </html>
