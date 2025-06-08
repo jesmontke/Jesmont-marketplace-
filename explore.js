@@ -10,8 +10,15 @@ import {
 } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";
 
 const firebaseConfig = {
-  // Your Firebase config here
+  apiKey: "AIzaSyDlakKgMzhADOywIOg4iTCJ5sUFXLMGwVg",
+  authDomain: "jesmont-marketplace.firebaseapp.com",
+  projectId: "jesmont-marketplace",
+  storageBucket: "jesmont-marketplace.firebasestorage.app",
+  messagingSenderId: "543717950238",
+  appId: "1:543717950238:web:df009d49e88a2ea010bf0f",
+  measurementId: "G-56TMB41PS8"
 };
+
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
