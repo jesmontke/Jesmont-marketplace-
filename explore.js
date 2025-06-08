@@ -78,35 +78,56 @@ async function loadAllProducts() {
 }
 
 function displaySellerProfiles(sellers) {
-  const sellerProfiles = document.getElementById("sellerProfiles");
-  sellerProfiles.innerHTML = "";
+  const container = document.getElementById("sellerProfiles");
+  container.innerHTML = "";
 
-  sellers.forEach(seller => {
-    const card = document.createElement("div");
-    card.className = "seller-profile";
-    card.dataset.uid = seller.uid;
-    card.dataset.category = seller.category;
+  sellers.forEach((seller) => {
+    const div = document.createElement("div");
+    div.className = "seller-profile";
+    div.dataset.uid = seller.uid;
+    div.dataset.category = seller.category;
+    div.tabIndex = 0;
 
-    card.innerHTML = `
-      <img src="${seller.logoURL || 'https://via.placeholder.com/70?text=Logo'}" alt="${seller.businessName} Logo" class="mx-auto mb-1 w-16 h-16 rounded-full object-cover" />
-      <div class="font-semibold text-sm truncate" title="${seller.businessName}">${seller.businessName}</div>
-      <div class="text-xs text-gray-500 truncate" title="${seller.category}">${capitalize(seller.category)}</div>
+    div.innerHTML = `
+      <img src="${seller.logoURL || 'https://via.placeholder.com/64?text=No+Logo'}" alt="${seller.businessName} logo" loading="lazy" />
+      <div class="business-name" title="${seller.businessName}">${seller.businessName}</div>
+      <div class="category">${seller.category}</div>
     `;
 
-    card.addEventListener("click", () => {
-      selectSeller(seller.uid);
+    div.addEventListener("click", () => {
+      if (selectedSellerUid === seller.uid) {
+        // Deselect
+        selectedSellerUid = null;
+        div.classList.remove("selected");
+        displayProducts(filteredProducts());
+      } else {
+        // Select new seller
+        selectedSellerUid = seller.uid;
+        // Remove selected class from all
+        document.querySelectorAll(".seller-profile.selected").forEach(el => el.classList.remove("selected"));
+        div.classList.add("selected");
+        displayProducts(filteredProducts());
+      }
     });
 
-    sellerProfiles.appendChild(card);
+    container.appendChild(div);
+  });
+}
+
+function filteredProducts() {
+  return allProducts.filter(product => {
+    const matchesCategory = selectedCategory === "all" || product.category === selectedCategory;
+    const matchesSeller = !selectedSellerUid || product.sellerUid === selectedSellerUid;
+    return matchesCategory && matchesSeller;
   });
 }
 
 function displayProducts(products) {
-  const productListings = document.getElementById("productListings");
-  productListings.innerHTML = "";
+  const container = document.getElementById("productListings");
+  container.innerHTML = "";
 
   if (products.length === 0) {
-    productListings.innerHTML = "<p class='text-gray-500'>No products found.</p>";
+    container.innerHTML = `<p class="text-gray-500 col-span-full">No products found.</p>`;
     return;
   }
 
@@ -115,145 +136,55 @@ function displayProducts(products) {
     card.className = "product-card";
 
     card.innerHTML = `
-      <img src="${product.productImageURL || 'https://via.placeholder.com/300x200?text=No+Image'}" alt="${product.productName}" class="product-image" />
-      <h3 class="text-lg font-semibold">${product.productName}</h3>
-      <p class="text-gray-700 text-sm mb-2">${product.productDescription}</p>
-      <p class="text-green-600 font-bold">${product.price ? "KES " + product.price : "Price not set"}</p>
+      <img src="${product.productImageURL || 'https://via.placeholder.com/400x300?text=No+Image'}" alt="${product.productName}" loading="lazy" />
+      <div class="product-info">
+        <h3>${product.productName}</h3>
+        <p>${product.productDescription}</p>
+        <div class="product-price">KES ${product.price}</div>
+      </div>
     `;
 
-    productListings.appendChild(card);
+    container.appendChild(card);
   });
 }
 
-function selectSeller(uid) {
-  selectedSellerUid = uid;
-
-  // Highlight selected seller card
-  const sellerCards = document.querySelectorAll(".seller-profile");
-  sellerCards.forEach(card => {
-    card.classList.toggle("selected", card.dataset.uid === uid);
+function setupCategoryFilters() {
+  const categoryButtons = document.querySelectorAll(".category-btn");
+  categoryButtons.forEach(btn => {
+    btn.addEventListener("click", () => {
+      categoryButtons.forEach(b => b.classList.remove("selected"));
+      btn.classList.add("selected");
+      selectedCategory = btn.dataset.category || "all";
+      selectedSellerUid = null;
+      // Remove selected seller profile highlight
+      document.querySelectorAll(".seller-profile.selected").forEach(el => el.classList.remove("selected"));
+      displayProducts(filteredProducts());
+    });
   });
-
-  // Show products ONLY for this seller and matching current category filter & search term
-  filterAndDisplayProducts();
 }
 
-function filterAndDisplayProducts() {
-  const searchTerm = document.getElementById("searchBar").value.toLowerCase();
+function setupSearchBar() {
+  const searchInput = document.getElementById("searchBar");
+  searchInput.addEventListener("input", () => {
+    const query = searchInput.value.toLowerCase().trim();
 
-  let filtered = allProducts;
+    // Filter sellers by name or category
+    const filteredSellers = allSellers.filter(seller => {
+      return seller.businessName.toLowerCase().includes(query) || seller.category.includes(query);
+    });
+    displaySellerProfiles(filteredSellers);
 
-  // Filter by seller if selected
-  if (selectedSellerUid) {
-    filtered = filtered.filter(p => p.sellerUid === selectedSellerUid);
-  }
-
-  // Filter by category if not "all"
-  if (selectedCategory !== "all") {
-    filtered = filtered.filter(p => p.category === selectedCategory);
-  }
-
-  // Filter by search term on productName
-  if (searchTerm) {
-    filtered = filtered.filter(p => p.productName.toLowerCase().includes(searchTerm));
-  }
-
-  displayProducts(filtered);
-}
-
-function filterSellersByCategory(category) {
-  selectedCategory = category;
-
-  const sellerCards = document.querySelectorAll(".seller-profile");
-  sellerCards.forEach(card => {
-    if (category === "all" || card.dataset.category === category) {
-      card.style.display = "block";
-    } else {
-      card.style.display = "none";
-    }
+    // Filter products by name or description
+    const filteredProds = allProducts.filter(product => {
+      return product.productName.toLowerCase().includes(query) || product.productDescription.toLowerCase().includes(query);
+    });
+    displayProducts(filteredProds);
   });
-
-  // If selected seller filtered out, clear selection or select first visible
-  const visibleSellers = [...sellerCards].filter(c => c.style.display === "block");
-  if (visibleSellers.length === 0) {
-    document.getElementById("productListings").innerHTML = "<p class='text-gray-500'>No sellers in this category.</p>";
-    selectedSellerUid = null;
-    displayProducts([]); // Clear products
-    return;
-  }
-
-  if (!visibleSellers.some(c => c.dataset.uid === selectedSellerUid)) {
-    selectedSellerUid = null;
-  }
-
-  // Show products filtered by category & search, across all sellers (if none selected)
-  filterAndDisplayProducts();
 }
 
-function searchHandler() {
-  const term = document.getElementById("searchBar").value.toLowerCase();
-
-  // Filter sellers by search term (businessName)
-  const sellerCards = document.querySelectorAll(".seller-profile");
-  sellerCards.forEach(card => {
-    const name = card.querySelector("div").textContent.toLowerCase();
-    if (name.includes(term)) {
-      card.style.display = "block";
-    } else {
-      card.style.display = "none";
-    }
-  });
-
-  // If selected seller is filtered out, clear selection
-  const visibleSellers = [...sellerCards].filter(c => c.style.display === "block");
-  if (!visibleSellers.some(c => c.dataset.uid === selectedSellerUid)) {
-    selectedSellerUid = null;
-  }
-
-  // Filter products by seller (if selected), category, and search term
-  filterAndDisplayProducts();
-}
-
-function capitalize(str) {
-  return str.charAt(0).toUpperCase() + str.slice(1);
-}
-
-// Event listeners for category buttons
-document.querySelectorAll(".category-btn").forEach(button => {
-  button.addEventListener("click", () => {
-    document.querySelectorAll(".category-btn").forEach(btn => btn.classList.remove("selected"));
-    button.classList.add("selected");
-
-    filterSellersByCategory(button.dataset.category);
-  });
-});
-
-// Event listener for search bar
-document.getElementById("searchBar").addEventListener("input", searchHandler);
-
-// Explore button resets filters and shows all
-document.getElementById("exploreButton").addEventListener("click", () => {
-  selectedCategory = "all";
-  selectedSellerUid = null;
-
-  document.querySelectorAll(".category-btn").forEach(btn => btn.classList.remove("selected"));
-  document.querySelector(".category-btn[data-category='all']").classList.add("selected");
-
-  // Show all sellers and all products
-  const sellerCards = document.querySelectorAll(".seller-profile");
-  sellerCards.forEach(card => card.style.display = "block");
-
-  filterAndDisplayProducts();
-});
-
-// Initial load
-(async function init() {
-  await loadSellers();
-  await loadAllProducts();
-
-  // Show all sellers and all products initially
-  filterAndDisplayProducts();
-
-  // Set default category button
-  document.querySelector(".category-btn[data-category='all']").classList.add("selected");
-})();
+window.onload = () => {
+  setupCategoryFilters();
+  setupSearchBar();
+  loadSellers();
+  loadAllProducts();
+};
