@@ -1,53 +1,54 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Explore - Jesmont Marketplace</title>
-    <script type="module" src="explore.js" defer></script>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.3.2/dist/tailwind.min.css" rel="stylesheet">
-  </head>
-  <body class="bg-gray-100 font-sans text-gray-900">
-    <div class="max-w-6xl mx-auto px-4 py-6 space-y-6">
-      <h1 class="text-3xl font-bold text-blue-700">Explore Products</h1>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Explore - Jesmont Marketplace</title>
+  <script type="module" src="explore.js" defer></script>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.3.2/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 font-sans text-gray-900">
 
-      <input
-        type="text"
-        id="searchBar"
-        placeholder="Search by product or seller..."
-        class="w-full p-3 rounded-xl border border-gray-300 shadow"
-      />
+  <div class="max-w-7xl mx-auto px-4 py-6 space-y-6">
+    <h1 class="text-4xl font-bold text-blue-800">Explore Jesmont Marketplace</h1>
 
-      <!-- Category Filters -->
-      <div id="categoryFilters" class="flex overflow-x-auto gap-3 py-2">
-        <span class="category-btn selected whitespace-nowrap" data-category="all">All</span>
-        <span class="category-btn whitespace-nowrap" data-category="Fashion">Fashion</span>
-        <span class="category-btn whitespace-nowrap" data-category="Electronics">Electronics</span>
-        <span class="category-btn whitespace-nowrap" data-category="Food">Food</span>
-        <span class="category-btn whitespace-nowrap" data-category="Home">Home</span>
-        <span class="category-btn whitespace-nowrap" data-category="Other">Other</span>
-      </div>
+    <input
+      type="text"
+      id="searchBar"
+      placeholder="Search for products or sellers..."
+      class="w-full p-3 rounded-xl border border-gray-300 shadow focus:outline-none focus:ring-2 focus:ring-blue-500"
+    />
 
-      <!-- Seller Profiles -->
-      <div id="sellerProfiles" class="flex overflow-x-auto gap-4 py-2"></div>
-
-      <!-- Product Listings -->
-      <div id="productListings" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+    <!-- Categories -->
+    <div id="categoryFilters" class="flex overflow-x-auto gap-3 py-2">
+      <span class="category-btn selected" data-category="all">All</span>
+      <span class="category-btn" data-category="Fashion">Fashion</span>
+      <span class="category-btn" data-category="Electronics">Electronics</span>
+      <span class="category-btn" data-category="Food">Food</span>
+      <span class="category-btn" data-category="Home">Home</span>
+      <span class="category-btn" data-category="Other">Other</span>
     </div>
 
-    <style>
-      .category-btn {
-        @apply px-4 py-1 bg-yellow-100 rounded-full text-sm font-medium cursor-pointer hover:bg-yellow-200 transition;
-      }
-      .category-btn.selected {
-        @apply bg-yellow-400 text-white;
-      }
-      .seller-card {
-        @apply flex flex-col items-center bg-white border border-gray-200 rounded-2xl shadow p-4 w-44 cursor-pointer transition hover:scale-105;
-      }
-      .seller-card.selected {
-        @apply ring-4 ring-blue-300;
-      }
-    </style>
-  </body>
+    <!-- Seller Cards -->
+    <div id="sellerProfiles" class="flex overflow-x-auto gap-4 py-2"></div>
+
+    <!-- Product Grid -->
+    <div id="productListings" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+  </div>
+
+  <style>
+    .category-btn {
+      @apply px-4 py-1 bg-yellow-100 text-sm rounded-full font-medium cursor-pointer hover:bg-yellow-300;
+    }
+    .category-btn.selected {
+      @apply bg-yellow-500 text-white;
+    }
+    .seller-card {
+      @apply flex flex-col items-center bg-white border border-gray-200 rounded-2xl shadow p-4 min-w-[160px] cursor-pointer transition hover:scale-105;
+    }
+    .seller-card.selected {
+      @apply ring-4 ring-blue-400;
+    }
+  </style>
+</body>
 </html>
