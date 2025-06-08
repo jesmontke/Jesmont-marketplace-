@@ -1,4 +1,4 @@
-// Firebase config - replace with your own config
+// Firebase config
 const firebaseConfig = {
   apiKey: "AIzaSyDlakKgMzhADOywIOg4iTCJ5sUFXLMGwVg",
   authDomain: "jesmont-marketplace.firebaseapp.com",
@@ -27,36 +27,33 @@ let selectedCategory = "All";
 let selectedSellerId = null;
 let searchQuery = "";
 
-// Utility function: sanitize strings for search matching
+// Utility function: normalize text for searching
 function normalizeText(text) {
   return text.toLowerCase();
 }
 
-// Fetch all sellers from Firestore
+// Fetch sellers from Firestore
 async function fetchSellers() {
   const snapshot = await db.collection("sellers").get();
   sellers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-  // Collect all categories from sellers as well
   sellers.forEach(s => {
     if (s.category) categories.add(s.category.toLowerCase());
   });
   categories.add("all");
 }
 
-// Fetch all products from Firestore
+// Fetch products from Firestore
 async function fetchProducts() {
   const snapshot = await db.collection("products").get();
   products = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-  // Also collect product categories
   products.forEach(p => {
     if (p.category) categories.add(p.category.toLowerCase());
   });
   categories.add("all");
 }
 
-// Render category filter buttons
+// Render category buttons
 function renderCategories() {
-  // Sort and display 'All' first
   const sortedCats = Array.from(categories).sort((a, b) => {
     if (a === "all") return -1;
     if (b === "all") return 1;
@@ -68,12 +65,10 @@ function renderCategories() {
     const btn = document.createElement("button");
     btn.textContent = cat.charAt(0).toUpperCase() + cat.slice(1);
     btn.className = "category-btn";
-    if (cat === selectedCategory.toLowerCase()) {
-      btn.classList.add("selected");
-    }
+    if (cat === selectedCategory.toLowerCase()) btn.classList.add("selected");
     btn.addEventListener("click", () => {
       selectedCategory = cat;
-      selectedSellerId = null; // Reset seller filter when category changes
+      selectedSellerId = null;
       renderCategories();
       renderSellerProfiles();
       renderProducts();
@@ -82,11 +77,11 @@ function renderCategories() {
   });
 }
 
-// Render seller profiles horizontally with logos and View Profile buttons
+// Render seller profile cards with logos
 function renderSellerProfiles() {
   sellerProfiles.innerHTML = "";
 
-  // Add "All Sellers" card
+  // All Sellers card
   const allCard = document.createElement("div");
   allCard.className = "seller-profile" + (selectedSellerId === null ? " selected" : "");
   allCard.innerHTML = `
@@ -102,7 +97,6 @@ function renderSellerProfiles() {
   });
   sellerProfiles.appendChild(allCard);
 
-  // Filter sellers by selectedCategory if not "all"
   let filteredSellers = sellers;
   if (selectedCategory.toLowerCase() !== "all") {
     filteredSellers = sellers.filter(s => s.category?.toLowerCase() === selectedCategory.toLowerCase());
@@ -112,7 +106,7 @@ function renderSellerProfiles() {
     const card = document.createElement("div");
     card.className = "seller-profile" + (selectedSellerId === seller.id ? " selected" : "");
     card.innerHTML = `
-      <img src="${seller.logoUrl || "https://cdn-icons-png.flaticon.com/512/1077/1077114.png"}" alt="${seller.businessName}" />
+      <img src="${seller.LogoURL || "https://cdn-icons-png.flaticon.com/512/1077/1077114.png"}" alt="${seller.businessName}" />
       <div class="business-name">${seller.businessName}</div>
       <div class="category-label">${seller.category || ""}</div>
       <button class="view-profile-btn">View Profile</button>
@@ -126,40 +120,31 @@ function renderSellerProfiles() {
   });
 }
 
-// Render product cards filtered by search, category, and seller
+// Render filtered products
 function renderProducts() {
   const q = normalizeText(searchQuery);
 
   let filtered = products;
 
-  // Filter by selected category (if not All)
   if (selectedCategory.toLowerCase() !== "all") {
     filtered = filtered.filter(
       p => p.category && p.category.toLowerCase() === selectedCategory.toLowerCase()
     );
   }
 
-  // Filter by selected seller
   if (selectedSellerId) {
     filtered = filtered.filter(p => p.sellerId === selectedSellerId);
   }
 
-  // Filter by search query: match product name, description, or seller business name
   if (q) {
     filtered = filtered.filter(p => {
-      const prodName = p.name ? normalizeText(p.name) : "";
-      const prodDesc = p.description ? normalizeText(p.description) : "";
-      // Find seller business name from sellers array
-      const sellerName = sellers.find(s => s.id === p.sellerId)?.businessName || "";
-      return (
-        prodName.includes(q) ||
-        prodDesc.includes(q) ||
-        normalizeText(sellerName).includes(q)
-      );
+      const name = normalizeText(p.name || "");
+      const desc = normalizeText(p.description || "");
+      const sellerName = normalizeText(sellers.find(s => s.id === p.sellerId)?.businessName || "");
+      return name.includes(q) || desc.includes(q) || sellerName.includes(q);
     });
   }
 
-  // Render
   productListings.innerHTML = "";
 
   if (filtered.length === 0) {
@@ -169,9 +154,9 @@ function renderProducts() {
 
   filtered.forEach(p => {
     const seller = sellers.find(s => s.id === p.sellerId);
-    const productCard = document.createElement("article");
-    productCard.className = "product-card";
-    productCard.innerHTML = `
+    const card = document.createElement("article");
+    card.className = "product-card";
+    card.innerHTML = `
       <img
         loading="lazy"
         class="product-image"
@@ -183,17 +168,17 @@ function renderProducts() {
       <p>${p.description || "No description."}</p>
       <div class="seller-name">Seller: ${seller?.businessName || "Unknown"}</div>
     `;
-    productListings.appendChild(productCard);
+    productListings.appendChild(card);
   });
 }
 
-// Event listeners
+// Search bar listener
 searchBar.addEventListener("input", e => {
   searchQuery = e.target.value;
   renderProducts();
 });
 
-// Initial fetch and render
+// Init
 async function init() {
   await Promise.all([fetchSellers(), fetchProducts()]);
   renderCategories();
