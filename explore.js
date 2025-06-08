@@ -70,8 +70,8 @@ function renderSellers() {
 
     const viewBtn = document.createElement("a");
     viewBtn.href = `seller.html?uid=${seller.id}`;
-    viewBtn.textContent = "View Profile";
-    viewBtn.className = "mt-2 px-3 py-1 bg-green-500 text-white text-sm rounded hover:bg-green-600";
+    viewBtn.textContent = "View";
+    viewBtn.className = "mt-2 px-3 py-1 bg-green-500 text-white text-xs rounded hover:bg-green-600";
 
     card.append(img, name, category, viewBtn);
     sellerProfiles.appendChild(card);
@@ -109,11 +109,11 @@ function renderProducts() {
 
     const name = document.createElement("h3");
     name.textContent = p.name || "Untitled";
-    name.className = "text-lg font-semibold mb-1";
+    name.className = "text-lg font-semibold mb-1 text-blue-700";
 
     const price = document.createElement("p");
     price.textContent = `Ksh ${p.price || "N/A"}`;
-    price.className = "text-green-600 font-bold";
+    price.className = "text-green-600 font-bold mb-1";
 
     const desc = document.createElement("p");
     desc.textContent = p.description || "";
