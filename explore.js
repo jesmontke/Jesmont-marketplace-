@@ -5,7 +5,7 @@ const firebaseConfig = {
   apiKey: "AIzaSyDlakKgMzhADOywIOg4iTCJ5sUFXLMGwVg",
   authDomain: "jesmont-marketplace.firebaseapp.com",
   projectId: "jesmont-marketplace",
-  storageBucket: "jesmont-marketplace.appspot.com", // fixed here
+  storageBucket: "jesmont-marketplace.appspot.com",
   messagingSenderId: "543717950238",
   appId: "1:543717950238:web:df009d49e88a2ea010bf0f",
   measurementId: "G-56TMB41PS8"
@@ -23,14 +23,21 @@ async function loadSellers() {
 
   try {
     const snapshot = await getDocs(collection(db, "sellers"));
-    allSellers = snapshot.docs.map(doc => {
+    allSellers = await Promise.all(snapshot.docs.map(async doc => {
       const data = doc.data();
+      const sellerId = doc.id;
+
+      // NEW: Get product count for this seller
+      const productSnapshot = await getDocs(collection(db, `sellers/${sellerId}/products`));
+      const productCount = productSnapshot.size;
+
       return {
-        id: doc.id,
+        id: sellerId,
         ...data,
         category: (data.category || "uncategorized").trim().toLowerCase(),
+        productCount: productCount // NEW
       };
-    });
+    }));
 
     console.log("Loaded sellers:", allSellers.length);
 
@@ -58,10 +65,18 @@ function displaySellers(sellers) {
     const card = document.createElement("div");
     card.classList.add("listing-card", "bg-white", "p-4", "rounded", "shadow", "mb-4");
 
+    // NEW: Wrap card content with a link to seller.html
     card.innerHTML = `
-      <h3 class="text-lg font-semibold">${seller.businessName || "Unnamed Business"}</h3>
-      <p class="text-sm text-gray-700">${seller.businessDescription || seller.description || ""}</p>
-      <p class="text-xs text-gray-500 mt-2">Category: ${seller.category || "Uncategorized"}</p>
+      <div onclick="location.href='seller.html?id=${seller.id}'" style="cursor:pointer">
+        <h3 class="text-lg font-semibold">${seller.businessName || "Unnamed Business"}</h3>
+        <p class="text-sm text-gray-700">${seller.businessDescription || seller.description || ""}</p>
+        <p class="text-xs text-gray-500 mt-2">Category: ${seller.category || "Uncategorized"}</p>
+        <p class="text-xs text-gray-500 mt-1">Products: ${seller.productCount}</p> <!-- NEW -->
+      </div>
+      <button onclick="event.stopPropagation(); location.href='seller.html?id=${seller.id}'"
+        class="mt-3 px-3 py-1 bg-blue-500 text-white text-xs rounded hover:bg-blue-600">
+        View Profile
+      </button>
     `;
 
     sellerContainer.appendChild(card);
