@@ -1,248 +1,276 @@
 <!DOCTYPE html>
-<html lang="en" >
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Jesmont Marketplace - Explore</title>
   <style>
-    :root {
-      --black: #000000;
-      --blue: #007bff;
-      --green: #28a745;
-      --yellow: #ffc107;
-      --gray-light: #f9f9f9;
-      --gray-dark: #333333;
-    }
     body {
-      margin: 0; padding: 0; font-family: Arial, sans-serif; background: var(--gray-light); color: var(--gray-dark);
+      margin: 0;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: #fff;
+      color: #111;
+      line-height: 1.5;
+      min-height: 100vh;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
-    header {
-      background: var(--black);
-      color: white;
-      padding: 1rem 1.5rem;
+    h1 {
+      font-weight: 700;
+      color: #222;
+      margin: 2rem 0 1rem;
+      font-size: 2rem;
       text-align: center;
-      font-weight: bold;
-      font-size: 1.5rem;
-    }
-    main {
-      max-width: 1000px;
-      margin: 1rem auto;
-      padding: 0 1rem;
-    }
-    #search-bar {
+      border-bottom: 3px solid #f7d41e;
+      padding-bottom: 0.3rem;
+      max-width: 600px;
       width: 100%;
-      padding: 0.5rem 1rem;
-      font-size: 1rem;
-      margin-bottom: 1rem;
-      border-radius: 4px;
-      border: 2px solid var(--black);
-      outline-color: var(--blue);
     }
 
-    /* Categories - horizontal scroll */
-    #categories {
-      display: flex;
-      gap: 0.5rem;
-      overflow-x: auto;
-      padding-bottom: 0.5rem;
-      margin-bottom: 1rem;
-      border-bottom: 2px solid var(--black);
-      scrollbar-width: thin;
-      scrollbar-color: var(--blue) transparent;
+    #searchBar {
+      max-width: 400px;
+      width: 100%;
+      margin-bottom: 1.5rem;
+      font-size: 1rem;
+      padding: 0.5rem 1rem;
+      border: 2px solid #444;
+      border-radius: 30px;
+      outline-offset: 2px;
+      transition: border-color 0.3s ease;
     }
-    #categories::-webkit-scrollbar {
+    #searchBar:focus {
+      border-color: #3a6a1e;
+      box-shadow: 0 0 5px #3a6a1e88;
+    }
+
+    /* Categories horizontal scroll */
+    #categoryFilters {
+      display: flex;
+      overflow-x: auto;
+      gap: 0.6rem;
+      padding: 0.5rem 0 1rem;
+      max-width: 100%;
+      box-sizing: border-box;
+      scrollbar-width: thin;
+      justify-content: center;
+    }
+    #categoryFilters::-webkit-scrollbar {
       height: 6px;
     }
-    #categories::-webkit-scrollbar-thumb {
-      background-color: var(--blue);
+    #categoryFilters::-webkit-scrollbar-thumb {
+      background-color: #bdb76b;
       border-radius: 3px;
     }
-    .category-btn {
-      background: var(--gray-light);
-      border: 2px solid var(--black);
-      border-radius: 20px;
-      padding: 0.3rem 1rem;
-      cursor: pointer;
-      font-weight: 600;
-      color: var(--black);
-      white-space: nowrap;
-      user-select: none;
-      transition: background 0.3s, color 0.3s;
+    button.category-btn {
       flex-shrink: 0;
+      padding: 0.4rem 1rem;
+      border: 2px solid #444;
+      background: #fff;
+      color: #444;
+      font-weight: 600;
+      border-radius: 30px;
+      cursor: pointer;
+      user-select: none;
+      min-width: 70px;
+      white-space: nowrap;
+      transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease;
     }
-    .category-btn.selected {
-      background: var(--blue);
-      color: white;
-      border-color: var(--blue);
+    button.category-btn.selected {
+      background: #f7d41e;
+      border-color: #222;
+      color: #111;
+      box-shadow: 0 0 8px #f7d41e99;
+    }
+    button.category-btn:hover:not(.selected) {
+      background: #d7cc2a;
+      color: #111;
+      border-color: #999;
     }
 
-    /* Seller profiles container - horizontal scroll */
-    #seller-profiles {
+    /* Seller Profiles horizontal scroll */
+    #sellerProfiles {
       display: flex;
       overflow-x: auto;
       gap: 1rem;
       padding-bottom: 1rem;
-      margin-bottom: 1rem;
-      border-bottom: 2px solid var(--black);
+      margin-bottom: 2rem;
+      max-width: 100%;
+      box-sizing: border-box;
       scrollbar-width: thin;
-      scrollbar-color: var(--green) transparent;
+      justify-content: center;
     }
-    #seller-profiles::-webkit-scrollbar {
+    #sellerProfiles::-webkit-scrollbar {
       height: 8px;
     }
-    #seller-profiles::-webkit-scrollbar-thumb {
-      background-color: var(--green);
+    #sellerProfiles::-webkit-scrollbar-thumb {
+      background-color: #bdb76b;
       border-radius: 4px;
     }
-    .seller-card {
-      flex: 0 0 auto;
-      background: white;
+    .seller-profile {
+      flex: 0 0 140px;
+      background: #fefefe;
       border-radius: 10px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-      padding: 0.5rem;
-      width: 140px;
-      text-align: center;
-      user-select: none;
-      position: relative;
-    }
-    .seller-card.selected {
-      border: 3px solid var(--green);
-      box-shadow: 0 3px 12px var(--green);
-    }
-    .seller-logo {
-      width: 80px;
-      height: 80px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 2px solid var(--black);
-      margin-bottom: 0.3rem;
-      background: var(--gray-light);
-    }
-    .seller-name {
-      font-size: 1rem;
-      font-weight: 600;
-      margin-bottom: 0.3rem;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .view-profile-btn {
-      display: inline-block;
-      padding: 0.3rem 0.6rem;
-      background: var(--blue);
-      color: white;
-      font-size: 0.85rem;
-      border-radius: 15px;
-      cursor: pointer;
-      user-select: none;
-      transition: background 0.3s;
-      text-decoration: none;
-      border: none;
-      width: 100%;
-    }
-    .view-profile-btn:hover {
-      background: var(--green);
-    }
-
-    /* Products grid */
-    #product-listings {
-      display: grid;
-      grid-template-columns: repeat(auto-fill,minmax(280px,1fr));
-      gap: 1rem;
-    }
-    article.product-card {
-      background: white;
-      border-radius: 10px;
-      box-shadow: 0 3px 8px rgba(0,0,0,0.1);
-      padding: 1rem;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
       display: flex;
       flex-direction: column;
-      transition: box-shadow 0.3s;
+      align-items: center;
+      padding: 0.8rem 0.6rem 1rem;
+      cursor: pointer;
+      user-select: none;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+      box-sizing: border-box;
+      border: 2px solid transparent;
+      min-width: 140px;
+      text-align: center;
     }
-    article.product-card:hover {
-      box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+    .seller-profile.selected {
+      border-color: #3a6a1e;
+      box-shadow: 0 0 10px #3a6a1eaa;
+      background: #e6f2d6;
+    }
+    .seller-profile img {
+      width: 110px;
+      height: 110px;
+      object-fit: cover;
+      border-radius: 50%;
+      border: 3px solid #f7d41e;
+      margin-bottom: 0.5rem;
+      background: #fff;
+    }
+    .business-name {
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: #222;
+      margin-bottom: 0.2rem;
+      line-height: 1.2;
+      word-break: break-word;
+    }
+    .category-label {
+      font-size: 0.85rem;
+      color: #666;
+      font-weight: 600;
+      background: #d9e6c2;
+      padding: 0.15rem 0.4rem;
+      border-radius: 12px;
+      text-transform: capitalize;
+      margin-bottom: 0.5rem;
+      white-space: nowrap;
+      user-select: none;
+    }
+    .view-profile-btn {
+      font-size: 0.85rem;
+      padding: 0.3rem 0.7rem;
+      background: #3a6a1e;
+      color: white;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: background-color 0.3s ease;
+      cursor: pointer;
+      user-select: none;
+    }
+    .view-profile-btn:hover {
+      background: #2a4d13;
+    }
+
+    /* Product grid */
+    #productListings {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      max-width: 1200px;
+      width: 100%;
+      margin-bottom: 3rem;
+    }
+    .product-card {
+      border: 2px solid #d9e6c2;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.07);
+      background: #fafaf0;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      transition: box-shadow 0.3s ease;
+    }
+    .product-card:hover {
+      box-shadow: 0 6px 18px rgba(0,0,0,0.15);
     }
     .product-image {
       width: 100%;
-      height: 160px;
+      aspect-ratio: 4 / 3;
       object-fit: cover;
-      border-radius: 8px;
-      margin-bottom: 0.7rem;
-      background: var(--gray-light);
+      border-bottom: 2px solid #f7d41e;
+      background: #ddd;
     }
-    article.product-card h3 {
-      margin: 0 0 0.3rem 0;
-      font-size: 1.2rem;
-      color: var(--black);
+    .product-card h3 {
+      margin: 0.7rem 1rem 0.3rem;
+      font-weight: 700;
+      color: #222;
+      font-size: 1.25rem;
     }
     .price {
-      font-weight: bold;
-      color: var(--green);
-      margin-bottom: 0.5rem;
-    }
-    article.product-card p {
-      flex-grow: 1;
-      font-size: 0.9rem;
-      color: #555;
-      margin-bottom: 0.5rem;
-    }
-    .seller-info {
-      font-size: 0.85rem;
-      color: var(--blue);
-      font-weight: 600;
-    }
-    #product-listings p {
-      grid-column: 1/-1;
-      text-align: center;
-      color: #666;
+      color: #3a6a1e;
+      font-weight: 700;
+      margin: 0 1rem 0.5rem;
       font-size: 1.1rem;
-      font-style: italic;
+    }
+    .product-card p {
+      margin: 0 1rem 1rem;
+      font-size: 0.95rem;
+      color: #444;
+      flex-grow: 1;
+    }
+    .seller-name {
+      margin: 0 1rem 1rem;
+      font-weight: 600;
+      color: #3a6a1e;
+      font-size: 0.9rem;
+      text-align: right;
+      user-select: none;
     }
 
-    @media (max-width: 480px) {
-      .seller-logo {
-        width: 60px;
-        height: 60px;
+    /* Responsive */
+    @media (max-width: 600px) {
+      .seller-profile {
+        flex: 0 0 110px;
+        min-width: 110px;
       }
-      .seller-name {
-        font-size: 0.9rem;
-      }
-      .seller-card {
-        width: 120px;
+      .seller-profile img {
+        width: 90px;
+        height: 90px;
       }
     }
   </style>
 </head>
 <body>
 
-<header>Jesmont Marketplace - Explore</header>
+  <h1>Explore Products</h1>
 
-<main>
+  <!-- Search Bar -->
   <input
     type="search"
-    id="search-bar"
-    placeholder="Search products..."
+    id="searchBar"
+    placeholder="Search products or sellers..."
+    aria-label="Search products or sellers"
     autocomplete="off"
-    aria-label="Search products"
   />
 
-  <section id="categories" aria-label="Product Categories">
-    <!-- categories here -->
-  </section>
+  <!-- Categories -->
+  <div id="categoryFilters" aria-label="Product Categories"></div>
 
-  <section id="seller-profiles" aria-label="Sellers">
-    <!-- sellers here -->
-  </section>
+  <!-- Seller Profiles -->
+  <div id="sellerProfiles" aria-label="Seller Profiles"></div>
 
-  <section id="product-listings" aria-label="Product Listings">
-    <!-- products here -->
-  </section>
-</main>
+  <!-- Product Listings -->
+  <main id="productListings" aria-live="polite" aria-relevant="additions"></main>
 
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
-<script src="explore.js"></script>
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 
+  <!-- Your JS -->
+  <script type="module" src="explore.js"></script>
 </body>
 </html>
-
