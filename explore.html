@@ -3,52 +3,45 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Explore - Jesmont Marketplace</title>
+  <title>Jesmont Marketplace - Explore</title>
   <script type="module" src="explore.js" defer></script>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.3.2/dist/tailwind.min.css" rel="stylesheet">
-</head>
-<body class="bg-gray-100 font-sans text-gray-900">
-
-  <div class="max-w-7xl mx-auto px-4 py-6 space-y-6">
-    <h1 class="text-4xl font-bold text-blue-800">Explore Jesmont Marketplace</h1>
-
-    <input
-      type="text"
-      id="searchBar"
-      placeholder="Search for products or sellers..."
-      class="w-full p-3 rounded-xl border border-gray-300 shadow focus:outline-none focus:ring-2 focus:ring-blue-500"
-    />
-
-    <!-- Categories -->
-    <div id="categoryFilters" class="flex overflow-x-auto gap-3 py-2">
-      <span class="category-btn selected" data-category="all">All</span>
-      <span class="category-btn" data-category="Fashion">Fashion</span>
-      <span class="category-btn" data-category="Electronics">Electronics</span>
-      <span class="category-btn" data-category="Food">Food</span>
-      <span class="category-btn" data-category="Home">Home</span>
-      <span class="category-btn" data-category="Other">Other</span>
-    </div>
-
-    <!-- Seller Cards -->
-    <div id="sellerProfiles" class="flex overflow-x-auto gap-4 py-2"></div>
-
-    <!-- Product Grid -->
-    <div id="productListings" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
-  </div>
-
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet"/>
   <style>
-    .category-btn {
-      @apply px-4 py-1 bg-yellow-100 text-sm rounded-full font-medium cursor-pointer hover:bg-yellow-300;
+    .selected {
+      border: 2px solid #10B981;
+      background-color: #D1FAE5;
     }
-    .category-btn.selected {
-      @apply bg-yellow-500 text-white;
+    .scroll-container::-webkit-scrollbar {
+      display: none;
     }
-    .seller-card {
-      @apply flex flex-col items-center bg-white border border-gray-200 rounded-2xl shadow p-4 min-w-[160px] cursor-pointer transition hover:scale-105;
-    }
-    .seller-card.selected {
-      @apply ring-4 ring-blue-400;
+    .scroll-container {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
     }
   </style>
+</head>
+<body class="bg-white text-gray-800">
+  <div class="max-w-7xl mx-auto px-4 py-6">
+    <h1 class="text-3xl font-bold text-blue-700 mb-4">Explore Products</h1>
+
+    <!-- Search Bar -->
+    <input id="searchBar" type="text" placeholder="Search products or sellers..."
+      class="w-full p-2 border border-gray-300 rounded-md mb-4"/>
+
+    <!-- Category Filters (Horizontal Scroll) -->
+    <div id="categoryFilters" class="flex space-x-3 overflow-x-auto mb-6 scroll-container">
+      <button class="category-btn px-4 py-2 rounded-full bg-yellow-300 text-black font-semibold" data-category="all">All</button>
+      <button class="category-btn px-4 py-2 rounded-full bg-green-300 text-black font-semibold" data-category="Electronics">Electronics</button>
+      <button class="category-btn px-4 py-2 rounded-full bg-green-300 text-black font-semibold" data-category="Fashion">Fashion</button>
+      <button class="category-btn px-4 py-2 rounded-full bg-green-300 text-black font-semibold" data-category="Food">Food</button>
+      <button class="category-btn px-4 py-2 rounded-full bg-green-300 text-black font-semibold" data-category="Services">Services</button>
+    </div>
+
+    <!-- Seller Profiles -->
+    <div id="sellerProfiles" class="flex space-x-4 overflow-x-auto mb-6 scroll-container"></div>
+
+    <!-- Product Listings -->
+    <div id="productListings" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+  </div>
 </body>
 </html>
