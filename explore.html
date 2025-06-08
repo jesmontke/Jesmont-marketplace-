@@ -39,7 +39,7 @@
     #searchBar {
       max-width: 400px;
       width: 100%;
-      margin-bottom: 1.5rem;
+      margin: 0 auto 1.5rem;
       font-size: 1rem;
       padding: 0.5rem 1rem;
       border: 2px solid #444;
@@ -53,16 +53,16 @@
       box-shadow: 0 0 5px #3a6a1e88;
     }
 
-    /* Categories horizontal scroll */
+    /* Categories scroll */
     #categoryFilters {
       display: flex;
       overflow-x: auto;
       gap: 0.6rem;
-      padding: 0.5rem 1rem 1rem;
+      padding: 0.5rem 1rem;
+      margin-bottom: 1.5rem;
       max-width: 100%;
       box-sizing: border-box;
       scrollbar-width: thin;
-      justify-content: flex-start;
     }
 
     #categoryFilters::-webkit-scrollbar {
@@ -83,10 +83,9 @@
       font-weight: 600;
       border-radius: 30px;
       cursor: pointer;
-      user-select: none;
       min-width: 70px;
       white-space: nowrap;
-      transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease;
+      transition: background-color 0.25s ease, color 0.25s ease;
     }
 
     button.category-btn.selected {
@@ -102,18 +101,17 @@
       border-color: #999;
     }
 
-    /* Seller Profiles horizontal scroll */
+    /* Seller Profiles scroll */
     #sellerProfiles {
       display: flex;
       overflow-x: auto;
       gap: 1rem;
-      padding: 0 1rem 1rem;
+      padding: 1rem;
       margin-bottom: 2rem;
       max-width: 100%;
       width: 100%;
       box-sizing: border-box;
       scrollbar-width: thin;
-      justify-content: flex-start;
     }
 
     #sellerProfiles::-webkit-scrollbar {
@@ -136,9 +134,7 @@
       align-items: center;
       padding: 0.8rem 0.6rem 1rem;
       cursor: pointer;
-      user-select: none;
       transition: border-color 0.3s ease, box-shadow 0.3s ease;
-      box-sizing: border-box;
       border: 2px solid transparent;
       text-align: center;
     }
@@ -156,7 +152,6 @@
       border-radius: 50%;
       border: 3px solid #f7d41e;
       margin-bottom: 0.5rem;
-      background: #fff;
     }
 
     .business-name {
@@ -164,8 +159,6 @@
       font-size: 1.1rem;
       color: #222;
       margin-bottom: 0.2rem;
-      line-height: 1.2;
-      word-break: break-word;
     }
 
     .category-label {
@@ -196,7 +189,7 @@
       background: #2a4d13;
     }
 
-    /* Product grid */
+    /* Product Listings */
     #productListings {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -241,65 +234,4 @@
     .price {
       color: #3a6a1e;
       font-weight: 700;
-      margin: 0 1rem 0.5rem;
-      font-size: 1.1rem;
-    }
-
-    .product-card p {
-      margin: 0 1rem 1rem;
-      font-size: 0.95rem;
-      color: #444;
-      flex-grow: 1;
-    }
-
-    .seller-name {
-      margin: 0 1rem 1rem;
-      font-weight: 600;
-      color: #3a6a1e;
-      font-size: 0.9rem;
-      text-align: right;
-      user-select: none;
-    }
-
-    @media (max-width: 600px) {
-      .seller-profile {
-        width: 110px;
-      }
-
-      .seller-profile img {
-        width: 90px;
-        height: 90px;
-      }
-    }
-  </style>
-</head>
-<body>
-
-  <h1>Explore Products</h1>
-
-  <!-- Search Bar -->
-  <input
-    type="search"
-    id="searchBar"
-    placeholder="Search products or sellers..."
-    aria-label="Search products or sellers"
-    autocomplete="off"
-  />
-
-  <!-- Categories -->
-  <div id="categoryFilters" aria-label="Product Categories"></div>
-
-  <!-- Seller Profiles -->
-  <div id="sellerProfiles" aria-label="Seller Profiles"></div>
-
-  <!-- Product Listings -->
-  <main id="productListings" aria-live="polite" aria-relevant="additions"></main>
-
-  <!-- Firebase SDKs -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
-
-  <!-- Your JS -->
-  <script type="module" src="explore.js"></script>
-</body>
-</html>
+      margin: 0 1rem
