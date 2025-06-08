@@ -5,8 +5,6 @@ import {
   getFirestore,
   collection,
   getDocs,
-  query,
-  where,
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -42,7 +40,7 @@ async function fetchCategories() {
     id: doc.id,
     ...doc.data(),
   }));
-  categories.unshift({ id: "all", name: "All" }); // Add All category at front
+  categories.unshift({ id: "all", name: "All" }); // Add All at front
   renderCategoryFilters();
 }
 
@@ -84,8 +82,16 @@ function renderSellerProfiles() {
   sellerProfilesContainer.innerHTML = "";
 
   // Filter sellers by selected category if any
-  const filteredSellers = selectedCategory
-    ? sellers.filter((s) => s.category?.toLowerCase() === categories.find(c => c.id === selectedCategory)?.name.toLowerCase())
+  const selectedCategoryName = selectedCategory
+    ? categories.find((c) => c.id === selectedCategory)?.name.toLowerCase()
+    : null;
+
+  const filteredSellers = selectedCategoryName
+    ? sellers.filter(
+        (s) =>
+          s.category &&
+          s.category.toLowerCase() === selectedCategoryName
+      )
     : sellers;
 
   filteredSellers.forEach((seller) => {
@@ -97,21 +103,29 @@ function renderSellerProfiles() {
 
     card.setAttribute("tabindex", "0");
     card.setAttribute("role", "button");
-    card.setAttribute("aria-pressed", selectedSellerId === seller.id ? "true" : "false");
+    card.setAttribute(
+      "aria-pressed",
+      selectedSellerId === seller.id ? "true" : "false"
+    );
 
-    // Seller logo or default circle
+    // Seller logo or default circle placeholder
     const img = document.createElement("img");
-    img.src = seller.logoURL || "https://via.placeholder.com/110?text=No+Logo";
-    img.alt = `Logo of ${seller.businessName}`;
+    img.src =
+      seller.logoURL && seller.logoURL.startsWith("http")
+        ? seller.logoURL
+        : "https://via.placeholder.com/110?text=No+Logo";
+    img.alt = `Logo of ${seller.businessName || "seller"}`;
     card.appendChild(img);
 
     const businessName = document.createElement("div");
-    businessName.textContent = seller.businessName;
+    businessName.textContent = seller.businessName || "Unnamed Seller";
     businessName.className = "business-name";
     card.appendChild(businessName);
 
     const categoryTag = document.createElement("div");
-    categoryTag.textContent = seller.category || "Uncategorized";
+    categoryTag.textContent = seller.category
+      ? seller.category.charAt(0).toUpperCase() + seller.category.slice(1)
+      : "Uncategorized";
     categoryTag.className = "category";
     card.appendChild(categoryTag);
 
@@ -123,9 +137,9 @@ function renderSellerProfiles() {
     card.appendChild(profileBtn);
 
     card.addEventListener("click", (e) => {
-      if (e.target !== profileBtn) { // avoid conflict with link
+      if (e.target !== profileBtn) {
         if (selectedSellerId === seller.id) {
-          selectedSellerId = null; // Deselect if clicked again
+          selectedSellerId = null; // Deselect on second click
         } else {
           selectedSellerId = seller.id;
         }
@@ -155,9 +169,11 @@ function filterAndRenderProducts() {
 
   // Filter by category (match product.category)
   if (selectedCategory) {
-    const categoryName = categories.find(c => c.id === selectedCategory)?.name.toLowerCase();
+    const categoryName = categories.find((c) => c.id === selectedCategory)?.name.toLowerCase();
     filtered = filtered.filter(
-      (p) => p.category?.toLowerCase() === categoryName
+      (p) =>
+        p.category &&
+        p.category.toLowerCase() === categoryName
     );
   }
 
@@ -170,15 +186,19 @@ function filterAndRenderProducts() {
   if (searchTerm.trim().length > 0) {
     const lowerSearch = searchTerm.toLowerCase();
     filtered = filtered.filter((p) => {
-      const productName = p.name.toLowerCase();
+      const productName = p.name ? p.name.toLowerCase() : "";
       const seller = sellers.find((s) => s.id === p.sellerId);
-      const sellerName = seller?.businessName.toLowerCase() || "";
-      return productName.includes(lowerSearch) || sellerName.includes(lowerSearch);
+      const sellerName = seller?.businessName
+        ? seller.businessName.toLowerCase()
+        : "";
+      return (
+        productName.includes(lowerSearch) || sellerName.includes(lowerSearch)
+      );
     });
   }
 
   if (filtered.length === 0) {
-    productListingsContainer.innerHTML = `<p class="text-center text-gray-600 mt-12 text-lg">No products found.</p>`;
+    productListingsContainer.innerHTML = `<p class="text-center" style="color:#666; margin-top:2rem; font-size:1.1rem;">No products found.</p>`;
     return;
   }
 
@@ -188,46 +208,25 @@ function filterAndRenderProducts() {
 
     const img = document.createElement("img");
     img.className = "product-image";
-    img.alt = product.name;
-    img.src = product.imageURL || "https://via.placeholder.com/400x300?text=No+Image";
+    img.alt = product.name || "Product image";
+    img.src =
+      product.imageURL && product.imageURL.startsWith("http")
+        ? product.imageURL
+        : "https://via.placeholder.com/400x300?text=No+Image";
     card.appendChild(img);
 
     const title = document.createElement("h3");
-    title.textContent = product.name;
+    title.textContent = product.name || "Unnamed Product";
     card.appendChild(title);
 
     const price = document.createElement("div");
     price.className = "price";
-    price.textContent = `KES ${Number(product.price).toLocaleString()}`;
+    price.textContent = product.price
+      ? `KES ${Number(product.price).toLocaleString()}`
+      : "Price not available";
     card.appendChild(price);
 
     const description = document.createElement("p");
-    description.textContent = product.description || "No description available.";
-    card.appendChild(description);
-
-    const seller = sellers.find((s) => s.id === product.sellerId);
-    if (seller) {
-      const sellerName = document.createElement("div");
-      sellerName.textContent = `Seller: ${seller.businessName}`;
-      sellerName.style.fontWeight = "600";
-      sellerName.style.color = "#444";
-      sellerName.style.marginTop = "auto";
-      card.appendChild(sellerName);
-    }
-
-    productListingsContainer.appendChild(card);
-  });
-}
-
-// Search input event
-searchBar.addEventListener("input", (e) => {
-  searchTerm = e.target.value;
-  filterAndRenderProducts();
-});
-
-// Initial data fetch
-(async () => {
-  await fetchCategories();
-  await fetchSellers();
-  await fetchProducts();
-})();
+    description.textContent =
+      product.description || "No description available.";
+    card.append
