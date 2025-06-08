@@ -1,47 +1,225 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Jesmont Marketplace - Explore</title>
-  <script type="module" src="explore.js" defer></script>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet"/>
+  <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    .selected {
-      border: 2px solid #10B981;
-      background-color: #D1FAE5;
+    /* Custom colors for your brand */
+    :root {
+      --green: #16a34a;
+      --yellow: #facc15;
+      --blue: #2563eb;
     }
-    .scroll-container::-webkit-scrollbar {
-      display: none;
+    body {
+      background-color: #000; /* black background */
+      color: #fff; /* white text */
     }
-    .scroll-container {
-      -ms-overflow-style: none;
-      scrollbar-width: none;
+    /* Seller profiles horizontal scroll */
+    #sellerProfiles {
+      display: flex;
+      overflow-x: auto;
+      gap: 1rem;
+      padding: 0.5rem 0;
+      scrollbar-width: thin;
+      scrollbar-color: var(--blue) transparent;
+    }
+    #sellerProfiles::-webkit-scrollbar {
+      height: 8px;
+    }
+    #sellerProfiles::-webkit-scrollbar-thumb {
+      background-color: var(--blue);
+      border-radius: 10px;
+    }
+    /* Seller card style */
+    .seller-profile {
+      flex: 0 0 auto;
+      width: 150px;
+      background-color: #111;
+      border: 2px solid transparent;
+      border-radius: 0.5rem;
+      padding: 0.75rem;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.3s, background-color 0.3s;
+    }
+    .seller-profile.selected {
+      border-color: var(--green);
+      background-color: #163a14; /* darker green */
+    }
+    .seller-profile img {
+      width: 90px;
+      height: 90px;
+      object-fit: cover;
+      border-radius: 9999px;
+      margin: 0 auto 0.5rem;
+      border: 2px solid var(--yellow);
+    }
+    .seller-profile .business-name {
+      font-weight: 700;
+      font-size: 1rem;
+      margin-bottom: 0.25rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .seller-profile .category {
+      font-size: 0.85rem;
+      color: var(--yellow);
+      margin-bottom: 0.5rem;
+    }
+    .seller-profile .view-profile-btn {
+      display: inline-block;
+      padding: 0.3rem 0.6rem;
+      font-size: 0.85rem;
+      background: var(--blue);
+      color: white;
+      border-radius: 0.25rem;
+      text-decoration: none;
+      transition: background-color 0.2s;
+    }
+    .seller-profile .view-profile-btn:hover {
+      background-color: var(--green);
+    }
+
+    /* Categories horizontal scroll */
+    #categoryFilters {
+      display: flex;
+      overflow-x: auto;
+      gap: 0.75rem;
+      margin: 1rem 0;
+      padding-bottom: 0.5rem;
+      scrollbar-width: thin;
+      scrollbar-color: var(--green) transparent;
+    }
+    #categoryFilters::-webkit-scrollbar {
+      height: 6px;
+    }
+    #categoryFilters::-webkit-scrollbar-thumb {
+      background-color: var(--green);
+      border-radius: 10px;
+    }
+    .category-btn {
+      flex: 0 0 auto;
+      padding: 0.4rem 1rem;
+      font-weight: 600;
+      border-radius: 9999px;
+      border: 2px solid var(--yellow);
+      background-color: transparent;
+      color: var(--yellow);
+      cursor: pointer;
+      transition: background-color 0.3s, color 0.3s;
+      white-space: nowrap;
+    }
+    .category-btn.selected {
+      background-color: var(--yellow);
+      color: black;
+      border-color: var(--yellow);
+    }
+    .category-btn:hover:not(.selected) {
+      background-color: var(--blue);
+      color: white;
+      border-color: var(--blue);
+    }
+
+    /* Products grid */
+    #productListings {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    .product-card {
+      background-color: #111;
+      border-radius: 0.5rem;
+      padding: 1rem;
+      box-shadow: 0 0 6px rgba(22, 163, 74, 0.5);
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.2s;
+    }
+    .product-card:hover {
+      transform: scale(1.03);
+      box-shadow: 0 0 10px var(--yellow);
+    }
+    .product-image {
+      width: 100%;
+      height: 140px;
+      object-fit: cover;
+      border-radius: 0.5rem;
+      margin-bottom: 0.5rem;
+      background-color: #222;
+    }
+    .product-card h3 {
+      color: var(--yellow);
+      margin-bottom: 0.25rem;
+    }
+    .product-card p {
+      margin-bottom: 0.25rem;
+      color: #ddd;
+    }
+    .product-card .price {
+      color: var(--green);
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    /* Search bar */
+    #searchBar {
+      width: 100%;
+      max-width: 480px;
+      padding: 0.5rem 1rem;
+      border-radius: 9999px;
+      border: 2px solid var(--blue);
+      background-color: #000;
+      color: white;
+      font-size: 1rem;
+      outline-offset: 2px;
+      transition: border-color 0.3s;
+    }
+    #searchBar::placeholder {
+      color: #888;
+    }
+    #searchBar:focus {
+      border-color: var(--yellow);
+      background-color: #111;
+    }
+
+    /* Responsive */
+    @media (max-width: 640px) {
+      .seller-profile {
+        width: 120px;
+      }
+      .product-card {
+        padding: 0.75rem;
+      }
     }
   </style>
 </head>
-<body class="bg-white text-gray-800">
-  <div class="max-w-7xl mx-auto px-4 py-6">
-    <h1 class="text-3xl font-bold text-blue-700 mb-4">Explore Products</h1>
+<body class="p-4">
+  <header class="mb-6">
+    <h1 class="text-3xl font-extrabold text-yellow-400 mb-2">Jesmont Marketplace - Explore</h1>
+    <input
+      id="searchBar"
+      type="search"
+      placeholder="Search products, sellers..."
+      aria-label="Search products and sellers"
+    />
+  </header>
 
-    <!-- Search Bar -->
-    <input id="searchBar" type="text" placeholder="Search products or sellers..."
-      class="w-full p-2 border border-gray-300 rounded-md mb-4"/>
+  <section>
+    <div id="categoryFilters" aria-label="Product categories" role="list"></div>
+  </section>
 
-    <!-- Category Filters (Horizontal Scroll) -->
-    <div id="categoryFilters" class="flex space-x-3 overflow-x-auto mb-6 scroll-container">
-      <button class="category-btn px-4 py-2 rounded-full bg-yellow-300 text-black font-semibold" data-category="all">All</button>
-      <button class="category-btn px-4 py-2 rounded-full bg-green-300 text-black font-semibold" data-category="Electronics">Electronics</button>
-      <button class="category-btn px-4 py-2 rounded-full bg-green-300 text-black font-semibold" data-category="Fashion">Fashion</button>
-      <button class="category-btn px-4 py-2 rounded-full bg-green-300 text-black font-semibold" data-category="Food">Food</button>
-      <button class="category-btn px-4 py-2 rounded-full bg-green-300 text-black font-semibold" data-category="Services">Services</button>
-    </div>
+  <section aria-label="Seller profiles" class="mb-6">
+    <div id="sellerProfiles" tabindex="0"></div>
+  </section>
 
-    <!-- Seller Profiles -->
-    <div id="sellerProfiles" class="flex space-x-4 overflow-x-auto mb-6 scroll-container"></div>
+  <section aria-label="Product listings">
+    <div id="productListings"></div>
+  </section>
 
-    <!-- Product Listings -->
-    <div id="productListings" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
-  </div>
+  <script type="module" src="explore.js"></script>
 </body>
 </html>
