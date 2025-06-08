@@ -1,168 +1,217 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" >
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Jesmont Marketplace - Explore</title>
-<style>
-  :root {
-    --black: #000000;
-    --blue: #007bff;
-    --green: #28a745;
-    --yellow: #ffc107;
-    --gray-light: #f9f9f9;
-    --gray-dark: #333333;
-  }
-  body {
-    margin: 0; padding: 0; font-family: Arial, sans-serif; background: var(--gray-light); color: var(--gray-dark);
-  }
-  header {
-    background: var(--black);
-    color: white;
-    padding: 1rem 1.5rem;
-    text-align: center;
-    font-weight: bold;
-    font-size: 1.5rem;
-  }
-  main {
-    max-width: 1000px;
-    margin: 1rem auto;
-    padding: 0 1rem;
-  }
-  #search-bar {
-    width: 100%;
-    padding: 0.5rem 1rem;
-    font-size: 1rem;
-    margin-bottom: 1rem;
-    border-radius: 4px;
-    border: 2px solid var(--black);
-    outline-color: var(--blue);
-  }
-  #categories {
-    display: flex;
-    gap: 0.5rem;
-    flex-wrap: wrap;
-    margin-bottom: 1rem;
-  }
-  .category-btn {
-    background: var(--gray-light);
-    border: 2px solid var(--black);
-    border-radius: 20px;
-    padding: 0.3rem 1rem;
-    cursor: pointer;
-    font-weight: 600;
-    color: var(--black);
-    transition: background 0.3s, color 0.3s;
-    user-select: none;
-  }
-  .category-btn.selected {
-    background: var(--blue);
-    color: white;
-    border-color: var(--blue);
-  }
-  #seller-profiles {
-    display: flex;
-    overflow-x: auto;
-    gap: 1rem;
-    padding-bottom: 1rem;
-    margin-bottom: 1rem;
-    border-bottom: 2px solid var(--black);
-  }
-  #seller-profiles::-webkit-scrollbar {
-    height: 8px;
-  }
-  #seller-profiles::-webkit-scrollbar-thumb {
-    background-color: var(--blue);
-    border-radius: 4px;
-  }
-  .seller-card {
-    flex: 0 0 auto;
-    text-align: center;
-    cursor: pointer;
-    padding: 0.2rem 0.5rem;
-    border-radius: 10px;
-    transition: background-color 0.3s;
-    user-select: none;
-  }
-  .seller-card.selected {
-    background-color: var(--green);
-    color: white;
-  }
-  .seller-logo {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 2px solid var(--black);
-    margin-bottom: 0.3rem;
-  }
-  .seller-name {
-    font-size: 0.9rem;
-    font-weight: 600;
-    white-space: nowrap;
-  }
-  #product-listings {
-    display: grid;
-    grid-template-columns: repeat(auto-fill,minmax(280px,1fr));
-    gap: 1rem;
-  }
-  article.product-card {
-    background: white;
-    border-radius: 10px;
-    box-shadow: 0 3px 8px rgba(0,0,0,0.1);
-    padding: 1rem;
-    display: flex;
-    flex-direction: column;
-    transition: box-shadow 0.3s;
-  }
-  article.product-card:hover {
-    box-shadow: 0 6px 15px rgba(0,0,0,0.2);
-  }
-  .product-image {
-    width: 100%;
-    height: 160px;
-    object-fit: cover;
-    border-radius: 8px;
-    margin-bottom: 0.7rem;
-  }
-  article.product-card h3 {
-    margin: 0 0 0.3rem 0;
-    font-size: 1.2rem;
-    color: var(--black);
-  }
-  .price {
-    font-weight: bold;
-    color: var(--green);
-    margin-bottom: 0.5rem;
-  }
-  article.product-card p {
-    flex-grow: 1;
-    font-size: 0.9rem;
-    color: #555;
-    margin-bottom: 0.5rem;
-  }
-  .seller-info {
-    font-size: 0.85rem;
-    color: var(--blue);
-    font-weight: 600;
-  }
-  #product-listings p {
-    grid-column: 1/-1;
-    text-align: center;
-    color: #666;
-    font-size: 1.1rem;
-    font-style: italic;
-  }
-  @media (max-width: 480px) {
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Jesmont Marketplace - Explore</title>
+  <style>
+    :root {
+      --black: #000000;
+      --blue: #007bff;
+      --green: #28a745;
+      --yellow: #ffc107;
+      --gray-light: #f9f9f9;
+      --gray-dark: #333333;
+    }
+    body {
+      margin: 0; padding: 0; font-family: Arial, sans-serif; background: var(--gray-light); color: var(--gray-dark);
+    }
+    header {
+      background: var(--black);
+      color: white;
+      padding: 1rem 1.5rem;
+      text-align: center;
+      font-weight: bold;
+      font-size: 1.5rem;
+    }
+    main {
+      max-width: 1000px;
+      margin: 1rem auto;
+      padding: 0 1rem;
+    }
+    #search-bar {
+      width: 100%;
+      padding: 0.5rem 1rem;
+      font-size: 1rem;
+      margin-bottom: 1rem;
+      border-radius: 4px;
+      border: 2px solid var(--black);
+      outline-color: var(--blue);
+    }
+
+    /* Categories - horizontal scroll */
+    #categories {
+      display: flex;
+      gap: 0.5rem;
+      overflow-x: auto;
+      padding-bottom: 0.5rem;
+      margin-bottom: 1rem;
+      border-bottom: 2px solid var(--black);
+      scrollbar-width: thin;
+      scrollbar-color: var(--blue) transparent;
+    }
+    #categories::-webkit-scrollbar {
+      height: 6px;
+    }
+    #categories::-webkit-scrollbar-thumb {
+      background-color: var(--blue);
+      border-radius: 3px;
+    }
+    .category-btn {
+      background: var(--gray-light);
+      border: 2px solid var(--black);
+      border-radius: 20px;
+      padding: 0.3rem 1rem;
+      cursor: pointer;
+      font-weight: 600;
+      color: var(--black);
+      white-space: nowrap;
+      user-select: none;
+      transition: background 0.3s, color 0.3s;
+      flex-shrink: 0;
+    }
+    .category-btn.selected {
+      background: var(--blue);
+      color: white;
+      border-color: var(--blue);
+    }
+
+    /* Seller profiles container - horizontal scroll */
+    #seller-profiles {
+      display: flex;
+      overflow-x: auto;
+      gap: 1rem;
+      padding-bottom: 1rem;
+      margin-bottom: 1rem;
+      border-bottom: 2px solid var(--black);
+      scrollbar-width: thin;
+      scrollbar-color: var(--green) transparent;
+    }
+    #seller-profiles::-webkit-scrollbar {
+      height: 8px;
+    }
+    #seller-profiles::-webkit-scrollbar-thumb {
+      background-color: var(--green);
+      border-radius: 4px;
+    }
+    .seller-card {
+      flex: 0 0 auto;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      padding: 0.5rem;
+      width: 140px;
+      text-align: center;
+      user-select: none;
+      position: relative;
+    }
+    .seller-card.selected {
+      border: 3px solid var(--green);
+      box-shadow: 0 3px 12px var(--green);
+    }
     .seller-logo {
-      width: 50px;
-      height: 50px;
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid var(--black);
+      margin-bottom: 0.3rem;
+      background: var(--gray-light);
     }
     .seller-name {
-      font-size: 0.8rem;
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 0.3rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
-  }
-</style>
+    .view-profile-btn {
+      display: inline-block;
+      padding: 0.3rem 0.6rem;
+      background: var(--blue);
+      color: white;
+      font-size: 0.85rem;
+      border-radius: 15px;
+      cursor: pointer;
+      user-select: none;
+      transition: background 0.3s;
+      text-decoration: none;
+      border: none;
+      width: 100%;
+    }
+    .view-profile-btn:hover {
+      background: var(--green);
+    }
+
+    /* Products grid */
+    #product-listings {
+      display: grid;
+      grid-template-columns: repeat(auto-fill,minmax(280px,1fr));
+      gap: 1rem;
+    }
+    article.product-card {
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      transition: box-shadow 0.3s;
+    }
+    article.product-card:hover {
+      box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+    }
+    .product-image {
+      width: 100%;
+      height: 160px;
+      object-fit: cover;
+      border-radius: 8px;
+      margin-bottom: 0.7rem;
+      background: var(--gray-light);
+    }
+    article.product-card h3 {
+      margin: 0 0 0.3rem 0;
+      font-size: 1.2rem;
+      color: var(--black);
+    }
+    .price {
+      font-weight: bold;
+      color: var(--green);
+      margin-bottom: 0.5rem;
+    }
+    article.product-card p {
+      flex-grow: 1;
+      font-size: 0.9rem;
+      color: #555;
+      margin-bottom: 0.5rem;
+    }
+    .seller-info {
+      font-size: 0.85rem;
+      color: var(--blue);
+      font-weight: 600;
+    }
+    #product-listings p {
+      grid-column: 1/-1;
+      text-align: center;
+      color: #666;
+      font-size: 1.1rem;
+      font-style: italic;
+    }
+
+    @media (max-width: 480px) {
+      .seller-logo {
+        width: 60px;
+        height: 60px;
+      }
+      .seller-name {
+        font-size: 0.9rem;
+      }
+      .seller-card {
+        width: 120px;
+      }
+    }
+  </style>
 </head>
 <body>
 
@@ -196,3 +245,4 @@
 
 </body>
 </html>
+
