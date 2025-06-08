@@ -1,273 +1,274 @@
 <!DOCTYPE html>
-<html lang="en" >
+<html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Jesmont Marketplace - Explore</title>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.3.2/dist/tailwind.min.css" rel="stylesheet" />
+  <title>Explore Sellers - Jesmont Marketplace</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet" />
   <style>
     body {
-      background-color: #f3f4f6; /* Tailwind gray-100 */
-      font-family: 'Inter', sans-serif;
+      font-family: 'Poppins', sans-serif;
+      background-color: #f9fafb;
     }
 
-    header {
-      background-color: #1e40af; /* Tailwind blue-800 */
-      color: white;
-      padding: 1rem 2rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    }
-
-    #exploreButton {
-      background-color: #22c55e; /* Tailwind green-500 */
-      color: white;
-      padding: 0.5rem 1rem;
-      border-radius: 0.375rem;
-      font-weight: 600;
-      transition: background-color 0.3s ease;
-      cursor: pointer;
-    }
-    #exploreButton:hover {
-      background-color: #16a34a; /* Tailwind green-600 */
-    }
-
-    main {
-      max-width: 1200px;
-      margin: 1rem auto 3rem auto;
-      padding: 0 1rem;
-      display: flex;
-      flex-direction: column;
-      gap: 1.5rem;
-    }
-
-    /* Category buttons */
-    #categoryFilters {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.75rem;
-    }
-    .category-btn {
-      background-color: #e5e7eb; /* gray-200 */
-      padding: 0.5rem 1.25rem;
-      border-radius: 9999px;
-      font-weight: 600;
-      font-size: 0.875rem;
-      color: #374151; /* gray-700 */
-      cursor: pointer;
-      user-select: none;
-      transition: background-color 0.3s ease, color 0.3s ease;
-      white-space: nowrap;
-      border: 2px solid transparent;
-    }
-    .category-btn:hover {
-      background-color: #2563eb; /* blue-600 */
-      color: white;
-    }
-    .category-btn.selected {
-      background-color: #2563eb; /* blue-600 */
-      color: white;
-      border-color: #1e40af; /* blue-800 */
-    }
-
-    /* Search bar */
-    #searchBar {
-      width: 100%;
-      padding: 0.75rem 1rem;
-      border-radius: 0.5rem;
-      border: 1px solid #d1d5db; /* gray-300 */
-      font-size: 1rem;
-      transition: border-color 0.3s ease;
-    }
-    #searchBar:focus {
-      outline: none;
-      border-color: #2563eb; /* blue-600 */
-      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.3);
-    }
-
-    /* Seller profiles container */
+    /* Horizontal scrolling for seller profiles */
     #sellerProfiles {
       display: flex;
       overflow-x: auto;
       gap: 1rem;
-      padding-bottom: 0.25rem;
+      padding: 1rem 0;
       scrollbar-width: thin;
-      scrollbar-color: #2563eb #d1d5db;
+      scrollbar-color: #a0aec0 transparent;
     }
+
     #sellerProfiles::-webkit-scrollbar {
       height: 8px;
     }
-    #sellerProfiles::-webkit-scrollbar-track {
-      background: #d1d5db; /* gray-300 */
-      border-radius: 4px;
-    }
+
     #sellerProfiles::-webkit-scrollbar-thumb {
-      background-color: #2563eb; /* blue-600 */
-      border-radius: 4px;
+      background-color: #a0aec0;
+      border-radius: 10px;
     }
 
+    /* Seller profile card */
     .seller-profile {
       flex: 0 0 auto;
-      width: 110px;
-      background-color: white;
-      padding: 0.75rem 0.5rem;
-      border-radius: 0.5rem;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      width: 180px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgb(0 0 0 / 0.1);
+      padding: 0.75rem;
+      text-align: center;
       cursor: pointer;
-      user-select: none;
+      transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+      border: 2px solid transparent;
       display: flex;
       flex-direction: column;
       align-items: center;
-      transition: box-shadow 0.3s ease;
+      position: relative;
     }
-    .seller-profile:hover {
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-    }
+
+    .seller-profile:hover,
     .seller-profile.selected {
-      box-shadow: 0 0 0 3px #1d4ed8; /* blue outline */
-    }
-    .seller-profile img {
-      width: 64px;
-      height: 64px;
-      object-fit: cover;
-      border-radius: 9999px;
-      margin-bottom: 0.4rem;
-      border: 2px solid transparent;
-      transition: border-color 0.3s ease;
-    }
-    .seller-profile.selected img {
-      border-color: #2563eb; /* blue-600 */
-    }
-    .seller-profile .business-name {
-      font-weight: 700;
-      font-size: 0.875rem;
-      text-align: center;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      width: 100%;
-      color: #1e40af; /* blue-800 */
-    }
-    .seller-profile .category {
-      font-size: 0.75rem;
-      color: #6b7280; /* gray-500 */
-      text-transform: capitalize;
-      margin-top: 0.15rem;
-      text-align: center;
-      width: 100%;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      transform: translateY(-4px);
+      border-color: #3b82f6;
+      box-shadow: 0 4px 12px rgb(59 130 246 / 0.4);
     }
 
-    /* Product listings grid */
-    #productListings {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-      gap: 1.5rem;
+    .seller-profile img {
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-bottom: 0.5rem;
+      background: #e2e8f0;
+      flex-shrink: 0;
     }
+
+    .seller-profile .business-name {
+      font-weight: 600;
+      font-size: 1rem;
+      margin-bottom: 0.25rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      width: 100%;
+    }
+
+    .seller-profile .category {
+      font-size: 0.8rem;
+      color: #6b7280; /* Tailwind gray-500 */
+      margin-bottom: 0.5rem;
+      text-transform: capitalize;
+    }
+
+    /* View Profile button */
+    .view-profile-btn {
+      margin-top: auto;
+      background-color: #3b82f6;
+      color: white;
+      padding: 0.3rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: background-color 0.3s ease;
+    }
+
+    .view-profile-btn:hover {
+      background-color: #2563eb; /* Tailwind blue-600 */
+    }
+
+    /* Product listing grid */
+    #productListings {
+      margin-top: 2rem;
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    }
+
     .product-card {
-      background-color: white;
-      border-radius: 0.75rem;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgb(0 0 0 / 0.1);
+      padding: 1rem;
       display: flex;
       flex-direction: column;
-      overflow: hidden;
-      user-select: none;
+      transition: transform 0.2s ease;
+    }
+
+    .product-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 6px 18px rgb(0 0 0 / 0.15);
+    }
+
+    .product-image {
+      width: 100%;
+      height: 140px;
+      object-fit: cover;
+      border-radius: 8px;
+      margin-bottom: 0.75rem;
+      background: #e2e8f0;
+      flex-shrink: 0;
+    }
+
+    /* Search bar and category filters */
+    #searchContainer {
+      max-width: 600px;
+      margin: 0 auto 1.5rem auto;
+      position: relative;
+    }
+
+    #searchBar {
+      width: 100%;
+      padding: 0.75rem 1.5rem 0.75rem 1rem;
+      border-radius: 9999px;
+      border: 1px solid #cbd5e1;
+      outline: none;
+      font-size: 1rem;
+      box-shadow: 0 0 0 0 transparent;
       transition: box-shadow 0.3s ease;
     }
-    .product-card:hover {
-      box-shadow: 0 6px 16px rgba(0,0,0,0.15);
-    }
-    .product-card img {
-      width: 100%;
-      height: 150px;
-      object-fit: cover;
-      border-bottom: 1px solid #e5e7eb; /* gray-200 */
-    }
-    .product-info {
-      padding: 1rem;
-      flex-grow: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-    }
-    .product-info h3 {
-      font-size: 1.125rem;
-      font-weight: 700;
-      color: #1e40af; /* blue-800 */
-      margin-bottom: 0.5rem;
-      line-height: 1.25;
-    }
-    .product-info p {
-      flex-grow: 1;
-      font-size: 0.875rem;
-      color: #4b5563; /* gray-700 */
-      margin-bottom: 0.75rem;
-      overflow: hidden;
-      display: -webkit-box;
-      -webkit-line-clamp: 3;
-      -webkit-box-orient: vertical;
-    }
-    .product-price {
-      font-weight: 700;
-      font-size: 1rem;
-      color: #22c55e; /* green-500 */
+
+    #searchBar:focus {
+      box-shadow: 0 0 0 3px #3b82f6;
+      border-color: #3b82f6;
     }
 
-    footer {
-      background-color: white;
-      color: #6b7280; /* gray-500 */
-      text-align: center;
-      padding: 1rem 2rem;
-      font-size: 0.875rem;
-      box-shadow: 0 -4px 6px rgba(0,0,0,0.05);
+    #searchIcon {
+      position: absolute;
+      right: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #94a3b8;
+      pointer-events: none;
+    }
+
+    /* Category Filters container scroll */
+    #categoryFilters {
+      display: flex;
+      overflow-x: auto;
+      gap: 0.75rem;
+      padding-bottom: 0.5rem;
+      scrollbar-width: thin;
+      scrollbar-color: #a0aec0 transparent;
+      margin-bottom: 1.5rem;
+      max-width: 100%;
+    }
+
+    #categoryFilters::-webkit-scrollbar {
+      height: 8px;
+    }
+
+    #categoryFilters::-webkit-scrollbar-thumb {
+      background-color: #a0aec0;
+      border-radius: 10px;
+    }
+
+    /* Category buttons */
+    .category-btn {
+      flex: 0 0 auto;
+      padding: 0.5rem 1.25rem;
+      border-radius: 9999px;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      color: white;
+      white-space: nowrap;
       user-select: none;
+      font-size: 0.9rem;
+    }
+
+    .category-btn[data-category="all"] {
+      background-color: #3b82f6; /* Blue */
+    }
+
+    .category-btn[data-category="electronics"] {
+      background-color: #10b981; /* Green */
+    }
+
+    .category-btn[data-category="fashion"] {
+      background-color: #facc15; /* Yellow */
+      color: #333;
+    }
+
+    .category-btn[data-category="beauty"] {
+      background-color: #3b82f6;
+    }
+
+    .category-btn[data-category="sports"] {
+      background-color: #10b981;
+    }
+
+    .category-btn[data-category="toys"] {
+      background-color: #facc15;
+      color: #333;
+    }
+
+    .category-btn.selected {
+      box-shadow: 0 0 0 3px white inset;
+      filter: brightness(0.8);
     }
   </style>
 </head>
-<body>
 
-  <header>
-    <h1 class="text-3xl font-extrabold">Jesmont Marketplace</h1>
-    <button id="exploreButton">Explore</button>
-  </header>
+<body class="px-4 py-8 max-w-7xl mx-auto">
+  <h1 class="text-4xl font-bold text-center text-gray-800 mb-8">Explore Sellers</h1>
 
-  <main>
-    <!-- Category Filters -->
-    <section id="categoryFilters">
-      <div class="category-btn selected" data-category="all">All Categories</div>
-      <div class="category-btn" data-category="electronics">Electronics</div>
-      <div class="category-btn" data-category="fashion">Fashion</div>
-      <div class="category-btn" data-category="beauty">Beauty</div>
-      <div class="category-btn" data-category="food">Food</div>
-      <div class="category-btn" data-category="automotive">Automotive</div>
-      <div class="category-btn" data-category="entertainment">Entertainment</div>
-      <div class="category-btn" data-category="agriculture">Agriculture</div>
-    </section>
+  <!-- Search Bar -->
+  <div id="searchContainer">
+    <input type="text" id="searchBar" placeholder="Search sellers or products..." autocomplete="off" />
+    <svg id="searchIcon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+      stroke="currentColor" stroke-width="2">
+      <path stroke-linecap="round" stroke-linejoin="round"
+        d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 1110.5 3a7.5 7.5 0 016.15 13.65z" />
+    </svg>
+  </div>
 
-    <!-- Search Bar -->
-    <section>
-      <input id="searchBar" type="text" placeholder="Search sellers or products..." />
-    </section>
+  <!-- Category Filters -->
+  <div id="categoryFilters" aria-label="Category Filters">
+    <button class="category-btn selected" data-category="all">All</button>
+    <button class="category-btn" data-category="electronics">Electronics</button>
+    <button class="category-btn" data-category="fashion">Fashion</button>
+    <button class="category-btn" data-category="beauty">Beauty</button>
+    <button class="category-btn" data-category="sports">Sports</button>
+    <button class="category-btn" data-category="toys">Toys</button>
+  </div>
 
-    <!-- Seller Profiles -->
-    <section id="sellerProfiles" aria-label="Seller Profiles">
-      <!-- Seller cards dynamically inserted here -->
-    </section>
+  <!-- Seller Profiles Horizontal Scroll -->
+  <div id="sellerProfiles" role="list" aria-label="Seller Profiles">
+    <!-- Seller cards inserted here dynamically -->
+  </div>
 
-    <!-- Product Listings -->
-    <section id="productListings" aria-label="Product Listings">
-      <!-- Product cards dynamically inserted here -->
-    </section>
-  </main>
+  <!-- Product Listings Grid -->
+  <div id="productListings" role="list" aria-label="Product Listings">
+    <!-- Product cards inserted here dynamically -->
+  </div>
 
-  <footer>
-    &copy; 2025 Jesmont Marketplace. All rights reserved.
-  </footer>
-
-  <script type="module" src="explore.js"></script>
+  <script src="explore.js"></script>
 </body>
+
 </html>
