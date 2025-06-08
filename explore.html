@@ -5,181 +5,194 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Jesmont Marketplace - Explore</title>
   <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      font-family: "Segoe UI", Tahoma, sans-serif;
-      background: #fff;
-      color: #111;
-      line-height: 1.5;
-    }
+  html, body {
+    margin: 0;
+    padding: 0;
+    font-family: "Segoe UI", Tahoma, sans-serif;
+    background: #fff;
+    color: #111;
+    line-height: 1.5;
+  }
 
-    body {
-      padding: 1rem;
-      box-sizing: border-box;
-    }
+  body {
+    padding: 1rem;
+    box-sizing: border-box;
+  }
 
-    h1 {
-      font-weight: 700;
-      color: #222;
-      font-size: 2rem;
-      text-align: center;
-      margin-bottom: 1rem;
-    }
+  h1 {
+    font-weight: 700;
+    color: #222;
+    font-size: 2rem;
+    text-align: center;
+    margin-bottom: 1rem;
+  }
 
-    #searchBar {
-      width: 100%;
-      max-width: 500px;
-      margin: 0 auto 1.5rem;
-      display: block;
-      padding: 0.6rem 1rem;
-      border: 2px solid #3a6a1e;
-      border-radius: 30px;
-      font-size: 1rem;
-      box-sizing: border-box;
-    }
+  #searchBar {
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto 1.5rem;
+    display: block;
+    padding: 0.6rem 1rem;
+    border: 2px solid #3a6a1e;
+    border-radius: 30px;
+    font-size: 1rem;
+    box-sizing: border-box;
+  }
 
-    hr.divider {
-      border: none;
-      border-top: 2px solid #f7d41e;
-      margin: 1.5rem 0;
-    }
+  hr.divider {
+    border: none;
+    border-top: 2px solid #f7d41e;
+    margin: 1.5rem 0;
+  }
 
-    #categoryFilters, #sellerProfiles {
-      display: flex;
-      overflow-x: auto;
-      gap: 0.6rem;
-      padding: 0.5rem 0.8rem;
-      box-sizing: border-box;
-    }
+  #categoryFilters, #sellerProfiles {
+    display: flex;
+    overflow-x: auto;
+    gap: 0.6rem;
+    padding: 0.5rem 0.8rem;
+    box-sizing: border-box;
+  }
 
-    #categoryFilters button,
+  #categoryFilters button,
+  .seller-profile {
+    flex-shrink: 0;
+  }
+
+  #categoryFilters::-webkit-scrollbar,
+  #sellerProfiles::-webkit-scrollbar {
+    height: 6px;
+  }
+
+  #categoryFilters::-webkit-scrollbar-thumb,
+  #sellerProfiles::-webkit-scrollbar-thumb {
+    background-color: #aaa;
+    border-radius: 3px;
+  }
+
+  button.category-btn {
+    padding: 0.4rem 1rem;
+    border-radius: 20px;
+    border: 2px solid #444;
+    background: #fff;
+    color: #444;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  button.category-btn.selected {
+    background: #f7d41e;
+    color: #111;
+    border-color: #222;
+  }
+
+  .seller-profile {
+    width: 140px;
+    background: #fefefe;
+    border: 2px solid #ddd;
+    border-radius: 10px;
+    padding: 0.8rem;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 260px;
+    box-sizing: border-box;
+  }
+
+  .seller-profile img {
+    width: 90px;
+    height: 90px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 2px solid #f7d41e;
+    margin-bottom: 0.5rem;
+  }
+
+  .business-name {
+    font-weight: 700;
+    font-size: 1rem;
+    margin-bottom: 0.2rem;
+  }
+
+  .category-label {
+    font-size: 0.8rem;
+    color: #666;
+    background: #eee;
+    padding: 0.1rem 0.4rem;
+    border-radius: 12px;
+    display: inline-block;
+    margin-bottom: 0.5rem;
+  }
+
+  .view-profile-btn {
+    font-size: 0.8rem;
+    padding: 0.3rem 0.6rem;
+    background: #3a6a1e;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-top: auto;
+  }
+
+  #productListings {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+    padding-top: 1rem;
+  }
+
+  .product-card {
+    border: 2px solid #eee;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #fafaf0;
+  }
+
+  .product-image {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    border-bottom: 2px solid #f7d41e;
+  }
+
+  .product-card h3 {
+    margin: 0.5rem 1rem 0;
+    font-size: 1.2rem;
+  }
+
+  .price {
+    margin: 0.2rem 1rem;
+    font-weight: 700;
+    color: #3a6a1e;
+  }
+
+  .product-card p {
+    margin: 0.5rem 1rem;
+    font-size: 0.9rem;
+  }
+
+  .seller-name {
+    margin: 0.5rem 1rem 1rem;
+    font-size: 0.85rem;
+    text-align: right;
+    color: #888;
+  }
+
+  @media (max-width: 600px) {
     .seller-profile {
-      flex-shrink: 0;
-    }
-
-    #categoryFilters::-webkit-scrollbar,
-    #sellerProfiles::-webkit-scrollbar {
-      height: 6px;
-    }
-
-    #categoryFilters::-webkit-scrollbar-thumb,
-    #sellerProfiles::-webkit-scrollbar-thumb {
-      background-color: #aaa;
-      border-radius: 3px;
-    }
-
-    button.category-btn {
-      padding: 0.4rem 1rem;
-      border-radius: 20px;
-      border: 2px solid #444;
-      background: #fff;
-      color: #444;
-      font-weight: 600;
-      cursor: pointer;
-      white-space: nowrap;
-    }
-
-    button.category-btn.selected {
-      background: #f7d41e;
-      color: #111;
-      border-color: #222;
-    }
-
-    .seller-profile {
-      width: 130px;
-      background: #fefefe;
-      border: 2px solid #ddd;
-      border-radius: 10px;
-      padding: 0.8rem;
-      text-align: center;
+      width: 110px;
+      height: 240px;
     }
 
     .seller-profile img {
-      width: 100px;
-      height: 100px;
-      object-fit: cover;
-      border-radius: 50%;
-      border: 2px solid #f7d41e;
-      margin-bottom: 0.5rem;
+      width: 70px;
+      height: 70px;
     }
+  }
+</style>
 
-    .business-name {
-      font-weight: 700;
-      font-size: 1rem;
-      margin-bottom: 0.2rem;
-    }
-
-    .category-label {
-      font-size: 0.8rem;
-      color: #666;
-      background: #eee;
-      padding: 0.1rem 0.4rem;
-      border-radius: 12px;
-      display: inline-block;
-      margin-bottom: 0.5rem;
-    }
-
-    .view-profile-btn {
-      font-size: 0.8rem;
-      padding: 0.3rem 0.6rem;
-      background: #3a6a1e;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-
-    #productListings {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 1rem;
-      padding-top: 1rem;
-    }
-
-    .product-card {
-      border: 2px solid #eee;
-      border-radius: 10px;
-      overflow: hidden;
-      background: #fafaf0;
-    }
-
-    .product-image {
-      width: 100%;
-      height: 180px;
-      object-fit: cover;
-      border-bottom: 2px solid #f7d41e;
-    }
-
-    .product-card h3 {
-      margin: 0.5rem 1rem 0;
-      font-size: 1.2rem;
-    }
-
-    .price {
-      margin: 0.2rem 1rem;
-      font-weight: 700;
-      color: #3a6a1e;
-    }
-
-    .product-card p {
-      margin: 0.5rem 1rem;
-      font-size: 0.9rem;
-    }
-
-    .seller-name {
-      margin: 0.5rem 1rem 1rem;
-      font-size: 0.85rem;
-      text-align: right;
-      color: #888;
-    }
-
-    @media (max-width: 600px) {
-      .seller-profile {
-        width: 110px;
-      }
-    }
-  </style>
 </head>
 <body>
 
